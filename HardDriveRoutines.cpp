@@ -29,7 +29,7 @@ bool ReadSett(const string &path, SimOptions &Options)
 	if (settingsin.fail() == true)
 	{
 		//this isn't a valid settings file
-		::cout << "Settings file " << path.c_str() << " not found." << endl;
+		cout << "Settings file " << path.c_str() << " not found." << endl;
 		settingsin.close();
 		return false;
 	}
@@ -50,7 +50,7 @@ bool ReadSett(const string &path, SimOptions &Options)
 	}		
 	else
 	{
-		::cout << "Unknown settings file version." << endl;
+		cout << "Unknown settings file version." << endl;
 		settingsin.close();
 		return false;
 	}
