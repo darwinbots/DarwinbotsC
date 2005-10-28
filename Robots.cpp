@@ -3,7 +3,7 @@ Class containing all the info for robots
 ******************************************/
 #include <iostream>
 #include <vector>
-#include <math.h>
+#include <cmath>
 #include "Math3D.h"
 #include "ObjectPrimitive.h"
 #include "Tie.h"

@@ -1,8 +1,8 @@
 #include <windows.h>
 #include <iostream>
-#include <stdio.h>
-#include <time.h>
-#include <math.h>
+#include <cstdio>
+#include <ctime>
+#include <cmath>
 #include "Random.h"
 #include "Math3D.h"
 #include "Robot.h"

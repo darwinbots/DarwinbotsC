@@ -1,4 +1,4 @@
-#include <math.h>
+#include <cmath>
 #include "Globals.h"
 
 const __int16 iceil(float value)

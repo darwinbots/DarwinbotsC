@@ -14,8 +14,8 @@ Many functions below have been taken from the book:
 "Numerical Recipes in C", which everyone should pick up
 ***********************************************/
 
-#include <stdio.h>
-#include <math.h>
+#include <cstdio>
+#include <cmath>
 #include "Random.h"
 
 /***********************************************

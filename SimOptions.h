@@ -136,3 +136,4 @@ extern SimOptions SimOpts;  //for use in sims
 extern SimOptions TmpOpts; //for use in GUI, gets copied to SimOpts
 
 #endif
+

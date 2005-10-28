@@ -10,7 +10,7 @@ vector4 ^ vector4 = 3D cross product = Vector4
 #ifndef MATH3D_H
 #define MATH3D_H
 
-#include <math.h>
+#include <cmath>
 
 namespace Math3D {
 
@@ -427,3 +427,4 @@ std::ostream& operator<< (std::ostream& os, const Math3D::Matrix4& m) {
 #endif	// OSTREAM_MATH3D
 
 #endif
+

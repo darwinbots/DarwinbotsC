@@ -1,4 +1,3 @@
-#include <windows.h>
 #include "SimOptions.h"
 #include "Robot.h"
 #include "Engine.h"
@@ -126,3 +125,4 @@ void Engine_Class::LoadRobots(void)
 		}
 	}
 }
+
