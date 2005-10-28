@@ -1,9 +1,9 @@
-#include <iostream.h> //needs to be .h cause otherwise I get a really weird error
+#include <iostream>
 #include <fstream>
 #include <string>
 
-#include <math.h>
-#include <stdlib.h>
+#include <cmath>
+#include <cstdlib>
 #include "SimOptions.h"
 
 using namespace std;
