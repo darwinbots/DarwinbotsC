@@ -104,10 +104,10 @@ void Engine_Class::SetupSim(void)
 	
 	do
 	{
-		clocks = GetTickCount();
+///		clocks = GetTickCount();
 		this->UpdateSim();
-		clocks = GetTickCount() - clocks;
-		clocks = (clocks);
+///		clocks = GetTickCount() - clocks;
+///		clocks = (clocks);
 		cout << clocks << endl;
 	}while(++counter < 20);
 }
