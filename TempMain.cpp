@@ -3,10 +3,10 @@
 #include <cstdio>
 #include <ctime>
 #include <cmath>
-#include "Random.h"
-#include "Math3D.h"
-#include "Robot.h"
-#include "Engine.h"
+#include "Common/Random.h"
+#include "Common/Math3D.h"
+#include "Engine/Robot.h"
+#include "Engine/Engine.h"
 
 using namespace std;
 
