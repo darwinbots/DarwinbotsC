@@ -4,12 +4,12 @@ Class containing all the info for robots
 #include <iostream>
 #include <vector>
 #include <cmath>
-#include "Math3D.h"
+#include "../Common/Math3D.h"
 #include "ObjectPrimitive.h"
 #include "Tie.h"
 #include "Block.h"
 #include "Globals.h"
-#include "Random.h"
+#include "../Common/Random.h"
 #include "Specie.h"
 #include "RobotSysvars.h"
 #include "SimOptions.h"

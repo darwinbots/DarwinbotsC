@@ -24,7 +24,8 @@ bool ReadSett(const string &path, SimOptions &Options)
 	if (settingsin.is_open() != 0)
 		settingsin.close();
 
-	settingsin.open(path.c_str(), ios::nocreate | ios::in);
+	settingsin.open(path.c_str(), /*ios::nocreate |*/ ios::in);
+	///	the commented thing gives an error
 
 	if (settingsin.fail() == true)
 	{
@@ -133,8 +134,10 @@ void ReadSettPre2_4(ifstream &in, SimOptions &Options)
 			Options.Specie[x].Mutables.mutarray[k] = GrabNumber(in);
 		}
 
-		for (k = 0; k <= 12; k++)
+		for (unsigned int l = 0; l <= 12; l++)
+		{
 			line =								GrabString(in);
+		}
 	}
 
 	Options.SimName =							GrabString(in);
