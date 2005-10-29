@@ -2,7 +2,7 @@
 #define SPECIE_H
 
 #include <iostream>
-#include "Math3D.h"
+#include "../Common/Math3D.h"
 
 using namespace std;
 using namespace Math3D;

@@ -3,14 +3,14 @@
 
 #include <iostream>
 #include <vector>
-#include <math.h>
-#include "Math3D.h"
+#include <cmath>
+#include "../Common/Math3D.h"
+#include "../Common/Random.h"
 #include "ObjectPrimitive.h"
 #include "Tie.h"
 #include "Block.h"
 #include "DNAClass.h"
 #include "Globals.h"
-#include "Random.h"
 #include "Specie.h"
 #include "RobotSysvars.h"
 #include "SimOptions.h"
@@ -28,7 +28,7 @@ class Robot : ObjectPrimitive
 {
 	friend Tie; //tie class has access to bot memory among other things
 ///	friend Robot; //instances of the Robot class can access each other
-/// a class can't be a friendof itself normally...
+/// a class can't be a friend of itself normally...
 
 private:
 

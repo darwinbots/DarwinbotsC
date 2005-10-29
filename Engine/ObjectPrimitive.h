@@ -1,7 +1,7 @@
 #ifndef OBJECTPRIMITIVE_H
 #define OBJECTPRIMITIVE_H
 
-#include "Math3D.h"
+#include "../Common/Math3D.h"
 
 using Math3D::Vector4;
 
