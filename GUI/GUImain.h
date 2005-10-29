@@ -7,7 +7,8 @@ class MainWindow : public FXMainWindow
 {
     FXDECLARE(MainWindow)
     
-    FXMenuPane *fileMenu ,*editMenu ,*robotOptionsMenu,*SimOptionsMenu ,*internetMenu, *helpMenu;
+    FXMenuPane *fileMenu, *editMenu, *robotOptionsMenu, *SimOptionsMenu, *internetMenu,
+																			*helpMenu;
 
 protected:
     MainWindow(){}
@@ -55,17 +56,22 @@ public:
 };
 
 FXDEFMAP(MainWindow) MainWindowMap[] = {
-  FXMAPFUNC(SEL_SIGNAL,    MainWindow::ID_Quit,             MainWindow::onCmdQuit),
-  FXMAPFUNC(SEL_COMMAND,   MainWindow::ID_Quit,             MainWindow::onCmdQuit),
-  FXMAPFUNC(SEL_COMMAND,   MainWindow::ID_NewSimulation,    MainWindow::onCmdNewSimulation),
-  FXMAPFUNC(SEL_COMMAND,   MainWindow::ID_SaveSimulation,   MainWindow::onCmdSaveSimulation),
-  FXMAPFUNC(SEL_COMMAND,   MainWindow::ID_LoadSimulation,   MainWindow::onCmdLoadSimulation),
-  FXMAPFUNC(SEL_COMMAND,   MainWindow::ID_AutoSave,         MainWindow::onCmdAutoSave),
-  FXMAPFUNC(SEL_COMMAND,   MainWindow::ID_About,            MainWindow::onCmdAbout),
-  FXMAPFUNC(SEL_COMMAND,   MainWindow::ID_ShowOptions,      MainWindow::onCmdShowOptions),
-  FXMAPFUNC(SEL_COMMAND,   MainWindow::ID_ShowLog,          MainWindow::onCmdShowLog),
-  FXMAPFUNC(SEL_COMMAND,   MainWindow::ID_PAndCAdv,         MainWindow::onCmdPAndCAdv),
-  FXMAPFUNC(SEL_COMMAND,  MainWindow::ID_PCAdvancedControls,MainWindow::onCmdPCAdvancedControls),
-  FXMAPFUNC(SEL_KEYPRESS,  0,			                    MainWindow::onKeyPress)
+	FXMAPFUNC(SEL_SIGNAL,	MainWindow::ID_Quit,		MainWindow::onCmdQuit),
+	FXMAPFUNC(SEL_COMMAND,	MainWindow::ID_Quit,		MainWindow::onCmdQuit),
+	FXMAPFUNC(SEL_COMMAND,	MainWindow::ID_NewSimulation,
+														MainWindow::onCmdNewSimulation),
+	FXMAPFUNC(SEL_COMMAND,	MainWindow::ID_SaveSimulation,
+														MainWindow::onCmdSaveSimulation),
+	FXMAPFUNC(SEL_COMMAND,	MainWindow::ID_LoadSimulation,
+														MainWindow::onCmdLoadSimulation),
+	FXMAPFUNC(SEL_COMMAND,	MainWindow::ID_AutoSave,	MainWindow::onCmdAutoSave),
+	FXMAPFUNC(SEL_COMMAND,	MainWindow::ID_About,		MainWindow::onCmdAbout),
+	FXMAPFUNC(SEL_COMMAND,	MainWindow::ID_ShowOptions,
+														MainWindow::onCmdShowOptions),
+	FXMAPFUNC(SEL_COMMAND,	MainWindow::ID_ShowLog,		MainWindow::onCmdShowLog),
+	FXMAPFUNC(SEL_COMMAND,	MainWindow::ID_PAndCAdv,	MainWindow::onCmdPAndCAdv),
+	FXMAPFUNC(SEL_COMMAND,	MainWindow::ID_PCAdvancedControls,
+													MainWindow::onCmdPCAdvancedControls),
+	FXMAPFUNC(SEL_KEYPRESS,	0,							MainWindow::onKeyPress)
 };
 
