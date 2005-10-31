@@ -18,10 +18,14 @@ Class containing all the info for robots
 using namespace std;
 using namespace Math3D;
 
-vector<Robot *> rob(1000, NULL);  //an array of pointers to Robots.  Default: let's create room for 1000 pointers
+vector<Robot *> rob(1000, NULL);
+//an array of pointers to Robots.
+//Default: let's create room for 1000 pointers
+
 unsigned int MaxRobs; //how far into the robot array to go
 
-void FindOpenSpace(Robot *me); //finds spot for robot in array, returns pointer to said robot
+void FindOpenSpace(Robot *me);
+//finds spot for robot in array, returns pointer to said robot
 
 inline Robot::~Robot()
 {
@@ -57,7 +61,8 @@ void Robot::BasicRobotSetup(datispecie *myspecies)
 
 	//do I need to set up *.fixed?
 
-	this->pos.set( frnd( myspecies->PosTopLeft[0], myspecies->PosLowRight[0]) ,
+	this->pos.set( frnd( static_cast<long int>(myspecies->PosTopLeft[0]),
+						static_cast<long int>(myspecies->PosLowRight[0])) ,
 				  frnd((long)myspecies->PosTopLeft[1], (long)myspecies->PosLowRight[1]), 0.0f);
 	this->opos = this->pos;
 
@@ -195,8 +200,8 @@ void Robot::MakeShell()
 	float cost;
 
 	oldshell = Shell;
-	if (mem[mkshell] * SimOpts.Costs[SHELLCOST] > nrg && nrg > 0)
-		mem[mkshell] = (nrg / 2) / SimOpts.Costs[SHELLCOST];
+	if ((mem[mkshell] * SimOpts.Costs[SHELLCOST] > nrg) && (nrg > 0))
+		mem[mkshell] = static_cast<short int>((nrg / 2) / SimOpts.Costs[SHELLCOST]);
 
 	Shell = Shell + mem[mkshell];
 	mem[mkshell] = 0;
@@ -220,7 +225,7 @@ void Robot::MakeSlime()
 
 	oldslime = Slime;
 	if (mem[mkslime] * SimOpts.Costs[SLIMECOST] > nrg && nrg > 0)
-		mem[mkslime] = (nrg / 2) / SimOpts.Costs[SLIMECOST];
+		mem[mkslime] = static_cast<short int>((nrg / 2) / SimOpts.Costs[SLIMECOST]);
 
 	Slime = Slime + mem[mkslime];
 	mem[mkslime] = 0;
@@ -244,7 +249,7 @@ void Robot::MakeVenom()
 
 	oldvenom = Venom;
 	if (mem[mkvenom] * SimOpts.Costs[VENOMCOST] > nrg && nrg > 0)
-		mem[mkvenom] = (nrg / 2) / SimOpts.Costs[VENOMCOST];
+		mem[mkvenom] = static_cast<unsigned int>((nrg / 2) / SimOpts.Costs[VENOMCOST]);
 
 	Venom = Venom + mem[mkvenom];
 	mem[mkvenom] = 0;
@@ -268,7 +273,7 @@ void Robot::MakePoison()
 
 	oldpoison = Poison;
 	if (mem[mkpoison] * SimOpts.Costs[POISONCOST] > nrg && nrg > 0)
-		mem[mkpoison] = (nrg / 2) / SimOpts.Costs[POISONCOST];
+		mem[mkpoison] = static_cast<unsigned int>((nrg / 2) / SimOpts.Costs[POISONCOST]);
 
 	Poison = Poison + mem[mkpoison];
 	mem[mkpoison] = 0;
@@ -294,7 +299,7 @@ void Robot::WasteManagement()
 	{
 		//Altzheimer's
 		long loops;
-		loops = (Pwaste + Waste - SimOpts.BadWasteLevel) / 4;
+		loops = static_cast<long int>((Pwaste + Waste - SimOpts.BadWasteLevel) / 4);
 
 		for (long x = 1; x < loops; x++)
 		{
@@ -353,11 +358,12 @@ void Robot::PoisonManagement()
 			Vloc = 0;
 			Vval = 0;
 		}
-		mem[paralyzed] = ParaCount;   //undocumented sysvar found during C++ port
-										//(PY is terribly this way.  He likes to code sysvars as straight
-										//numbers instead of using constants, resulting in either subtle
-										//bugs or undocumented sysvars.  There was a virus bug that fell
-										//into this category.  -Numsgil
+		mem[paralyzed] = static_cast<short int>(ParaCount);
+			//undocumented sysvar found during C++ port
+			//(PY is terribly this way.  He likes to code sysvars as straight
+			//numbers instead of using constants, resulting in either subtle
+			//bugs or undocumented sysvars.  There was a virus bug that fell
+			//into this category.  -Numsgil
 	}
 
 	if (Poisoned == true)
@@ -369,7 +375,7 @@ void Robot::PoisonManagement()
 			Poisoned = false;
 			Ploc = 0;
 		}
-		mem[poisoned] = PoisonCount;
+		mem[poisoned] = static_cast<short int>(PoisonCount);
 	}
 }
 
@@ -436,7 +442,7 @@ void Robot::BodyManagement()
 	if (Wall == true)
 		Body = 1;
 	
-	mem[bodysys] = Body;
+	mem[bodysys] = static_cast<short int>(Body);
 	UpdateRadius();
 }
 
@@ -469,7 +475,7 @@ void Robot::Shock()
 {
 	long temp;
 
-	temp = onrg - nrg;
+	temp = static_cast<long int>(onrg - nrg);
 	if (temp > (onrg / 2))
 	{
 		Body = Body + nrg / 10;
@@ -689,9 +695,9 @@ void Robot::ShotManagement()
 	/////////////////////////////////////////////////////
 	if (type == -1 || type == -6)
 	{
-		unsigned long cost;
+		long unsigned cost;
 
-		cost = (pow(2, multiplier) - 1) * SimOpts.Costs[SHOTCOST];
+		cost = static_cast<long unsigned int>((pow(2, multiplier) - 1) * SimOpts.Costs[SHOTCOST]);
 		if (cost <= this->nrg)
 		{
 			nrg = nrg - cost;
@@ -864,7 +870,7 @@ Robot *Robot::Split(float percentage)
 	this->UpdateRadius();
 	baby->UpdateRadius();
 
-	sondist = this->radius + baby->radius;
+	sondist = static_cast<long int>(this->radius + baby->radius);
 	this->pos = this->pos - percentage * sondist * this->aimvector;
 	baby->pos = this->pos + Length * this->aimvector;
 
