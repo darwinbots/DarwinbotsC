@@ -1,3 +1,8 @@
+#ifndef MATH3D_H
+#define MATH3D_H
+
+#include <cmath>
+
 /***********************************************************
 Vector class I swiped from some article and modded.
 
@@ -6,11 +11,6 @@ vector4 % vector4 = 2D cross product = SCALAR
 vector4 ^ vector4 = 3D cross product = Vector4
 
 ************************************************************/
-
-#ifndef MATH3D_H
-#define MATH3D_H
-
-#include <cmath>
 
 namespace Math3D {
 

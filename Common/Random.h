@@ -1,3 +1,6 @@
+#ifndef RANDOM_H
+#define RANDOM_H
+
 /****************************************************
 Function prototypes for our random number generator
 *******************************************************/
@@ -9,3 +12,5 @@ inline float Gauss();
 inline float Gauss(const float &StdDev);
 inline float Gauss(const float &StdDev,const float &Mean);
 long frnd(long low, long hi);
+
+#endif
