@@ -45,6 +45,7 @@ public:
     long onCmdShowOptions       (FXObject *, FXSelector, void *);
     long onCmdShowLog           (FXObject *, FXSelector, void *);
     long onCmdPAndCAdv          (FXObject *, FXSelector, void *);
+    long Species                (FXTabBook *TabBook,FXDialogBox *Options);
     long General                (FXTabBook *TabBook,FXDialogBox *Options);
     long PhysicsAndCosts        (FXTabBook *TabBook,FXDialogBox *Options);
     long Mutations              (FXTabBook *TabBook,FXDialogBox *Options);
