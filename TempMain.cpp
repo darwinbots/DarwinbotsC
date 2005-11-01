@@ -1,4 +1,4 @@
-#include <windows.h>
+///	#include <windows.h>
 #include <iostream>
 #include <cstdio>
 #include <ctime>
@@ -10,9 +10,9 @@
 
 using namespace std;
 
-int main(void)
-{
-	Engine.SetupSim();	
+//int main(void)
+//{
+//	Engine.SetupSim();
 	/*unsigned long clocks;
 	float abba;
 
@@ -33,4 +33,4 @@ int main(void)
 	clocks = GetTickCount() - clocks;
 	cout << "Reference: " << clocks << endl;	
 	return 0;*/
-}
+//}
