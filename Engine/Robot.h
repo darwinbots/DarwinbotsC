@@ -7,7 +7,6 @@
 #include "../Common/Math3D.h"
 #include "../Common/Random.h"
 #include "ObjectPrimitive.h"
-#include "Tie.h"
 #include "Block.h"
 #include "DNAClass.h"
 #include "Globals.h"
@@ -24,9 +23,11 @@ const int RobSize          = 120;
 ///////GLOBALS/////////////////
 extern unsigned int MaxRobs; //how far into the robot array to go
 
+class Tie;
+
 class Robot : ObjectPrimitive
 {
-///	friend Tie; //tie class has access to bot memory among other things
+friend class Tie; //tie class has access to bot memory among other things
 ///	friend Robot; //instances of the Robot class can access each other
 /// a class can't be a friend of itself normally...
 
@@ -42,7 +43,7 @@ private:
 	float aim;								// aim angle
 	Vector4 aimvector;					// the unit vector for aim
 
-	Tie HeadTie;							// linked list of ties (this is the head, head is never addressed except as through Headtie->next)
+	Tie * HeadTie;							// linked list of ties (this is the head, head is never addressed except as through Headtie->next)
 	int numties;
 	
 	//Physics

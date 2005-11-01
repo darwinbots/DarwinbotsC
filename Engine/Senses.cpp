@@ -52,7 +52,7 @@ void Robot::Touch(Robot *other, float distance)
 	if (angle < 0)
 		angle = angle + 2*PI;
 
-	this->mem[HitAngsys] = angle * 200;
+	this->mem[HitAngsys] = static_cast<short int>(angle * 200);
 
 	////////////////////////////////
 
@@ -66,7 +66,7 @@ void Robot::Touch(Robot *other, float distance)
 	if (angle < 0)
 		angle = angle + 2*PI;
 
-	other->mem[HitAngsys] = angle * 200;
+	other->mem[HitAngsys] = static_cast<short int>(angle * 200);
 	
 	///////////////////////////////
 
@@ -140,8 +140,8 @@ void Robot::EraseSenses()
 	mem[trefxpos] = 0;
     mem[trefbody] = 0;
 
-	for (x = EyeStart; x <= EyeEnd; x++)
-		this->mem[x] = 0;
+	for (int y = EyeStart; y <= EyeEnd; y++)
+		this->mem[y] = 0;
 	
 	this->lastopp = NULL;
 }
@@ -164,11 +164,11 @@ void Robot::WriteSenses()
 	if (BasicProximity() != NULL)
 		WriteRefVars(this->lastopp);
 
-	mem[energy] = nrg;
-	mem[pain] = onrg - nrg;
-    mem[pleas] = nrg - onrg;
-    mem[bodloss] = obody - Body;
-    mem[bodgain] = Body - obody;
+	mem[energy] = static_cast<short int>(nrg);
+	mem[pain] = static_cast<short int>(onrg - nrg);
+    mem[pleas] = static_cast<short int>(nrg - onrg);
+    mem[bodloss] = static_cast<short int>(obody - Body);
+    mem[bodgain] = static_cast<short int>(Body - obody);
     onrg = nrg;
     obody = Body;
 
@@ -219,14 +219,17 @@ void Robot::WriteRefVars(Robot *lastopp)
 		this->mem[reffixed] = 0;
 
 	//these should be double checked
-	this->mem[refvelup] = (lastopp->vel - this->vel) * this->aimvector;
+	this->mem[refvelup] =
+		static_cast<short int>((lastopp->vel - this->vel) * this->aimvector);
 	this->mem[refveldn] = this->mem[refvelup] * -1;
 	
 	//these should be double checked
-	this->mem[refveldx] = (this->aimvector % (lastopp->vel - this->vel));
+	this->mem[refveldx] =
+		static_cast<short int>((this->aimvector % (lastopp->vel - this->vel)));
 	this->mem[refvelsx] = this->mem[refveldx] * -1;
 
-	this->mem[refvelscalar] = iceil(sqrt(mem[refvelup] * mem[refvelup] + mem[refveldx]*mem[refveldx]));
+	this->mem[refvelscalar] = iceil(sqrt(mem[refvelup] * mem[refvelup]
+											+ mem[refveldx]*mem[refveldx]));
 }
 
 void Robot::occurrList()
@@ -382,3 +385,4 @@ unsigned int Robot::EyeCells(const Vector4 &ab)
 
 	return 0;
 }
+

@@ -1,5 +1,4 @@
 #include "../Common/Math3D.h"
-#include "Robot.h"
 #include "Tie.h"
 
 using namespace Math3D;
@@ -38,7 +37,7 @@ bool Tie::MakeTie(Robot *sender, Robot *reciever, int port)
 	//Place pointers in the robots' respective lists//
 	//////////////////////////////////////////////////
 	
-	next = &sender->HeadTie;
+	next = sender->HeadTie;
 	while(next->next != NULL)
 		next = next->next;
 	
@@ -47,7 +46,7 @@ bool Tie::MakeTie(Robot *sender, Robot *reciever, int port)
 	next->next = this;
 	next = next->next;
 
-	next = &reciever->HeadTie;
+	next = reciever->HeadTie;
 	while(next->next != NULL)
 		next = next->next;
 	

@@ -18,7 +18,8 @@ Class containing all the info for robots
 using namespace std;
 using namespace Math3D;
 
-vector<Robot *> rob(1000, NULL);
+vector<Robot *> rob;
+//rob will be initialised later to (1000, NULL);
 //an array of pointers to Robots.
 //Default: let's create room for 1000 pointers
 

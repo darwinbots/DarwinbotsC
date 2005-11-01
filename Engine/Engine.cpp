@@ -1,6 +1,7 @@
 #include "SimOptions.h"
 #include "Robot.h"
 #include "Engine.h"
+#include <windows.h>
 
 bool ReadSett(const string &path, SimOptions &Options);
 
@@ -104,11 +105,9 @@ void Engine_Class::SetupSim(void)
 	
 	do
 	{
-///		clocks = GetTickCount();
+		clocks = GetTickCount();
 		this->UpdateSim();
-///		clocks = GetTickCount() - clocks;
-///		clocks = (clocks);
-		cout << clocks << endl;
+		cout << (GetTickCount() - clocks) << endl;
 	}while(++counter < 20);
 }
 
