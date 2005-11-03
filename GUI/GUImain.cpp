@@ -4,7 +4,7 @@
 FXIMPLEMENT(MainWindow, FXMainWindow, MainWindowMap, ARRAYNUMBER(MainWindowMap))
 
 MainWindow::MainWindow(FXApp *app)
-    : FXMainWindow(app, PROJECT_NAME, 0, 0, DECOR_ALL, 0, 0, 400, 300)
+    : FXMainWindow(app, PROJECT_NAME, 0, 0, DECOR_ALL, 0, 0, 800, 600)
 {
     
     ProOrFixed = 1;
