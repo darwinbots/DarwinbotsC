@@ -1,4 +1,5 @@
 #include <fx.h>
+#include "fx3d.h"
 
 #define PROJECT_NAME "DarwinBots"
 #define PROJECT_VERSION "0.0.1"
@@ -15,6 +16,7 @@ protected:
     FXDataTarget    ProOrFixed_Target;
     FXint           SolidOrFluid;
     FXDataTarget    SolidOrFluid_Target;
+    FXGLVisual     *glvisual;
         
 public:
     MainWindow(FXApp *app);
@@ -34,6 +36,9 @@ public:
         ID_ShowLog,
         ID_PAndCAdv,
         ID_PCAdvancedControls,
+        ID_GLV,
+        ID_NewViewer,
+        ID_Viewer,
     };
     
     long onCmdQuit              (FXObject *, FXSelector, void *);
@@ -53,6 +58,8 @@ public:
     long InternetOptions        (FXTabBook *TabBook,FXDialogBox *Options);
     long Recording              (FXTabBook *TabBook,FXDialogBox *Options);
     long onCmdPCAdvancedControls(FXObject *, FXSelector, void *);
+    long onCmdNewViewer         (FXObject*,FXSelector,void*);
+    long GLWindow               ();
     
 };
 
@@ -68,6 +75,7 @@ FXDEFMAP(MainWindow) MainWindowMap[] = {
   FXMAPFUNC(SEL_COMMAND,   MainWindow::ID_ShowLog,          MainWindow::onCmdShowLog),
   FXMAPFUNC(SEL_COMMAND,   MainWindow::ID_PAndCAdv,         MainWindow::onCmdPAndCAdv),
   FXMAPFUNC(SEL_COMMAND,  MainWindow::ID_PCAdvancedControls,MainWindow::onCmdPCAdvancedControls),
+  FXMAPFUNC(SEL_COMMAND,   MainWindow::ID_NewViewer,        MainWindow::onCmdNewViewer),
   FXMAPFUNC(SEL_KEYPRESS,  0,			                    MainWindow::onKeyPress)
 };
 
