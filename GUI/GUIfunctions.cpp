@@ -56,3 +56,4 @@ long MainWindow::onCmdAbout(FXObject *, FXSelector, void *)
 }
 long MainWindow::onCmdShowOptions(FXObject *, FXSelector, void *){return 1;}
 long MainWindow::onCmdShowLog(FXObject *, FXSelector, void *){return 1;}
+long MainWindow::onCmdNewViewer(FXObject*,FXSelector,void*){return 1;}
