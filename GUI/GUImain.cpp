@@ -29,9 +29,26 @@ MainWindow::MainWindow(FXApp *app)
     new FXMenuTitle(menubar, "&File", 0, fileMenu);
     
     editMenu = new FXMenuPane(this);
+    new FXMenuCommand(editMenu, "&Insert organism", 0, 0, 0);
+    new FXMenuCommand(editMenu, "&Global mutation rates", 0, 0, 0);
+    new FXMenuCommand(editMenu, "&Modify costs", 0, 0, 0);
+    new FXMenuCommand(editMenu, "&Physics", 0, 0, 0);
+    new FXMenuCommand(editMenu, "&Draw walls", 0, 0, 0);
+    new FXMenuCommand(editMenu, "&Find best", 0, 0, 0);
     new FXMenuTitle(menubar, "&Edit", 0, editMenu);
     
     robotOptionsMenu = new FXMenuPane(this);
+    new FXMenuCommand(robotOptionsMenu, "&Show robot info", 0, 0, 0);
+    new FXMenuCommand(robotOptionsMenu, "&Show family ties", 0, 0, 0);
+    new FXMenuCommand(robotOptionsMenu, "&Mutation rates", 0, 0, 0);
+    new FXMenuCommand(robotOptionsMenu, "&Change color", 0, 0, 0);
+    new FXMenuCommand(robotOptionsMenu, "&Open console", 0, 0, 0);
+    new FXMenuCommand(robotOptionsMenu, "&View genes activations", 0, 0, 0);
+    new FXMenuCommand(robotOptionsMenu, "&Kill robot", 0, 0, 0);
+    new FXMenuCommand(robotOptionsMenu, "&Save robot's DNA", 0, 0, 0);
+    new FXMenuCommand(robotOptionsMenu, "&Select entire organism", 0, 0, 0);
+    new FXMenuCommand(robotOptionsMenu, "&Save entire organism", 0, 0, 0);
+    new FXMenuCommand(robotOptionsMenu, "&Kill entire organism", 0, 0, 0);
     new FXMenuTitle(menubar, "&Robot Options", 0, robotOptionsMenu);
     
     internetMenu = new FXMenuPane(this);
