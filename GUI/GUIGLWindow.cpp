@@ -33,27 +33,16 @@ long MainWindow::GLWindow()
     mdiclient->setActiveChild(mdichild);
 
     FXGLGroup *scene=new FXGLGroup;
-    scene->append(new FXGLPoint(2,0,0));
-    scene->append(new FXGLPoint(0,2,0));
-    scene->append(new FXGLPoint(2,2,0));
-    scene->append(new FXGLPoint(0,0,0));
-    scene->append(new FXGLLine(0,0,0, 1,0,0));
-    scene->append(new FXGLLine(0,0,0, 0,1,0));
-    scene->append(new FXGLLine(0,0,0, 0,0,1));
-    scene->append(new FXGLLine(0,0,0, 1,1,1));
-    FXGLGroup *gp2=new FXGLGroup;
-    scene->append(gp2);
-    FXGLSphere *sphere=new FXGLSphere(1.0, 1.0, 0.0, 0.5);
-    FXGLSphere *sphere2=new FXGLSphere(0.0, 0.0, 0.0, 0.8);
+    FXGLSphere *sphere=new FXGLSphere(0.0, 20.0, 0.0, 1);
     sphere->setTipText("Sphere");
-    gp2->append(new FXGLCube(-1.0, 0.0, 0.0,  1.0, 1.0, 1.0));
-    gp2->append(new FXGLCube( 1.0, 0.0, 0.0,  1.0, 1.0, 1.0));
-    gp2->append(new FXGLCube( 0.0,-1.0, 0.0,  1.0, 1.0, 1.0));
-    gp2->append(new FXGLCube( 0.0, 1.0, 0.0,  1.0, 1.0, 1.0));
-    gp2->append(new FXGLCone(1.0,-1.5, 0.0, 1.0, 0.5));
-    gp2->append(new FXGLCylinder(-1.0, 0.5, 0.0, 1.0, 0.5));
-    gp2->append(sphere);
-    gp2->append(sphere2);
+    sphere->setStacks(20);
+    sphere->setSlices(20);
+    FXGLSphere *sphere2=new FXGLSphere(0.0, 25.0, 0.0, 2);
+    sphere2->setTipText("Sphere2");
+    sphere2->setStacks(30);
+    sphere2->setSlices(30);
+    scene->append(sphere2);
+    scene->append(sphere);
 
   // Add scene to GL viewer
   viewer->setScene(scene);
