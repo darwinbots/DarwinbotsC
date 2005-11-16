@@ -33,14 +33,17 @@ long MainWindow::GLWindow()
     mdiclient->setActiveChild(mdichild);
 
     FXGLGroup *scene=new FXGLGroup;
-    FXGLSphere *sphere=new FXGLSphere(0.0, 20.0, 0.0, 1);
+    FXGLSphere *sphere=new FXGLSphere(0.0, 20.0, 0.0, 2);
     sphere->setTipText("Sphere");
     sphere->setStacks(20);
     sphere->setSlices(20);
-    FXGLSphere *sphere2=new FXGLSphere(0.0, 25.0, 0.0, 2);
+    FXGLSphere *sphere2=new FXGLSphere(0.0, 30.0, 0.0, 2);
     sphere2->setTipText("Sphere2");
     sphere2->setStacks(30);
     sphere2->setSlices(30);
+    FXGLCylinder * test = new FXGLCylinder(0, 21.5, 0, 7, .5);
+    test->setTipText("test");
+    scene->append(test);
     scene->append(sphere2);
     scene->append(sphere);
 
