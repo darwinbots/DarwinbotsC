@@ -50,5 +50,7 @@ long MainWindow::GLWindow()
   // Add scene to GL viewer
   viewer->setScene(scene);
   
+  viewer->setProjection(0);
+  
   return 1;
 }
