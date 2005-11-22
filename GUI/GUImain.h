@@ -1,5 +1,5 @@
-#include <fx.h>
-#include "fx3d.h"
+#include <Fox-1.4/fx.h>
+#include <Fox-1.4/fx3d.h>
 
 #define PROJECT_NAME "DarwinBots"
 #define PROJECT_VERSION "0.0.1"
@@ -12,11 +12,18 @@ class MainWindow : public FXMainWindow
 
 protected:
     MainWindow(){}
-    FXint           ProOrFixed;
-    FXDataTarget    ProOrFixed_Target;
-    FXint           SolidOrFluid;
-    FXDataTarget    SolidOrFluid_Target;
+    FXDataTarget   ZGravity_Tar;
+    FXDataTarget   YGravity_Tar;
+    FXDataTarget   CoefficientKinetic_Tar;
+    FXDataTarget   CoefficientStatic_Tar;
+    FXDataTarget   Density_Tar;
+    FXDataTarget   Viscosity_Tar;
+    FXDataTarget   Brownian_Tar;
+    FXDataTarget   MovingEfficiency_Tar;
+    FXDataTarget   PlanetEaters_Tar;
+    FXDataTarget   PlanetEatersG_Tar;
     FXGLVisual     *glvisual;
+    void ConnectVar();
         
 public:
     MainWindow(FXApp *app);

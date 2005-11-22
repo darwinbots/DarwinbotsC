@@ -6,11 +6,6 @@ FXIMPLEMENT(MainWindow, FXMainWindow, MainWindowMap, ARRAYNUMBER(MainWindowMap))
 MainWindow::MainWindow(FXApp *app)
     : FXMainWindow(app, PROJECT_NAME, 0, 0, DECOR_ALL, 0, 0, 800, 600)
 {
-    
-    ProOrFixed = 1;
-    ProOrFixed_Target.connect(ProOrFixed);
-    SolidOrFluid = 1;
-    SolidOrFluid_Target.connect(SolidOrFluid);
     FXMenuBar *menubar;
     
     FXToolBarShell *dragshell1 = new FXToolBarShell(this, FRAME_RAISED);
