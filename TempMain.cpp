@@ -1,4 +1,4 @@
-///	#include <windows.h>
+#include <windows.h>
 #include <iostream>
 #include <cstdio>
 #include <ctime>
@@ -10,27 +10,38 @@
 
 using namespace std;
 
-//int main(void)
-//{
-//	Engine.SetupSim();
-	/*unsigned long clocks;
-	float abba;
-
-	clocks = GetTickCount();
-	for (float x = 0; x <= 9000000; x++)
-	{
-		
-	}
-	clocks = GetTickCount() - clocks;
-	cout << "Non Reference: " << clocks << endl;
+int main(void)
+{
+	Engine.SetupSim();	
+    /*vector<int> beta;
 	
-	clocks = GetTickCount();
-	for (x = 0; x <= 9000000; x++)
-	{
+    string alpha("Hello");
 
-	}
+    cout << alpha.at(0) << endl;
+
+    cout << alpha.substr(0, 500).c_str() << endl;
+
+    cout << alpha.size() << endl;
+
+    cout << alpha.find_first_of("l", 0) << endl;
+
+    cout << alpha.substr(0, alpha.find_first_of("l", 0)) << endl;
+
+    beta.push_back(0);
+    beta.push_back(5);
+    beta.push_back(4);
+    beta.push_back(5);
+    beta.push_back(2);
+    beta.push_back(1);
+
+    beta.resize(100);
+    
+    cout << beta[0] << endl;
+    cout << beta[1] << endl;
+    cout << beta[2] << endl;
+    cout << beta[3] << endl;
+    cout << beta[4] << endl;
+    cout << beta[5] << endl;*/
 	
-	clocks = GetTickCount() - clocks;
-	cout << "Reference: " << clocks << endl;	
-	return 0;*/
-//}
+    return 0;    
+}

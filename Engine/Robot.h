@@ -7,6 +7,7 @@
 #include "../Common/Math3D.h"
 #include "../Common/Random.h"
 #include "ObjectPrimitive.h"
+#include "Tie.h"
 #include "Block.h"
 #include "DNAClass.h"
 #include "Globals.h"
@@ -23,13 +24,10 @@ const int RobSize          = 120;
 ///////GLOBALS/////////////////
 extern unsigned int MaxRobs; //how far into the robot array to go
 
-class Tie;
-
 class Robot : ObjectPrimitive
 {
-friend class Tie; //tie class has access to bot memory among other things
-///	friend Robot; //instances of the Robot class can access each other
-/// a class can't be a friend of itself normally...
+	friend Tie; //tie class has access to bot memory among other things
+	friend Robot; //instances of the Robot class can access each other
 
 private:
 
@@ -43,7 +41,7 @@ private:
 	float aim;								// aim angle
 	Vector4 aimvector;					// the unit vector for aim
 
-	Tie * HeadTie;							// linked list of ties (this is the head, head is never addressed except as through Headtie->next)
+	Tie HeadTie;							// linked list of ties (this is the head, head is never addressed except as through Headtie->next)
 	int numties;
 	
 	//Physics
@@ -158,11 +156,14 @@ private:
 	void WriteSenses();
 	void WriteRefVars(Robot *lastopp);
 	void occurrList();
-	void CompareRobots(Robot *other, unsigned int field);
+	inline void CompareRobots(Robot *other, unsigned int field);
 	unsigned int EyeCells(const Vector4 &ab);
 
 public:
-	Robot();
+    bool View;
+
+
+    Robot();
 	Robot(datispecie *myspecies);
 	~Robot();
 	void TurnGenesis();
@@ -173,10 +174,27 @@ public:
 	void TurnEnd();
 	inline __int16 &operator[](const unsigned int i)
 	{
-		return mem[i];
+		return mem[i-1];
 	}
+
+    string &DNA_Text()
+    {
+        return this->DNA->text();
+    }
+
+    const float x()
+    {
+        return pos.x();
+    }
+
+    const float y()
+    {
+        return pos.y();
+    }
+
+    void ExecuteDNA();
 };
 
-extern vector<Robot *> rob;  //an array of pointers to Robots.
+extern Robot *rob[5000];  //an array of pointers to Robots.
 
 #endif

@@ -3,6 +3,7 @@ Class containing all the info for robots
 ******************************************/
 #include <iostream>
 #include <vector>
+#include <string>
 #include <cmath>
 #include "../Common/Math3D.h"
 #include "ObjectPrimitive.h"
@@ -18,15 +19,10 @@ Class containing all the info for robots
 using namespace std;
 using namespace Math3D;
 
-vector<Robot *> rob;
-//rob will be initialised later to (1000, NULL);
-//an array of pointers to Robots.
-//Default: let's create room for 1000 pointers
-
+Robot *rob[5000]; // (1000, NULL);  //an array of pointers to Robots.  Default: let's create room for 1000 pointers
 unsigned int MaxRobs; //how far into the robot array to go
 
-void FindOpenSpace(Robot *me);
-//finds spot for robot in array, returns pointer to said robot
+void FindOpenSpace(Robot *me); //finds spot for robot in array, returns pointer to said robot
 
 inline Robot::~Robot()
 {
@@ -51,6 +47,8 @@ void Robot::BasicRobotSetup(datispecie *myspecies)
 	this->BirthCycle = SimOpts.TotRunCycle;
 	(*this)[timersys] = frnd(-32000, 32000);
 
+    this->View = false;
+
 	if (myspecies == NULL)
 		return;
 
@@ -62,8 +60,7 @@ void Robot::BasicRobotSetup(datispecie *myspecies)
 
 	//do I need to set up *.fixed?
 
-	this->pos.set( frnd( static_cast<long int>(myspecies->PosTopLeft[0]),
-						static_cast<long int>(myspecies->PosLowRight[0])) ,
+	this->pos.set( frnd( myspecies->PosTopLeft[0], myspecies->PosLowRight[0]) ,
 				  frnd((long)myspecies->PosTopLeft[1], (long)myspecies->PosLowRight[1]), 0.0f);
 	this->opos = this->pos;
 
@@ -77,6 +74,10 @@ void Robot::BasicRobotSetup(datispecie *myspecies)
 	this->Mutables = myspecies->Mutables;
 
 	this->color = myspecies->color;
+
+    this->DNA = new DNA_Class;
+
+    this->DNA->LoadDNA(myspecies->path + "\\" + myspecies->Name);
 }
 
 Robot::Robot()
@@ -108,20 +109,20 @@ void Robot::UpdateMass()
 	if (this->mass < 0)
 		this->mass = .00000001f;
 
-	mem[masssys] = iceil(mass * 100);
+	(*this)[masssys] = iceil(mass * 100);
 }
 
 void Robot::UpdateAim()
 {
 	float Aim;
 
-	if (mem[SetAim] == int(this->aim*200))
+	if ((*this)[SetAim] == int(this->aim*200))
 	{
-		Aim = this->aim * 200.0 + mem[aimsx] - mem[aimdx];
+		Aim = this->aim * 200.0 + (*this)[aimsx] - (*this)[aimdx];
 	}
 	else
 	{
-		Aim = mem[SetAim];
+		Aim = (*this)[SetAim];
 	}
 	
 	if (Aim > 1256)
@@ -134,10 +135,10 @@ void Robot::UpdateAim()
 	
 	aimvector.set(cos(aim), sin(aim));
 
-	mem[aimdx] = 0;
-	mem[aimsx] = 0;
-	mem[Aimsys] = iceil(this->aim * 200);
-	mem[SetAim] = iceil(mem[Aimsys]);
+	(*this)[aimdx] = 0;
+	(*this)[aimsx] = 0;
+	(*this)[Aimsys] = iceil(this->aim * 200);
+	(*this)[SetAim] = iceil((*this)[Aimsys]);
 }
 
 void Robot::UpdatePosition()
@@ -145,7 +146,7 @@ void Robot::UpdatePosition()
 	float vt;
 	Vector4 temp;
   
-	if (mem[fixpos] > 0) Fixed = true;
+	if ((*this)[fixpos] > 0) Fixed = true;
 	else Fixed = false;
 
 	if (mass + AddedMass < 0.1) // a fudge since Euler approximation can't handle it when mass -> 0.
@@ -175,24 +176,24 @@ void Robot::UpdatePosition()
 	//ForceStatic
 
 	//clear bang commands
-	mem[dirup] = 0;
-	mem[dirdn] = 0;
-	mem[dirdx] = 0;
-	mem[dirsx] = 0;
+	(*this)[dirup] = 0;
+	(*this)[dirdn] = 0;
+	(*this)[dirdx] = 0;
+	(*this)[dirsx] = 0;
 	
 	//update velocity refvars
 	//these might be reversed of what they need to be, I'll need to expirement later
-	mem[velscalar] = iceil(sqrt(vt));
-	mem[velup] = iceil(vel * aimvector); //dot product of direction
-	mem[veldn] = -mem[velup];
-	mem[veldx] = iceil((vel % aimvector)); //the magnitude for a 2D vector crossed in 3D is the Z element
-	mem[velsx] = -mem[veldx];
+	(*this)[velscalar] = iceil(sqrt(vt));
+	(*this)[velup] = iceil(vel * aimvector); //dot product of direction
+	(*this)[veldn] = -(*this)[velup];
+	(*this)[veldx] = iceil((vel % aimvector)); //the magnitude for a 2D vector crossed in 3D is the Z element
+	(*this)[velsx] = -(*this)[veldx];
 
-	mem[xpos] = iceil(pos.x() / 120); //returns the grid square we're in
-	mem[ypos] = iceil(pos.y() / 120); //likewise
+	(*this)[xpos] = iceil(pos.x() / 120); //returns the grid square we're in
+	(*this)[ypos] = iceil(pos.y() / 120); //likewise
 
-	mem[maxvelsys] = SimOpts.MaxSpeed;
-	mem[fixedsys] = Fixed;
+	(*this)[maxvelsys] = SimOpts.MaxSpeed;
+	(*this)[fixedsys] = Fixed;
 }
 
 void Robot::MakeShell()
@@ -201,15 +202,15 @@ void Robot::MakeShell()
 	float cost;
 
 	oldshell = Shell;
-	if ((mem[mkshell] * SimOpts.Costs[SHELLCOST] > nrg) && (nrg > 0))
-		mem[mkshell] = static_cast<short int>((nrg / 2) / SimOpts.Costs[SHELLCOST]);
+	if ((*this)[mkshell] * SimOpts.Costs[SHELLCOST] > nrg && nrg > 0)
+		(*this)[mkshell] = (nrg / 2) / SimOpts.Costs[SHELLCOST];
 
-	Shell = Shell + mem[mkshell];
-	mem[mkshell] = 0;
+	Shell = Shell + (*this)[mkshell];
+	(*this)[mkshell] = 0;
 	if (Shell < 0)
 		Shell = 0;
 
-	mem[shellsys] = iceil(Shell);
+	(*this)[shellsys] = iceil(Shell);
 
 	cost = (Shell - oldshell) * SimOpts.Costs[SHELLCOST];
 	if (cost < 0)
@@ -225,15 +226,15 @@ void Robot::MakeSlime()
 	float cost;
 
 	oldslime = Slime;
-	if (mem[mkslime] * SimOpts.Costs[SLIMECOST] > nrg && nrg > 0)
-		mem[mkslime] = static_cast<short int>((nrg / 2) / SimOpts.Costs[SLIMECOST]);
+	if ((*this)[mkslime] * SimOpts.Costs[SLIMECOST] > nrg && nrg > 0)
+		(*this)[mkslime] = (nrg / 2) / SimOpts.Costs[SLIMECOST];
 
-	Slime = Slime + mem[mkslime];
-	mem[mkslime] = 0;
+	Slime = Slime + (*this)[mkslime];
+	(*this)[mkslime] = 0;
 	if (Slime < 0)
 		Slime = 0;
 
-	mem[slimesys] = iceil(Slime);
+	(*this)[slimesys] = iceil(Slime);
 	
 	cost = (Slime - oldslime) * SimOpts.Costs[SLIMECOST];
 	if (cost < 0)
@@ -249,15 +250,15 @@ void Robot::MakeVenom()
 	float cost;
 
 	oldvenom = Venom;
-	if (mem[mkvenom] * SimOpts.Costs[VENOMCOST] > nrg && nrg > 0)
-		mem[mkvenom] = static_cast<unsigned int>((nrg / 2) / SimOpts.Costs[VENOMCOST]);
+	if ((*this)[mkvenom] * SimOpts.Costs[VENOMCOST] > nrg && nrg > 0)
+		(*this)[mkvenom] = (nrg / 2) / SimOpts.Costs[VENOMCOST];
 
-	Venom = Venom + mem[mkvenom];
-	mem[mkvenom] = 0;
+	Venom = Venom + (*this)[mkvenom];
+	(*this)[mkvenom] = 0;
 	if (Venom < 0)
 		Venom = 0;
 
-	mem[venomsys] = iceil(Venom);
+	(*this)[venomsys] = iceil(Venom);
 
 	cost = (Venom - oldvenom) * SimOpts.Costs[VENOMCOST];
 	if (cost < 0)
@@ -273,15 +274,15 @@ void Robot::MakePoison()
 	float cost;
 
 	oldpoison = Poison;
-	if (mem[mkpoison] * SimOpts.Costs[POISONCOST] > nrg && nrg > 0)
-		mem[mkpoison] = static_cast<unsigned int>((nrg / 2) / SimOpts.Costs[POISONCOST]);
+	if ((*this)[mkpoison] * SimOpts.Costs[POISONCOST] > nrg && nrg > 0)
+		(*this)[mkpoison] = (nrg / 2) / SimOpts.Costs[POISONCOST];
 
-	Poison = Poison + mem[mkpoison];
-	mem[mkpoison] = 0;
+	Poison = Poison + (*this)[mkpoison];
+	(*this)[mkpoison] = 0;
 	if (Poison < 0)
 		Poison = 0;
 
-	mem[poison] = iceil(Poison);
+	(*this)[poison] = iceil(Poison);
 
 	cost = (Poison - oldpoison) * SimOpts.Costs[POISONCOST];
 	if (cost < 0)
@@ -300,14 +301,14 @@ void Robot::WasteManagement()
 	{
 		//Altzheimer's
 		long loops;
-		loops = static_cast<long int>((Pwaste + Waste - SimOpts.BadWasteLevel) / 4);
+		loops = (Pwaste + Waste - SimOpts.BadWasteLevel) / 4;
 
 		for (long x = 1; x < loops; x++)
 		{
 			if (x % 25 == 0 && DBrand() > .999) //(very small) chance of random death for large waste levels
 				Dead = true;					//note that this seems really small, but .999 ^ 693 < 50%, so after
 												//693 chances for death, a bot is only half likely to still be alive
-			mem[frnd(1,1000)] = frnd(-32000, 32000);
+			(*this)[frnd(1,1000)] = frnd(-32000, 32000);
 		}
 	}
 
@@ -317,8 +318,8 @@ void Robot::WasteManagement()
 		Waste *= .99f;
 	}		
 
-	mem[wastesys] = iceil(Waste);
-	mem[pwastesys] = iceil(Pwaste);
+	(*this)[wastesys] = iceil(Waste);
+	(*this)[pwastesys] = iceil(Pwaste);
 }
 
 void Robot::Upkeep()
@@ -351,7 +352,7 @@ void Robot::PoisonManagement()
 
 	if (Paralyzed == true)
 	{
-		mem[Vloc] = Vval;
+		(*this)[Vloc] = Vval;
 		ParaCount--;
 		if (ParaCount < 1)
 		{
@@ -359,24 +360,23 @@ void Robot::PoisonManagement()
 			Vloc = 0;
 			Vval = 0;
 		}
-		mem[paralyzed] = static_cast<short int>(ParaCount);
-			//undocumented sysvar found during C++ port
-			//(PY is terribly this way.  He likes to code sysvars as straight
-			//numbers instead of using constants, resulting in either subtle
-			//bugs or undocumented sysvars.  There was a virus bug that fell
-			//into this category.  -Numsgil
+		(*this)[paralyzed] = ParaCount;   //undocumented sysvar found during C++ port
+										//(PY is terribly this way.  He likes to code sysvars as straight
+										//numbers instead of using constants, resulting in either subtle
+										//bugs or undocumented sysvars.  There was a virus bug that fell
+										//into this category.  -Numsgil
 	}
 
 	if (Poisoned == true)
 	{
-		mem[Ploc] = 0;
+		(*this)[Ploc] = 0;
 		PoisonCount--;
 		if (PoisonCount < 1)
 		{
 			Poisoned = false;
 			Ploc = 0;
 		}
-		mem[poisoned] = static_cast<short int>(PoisonCount);
+		(*this)[poisoned] = PoisonCount;
 	}
 }
 
@@ -403,13 +403,13 @@ body management doesn't.  Etc.
 *****************************************************************/
 void Robot::Construction()
 {
-	if (mem[mkvenom] != 0)
+	if ((*this)[mkvenom] != 0)
 		MakeVenom();
-	if (mem[mkpoison] != 0)
+	if ((*this)[mkpoison] != 0)
 		MakePoison();
-	if (mem[mkshell] != 0)
+	if ((*this)[mkshell] != 0)
 		MakeShell();
-	if (mem[mkslime] != 0)
+	if ((*this)[mkslime] != 0)
 		MakeSlime();
 }
 
@@ -418,17 +418,17 @@ void Robot::Aging()
 	//aging
 	age++;
 	
-	mem[robage] = iceil(age);
+	(*this)[robage] = iceil(age);
 	
 	//epigenetic timer.  It's okay if the robot modifies this memory location,
 	//we only guarentee that it'll increment each cycle and that it's value
 	//will be passed to children such that they stay in sync
 	
-	mem[timersys]++;  //update epigenetic timer
-	if (mem[timersys] > 32000)
+	(*this)[timersys]++;  //update epigenetic timer
+	if ((*this)[timersys] > 32000)
 	{
-		mem[timersys] -= 32000;//once we hit 32001, wrap around to -32000
-		mem[timersys] -= 32001;
+		(*this)[timersys] -= 32000;//once we hit 32001, wrap around to -32000
+		(*this)[timersys] -= 32001;
 	}
 }
 
@@ -436,14 +436,14 @@ void Robot::BodyManagement()
 {
 	obody = Body;
 
-	DeltaBody(mem[strbody] - mem[fdbody]);
-	mem[strbody] = 0;
-	mem[fdbody] = 0;
+	DeltaBody((*this)[strbody] - (*this)[fdbody]);
+	(*this)[strbody] = 0;
+	(*this)[fdbody] = 0;
 	
 	if (Wall == true)
 		Body = 1;
 	
-	mem[bodysys] = static_cast<short int>(Body);
+	(*this)[bodysys] = Body;
 	UpdateRadius();
 }
 
@@ -476,7 +476,7 @@ void Robot::Shock()
 {
 	long temp;
 
-	temp = static_cast<long int>(onrg - nrg);
+	temp = this->onrg - this->nrg;
 	if (temp > (onrg / 2))
 	{
 		Body = Body + nrg / 10;
@@ -533,10 +533,10 @@ bool Robot::KillRobot()
 	while(rob[counter] != this)
 	{
 		counter++;
-		if (rob.capacity() < counter)
-		{
+		/*if (/*rob.capacity() 5000 <= counter)
+		/*{
 			return false;
-		}
+		}*/
 	}
 
 	if (MaxRobs == counter)
@@ -552,6 +552,10 @@ bool Robot::KillRobot()
 		}
 	}
 
+    rob[counter] = NULL;
+    delete this->DNA;
+
+
 	//delete all ties
 	//delete DNA
 	//remember that shots may still exist that think of us as the parents
@@ -564,19 +568,19 @@ bool Robot::KillRobot()
 //call this very last along with the death management above
 void Robot::Reproduction()
 {
-	if (mem[Repro] > 0 || mem[mrepro] > 0)
+	if ((*this)[Repro] > 0 || (*this)[mrepro] > 0)
 	{
-		if (mem[Repro] >= 100)
-			mem[Repro] = 99;
-		if (mem[Repro] < 0)
-			mem[Repro] = 0;
+		if ((*this)[Repro] >= 100)
+			(*this)[Repro] = 99;
+		if ((*this)[Repro] < 0)
+			(*this)[Repro] = 0;
 		
-		if (mem[mrepro] >= 100)
-			mem[mrepro] = 99;
-		if (mem[mrepro] < 0)
-			mem[mrepro] = 0;
+		if ((*this)[mrepro] >= 100)
+			(*this)[mrepro] = 99;
+		if ((*this)[mrepro] < 0)
+			(*this)[mrepro] = 0;
 
-		this->Split((mem[Repro] + mem[mrepro])/100);
+		this->Split(((*this)[Repro] + (*this)[mrepro])/100);
 
 		//insert DNA into child bot
 		//mutate DNA in child bot
@@ -598,9 +602,9 @@ bool Robot::FireTie()
 	Tie *temp;
 	int tieport;
 
-	tieport = mem[mtie];
+	tieport = (*this)[mtie];
 
-	mem[mtie] = 0;	
+	(*this)[mtie] = 0;	
 	if (tieport > 0 && this->lastopp != NULL && SimOpts.DisableTies == false)
 	{
 		temp = new Tie;
@@ -677,11 +681,11 @@ void Robot::ShotManagement()
 	int type, value;
 	float multiplier;
 
-	value = mem[shootval] + 1;  //since a value of 1 needs to be 2 to make equations below work
-	type = mem[shoot];
+	value = (*this)[shootval] + 1;  //since a value of 1 needs to be 2 to make equations below work
+	type = (*this)[shoot];
 	
-	mem[shoot] = 0;
-	mem[shootval] = 0;
+	(*this)[shoot] = 0;
+	(*this)[shootval] = 0;
 	
 	//range is invalid for creating a shot
 	if (type == 0 || type > 1000 || type < -6 || type == -5)
@@ -696,9 +700,9 @@ void Robot::ShotManagement()
 	/////////////////////////////////////////////////////
 	if (type == -1 || type == -6)
 	{
-		long unsigned cost;
+		unsigned long cost;
 
-		cost = static_cast<long unsigned int>((pow(2, multiplier) - 1) * SimOpts.Costs[SHOTCOST]);
+		cost = (pow(2, multiplier) - 1) * SimOpts.Costs[SHOTCOST];
 		if (cost <= this->nrg)
 		{
 			nrg = nrg - cost;
@@ -871,7 +875,7 @@ Robot *Robot::Split(float percentage)
 	this->UpdateRadius();
 	baby->UpdateRadius();
 
-	sondist = static_cast<long int>(this->radius + baby->radius);
+	sondist = this->radius + baby->radius;
 	this->pos = this->pos - percentage * sondist * this->aimvector;
 	baby->pos = this->pos + Length * this->aimvector;
 
@@ -880,14 +884,8 @@ Robot *Robot::Split(float percentage)
 
 	baby->color = this->color;
 
-	baby->mem[timersys] = this->mem[timersys];//epigenetic timer
+	(*baby)[timersys] = (*this)[timersys];//epigenetic timer
 
-	/*rob(nuovo).mem(468) = 32000
-    rob(nuovo).mem(480) = 32000
-    rob(nuovo).mem(481) = 32000
-    rob(nuovo).mem(482) = 32000
-    rob(nuovo).mem(483) = 32000*/
-	
 	//make the birth tie
 	Tie *temp;
 	temp = new Tie;
@@ -906,33 +904,33 @@ void Robot::SetMems()
 	Readbacks
 	********************************/
 	
-	this->mem[xpos] = iceil(this->pos.x()/120);
-	this->mem[ypos] = iceil(this->pos.y()/120);
+	(*this)[xpos] = iceil(this->pos.x()/120);
+	(*this)[ypos] = iceil(this->pos.y()/120);
 	
-	this->mem[maxvelsys] = iceil(SimOpts.MaxSpeed);
+	(*this)[maxvelsys] = iceil(SimOpts.MaxSpeed);
 
-	this->mem[masssys] = iceil(this->mass * 100);
+	(*this)[masssys] = iceil(this->mass * 100);
 
-	this->mem[velscalar] = iceil(Length3(this->vel));
-	this->mem[velup] = iceil(this->vel * this->aimvector); //dot product of direction
-	this->mem[veldn] = iceil(-this->mem[velup]);
-	this->mem[veldx] = iceil((this->vel % this->aimvector)); //the magnitude for a 2D vector crossed in 3D is the Z element
-	this->mem[velsx] = iceil(-this->mem[veldx]);
+	(*this)[velscalar] = iceil(Length3(this->vel));
+	(*this)[velup] = iceil(this->vel * this->aimvector); //dot product of direction
+	(*this)[veldn] = iceil(-this->mem[velup]);
+	(*this)[veldx] = iceil((this->vel % this->aimvector)); //the magnitude for a 2D vector crossed in 3D is the Z element
+	(*this)[velsx] = iceil(-this->mem[veldx]);
 
-	this->mem[wastesys] = iceil(this->Waste);
-	this->mem[pwastesys] = iceil(this->Pwaste);
-	this->mem[poison] = iceil(this->Poison);
-	this->mem[venomsys] = iceil(this->Venom);
-	this->mem[paralyzed] = iceil(this->ParaCount);
-	this->mem[poisoned] = iceil(this->PoisonCount);
+	(*this)[wastesys] = iceil(this->Waste);
+	(*this)[pwastesys] = iceil(this->Pwaste);
+	(*this)[poison] = iceil(this->Poison);
+	(*this)[venomsys] = iceil(this->Venom);
+	(*this)[paralyzed] = iceil(this->ParaCount);
+	(*this)[poisoned] = iceil(this->PoisonCount);
 
-	this->mem[bodysys] = iceil(this->Body);
-	this->mem[energy] = iceil(this->nrg);
-	this->mem[SetAim] = iceil(this->aim * 200.0f);
-	this->mem[Aimsys] = iceil(this->mem[SetAim]);
-	this->mem[fixedsys] = iceil(this->Fixed);
-	this->mem[shellsys] = iceil(this->Shell);
-	this->mem[slimesys] = iceil(this->Slime);
+	(*this)[bodysys] = iceil(this->Body);
+	(*this)[energy] = iceil(this->nrg);
+	(*this)[SetAim] = iceil(this->aim * 200.0f);
+	(*this)[Aimsys] = iceil(this->mem[SetAim]);
+	(*this)[fixedsys] = iceil(this->Fixed);
+	(*this)[shellsys] = iceil(this->Shell);
+	(*this)[slimesys] = iceil(this->Slime);
 }
 
 void FindOpenSpace(Robot *me) //finds spot for robot in array, returns pointer to said robot
@@ -950,8 +948,8 @@ void FindOpenSpace(Robot *me) //finds spot for robot in array, returns pointer t
 	
 	//expand dynamic array if we need to
 	//we go by 1000s
-	if (firstopenspot > rob.capacity())
-		rob.resize(rob.capacity() + 1000, NULL);
+	//if (firstopenspot >= rob.capacity())
+	//	//rob.resize(rob.capacity() + 1000, NULL);
 	
 	rob[firstopenspot] = me;
 }

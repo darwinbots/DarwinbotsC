@@ -1,12 +1,9 @@
 #ifndef TIE_H
 #define TIE_H
 
-#include "Robot.h"
-
 class Robot;
 
-//remember to have ties being updated check for if port = 0 and age >= 100
-//(then we need to cut the tie, it's a birth tie)
+//remember to have ties being updated check for if port = 0 and age >= 100 (then we need to cut the tie, it's a birth tie)
 class Tie
 {
 	int Port;  //the phase number the tie can be accessed with.  1 to 200

@@ -29,15 +29,9 @@ const int hit = 201;
 const int shflav = 202;
 const int pain = 203;
 const int pleas = 204;
-/*const int hitup = 205;
-const int hitdn = 206;
-const int hitdx = 207;
-const int hitsx = 208;*/
+
 const int shangsys = 209;
-/*const int shup = 210;
-const int shdn = 211;
-const int shdx = 212;
-const int shsx = 213;*/
+
 const int edgesys = 214;
 const int fixedsys = 215;
 const int fixpos = 216;

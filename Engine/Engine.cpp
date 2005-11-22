@@ -1,9 +1,8 @@
+#include <windows.h>
 #include "SimOptions.h"
 #include "Robot.h"
 #include "Engine.h"
-#include <windows.h>
-
-bool ReadSett(const string &path, SimOptions &Options);
+#include "HardDriveRoutines.h"
 
 Engine_Class Engine;
 
@@ -54,6 +53,9 @@ void Engine_Class::UpdateSim(void)
 void Engine_Class::SetupSim(void)
 {
 	ReadSett("c:\\DarwinbotsII\\settings\\lastexit.set", SimOpts);
+    this->maindir = "C:\\DarwinbotsII\\";
+
+    BuildSysvars();
 	
 	//seed the random number generator
 	//Load script Lists
@@ -66,8 +68,13 @@ void Engine_Class::SetupSim(void)
 	SimOpts.TotRunTime = 0;
 
 	//reset graphs
-	//initialize the robot pointer array
-	rob.resize(1000, NULL);
+	
+    //initialize the robot pointer array
+	for (unsigned int x = 0; x < 5000; x++)
+    {
+        rob[x] = NULL;
+    }
+
 	MaxRobs = 0;
 	//maxshots = 0
 
@@ -96,19 +103,23 @@ void Engine_Class::SetupSim(void)
 	End If
 	*/
 
-	//setup engine thread (just calls Engine::Update_Sim over and over
+	//setup engine thread (just calls Engine::Update_Sim over and over)
 	//setup graphics thread
 	//setup input thread
 
 	unsigned long clocks;
 	unsigned long counter=0;
+
+    cout << rob[0]->DNA_Text();
 	
-	do
+	/*do
 	{
 		clocks = GetTickCount();
 		this->UpdateSim();
-		cout << (GetTickCount() - clocks) << endl;
-	}while(++counter < 20);
+		clocks = GetTickCount() - clocks;
+		clocks = (clocks);
+		cout << clocks << endl;
+	}while(++counter < 20);*/
 }
 
 void Engine_Class::LoadRobots(void)
@@ -119,9 +130,6 @@ void Engine_Class::LoadRobots(void)
 		for (unsigned int x = 0; x < SimOpts.Specie[y].qty; x++)
 		{
 			temp = new Robot(&SimOpts.Specie[y]);
-			//pass species info to robot for creation process
-			//robscriptload
 		}
 	}
 }
-

@@ -1,18 +1,18 @@
-#include <iostream>
+#include <iostream.h>
 #include <fstream>
 #include <string>
-
 #include <cmath>
 #include <cstdlib>
-#include "SimOptions.h"
 
-using namespace std;
+#include "SimOptions.h"
+#include "DNAClass.h"
+#include "Engine.h"
 
 ofstream settingsout;
 
 void ReadSettPre2_4(ifstream &in, SimOptions &Options);
 bool VBTrue(ifstream &file);
-string &GetLine(ifstream &in);
+string GetLine(ifstream &in);
 
 bool ReadSett(const string &path, SimOptions &Options)
 {
@@ -24,13 +24,12 @@ bool ReadSett(const string &path, SimOptions &Options)
 	if (settingsin.is_open() != 0)
 		settingsin.close();
 
-	settingsin.open(path.c_str(), /*ios::nocreate |*/ ios::in);
-	///	the commented thing gives an error
+	settingsin.open(path.c_str(), ios::nocreate | ios::in);
 
 	if (settingsin.fail() == true)
 	{
 		//this isn't a valid settings file
-		cout << "Settings file " << path.c_str() << " not found." << endl;
+		std::cout << "Settings file " << path.c_str() << " not found." << endl;
 		settingsin.close();
 		return false;
 	}
@@ -51,7 +50,7 @@ bool ReadSett(const string &path, SimOptions &Options)
 	}		
 	else
 	{
-		cout << "Unknown settings file version." << endl;
+		std::cout << "Unknown settings file version." << endl;
 		settingsin.close();
 		return false;
 	}
@@ -60,14 +59,17 @@ bool ReadSett(const string &path, SimOptions &Options)
 	return true;
 }
 
-string &GetLine(ifstream &in)
+string GetLine(ifstream &in)
 {
-	static string line;
+	string line;
 	char buffer[1024];
 
 	in.getline(buffer, 1024, '\n');
-	line.assign(buffer);
-	line.resize(line.size() - 1); //to get rid of the carriage return sequence at the end of buffer
+    line = buffer;
+	//line.assign(buffer);
+    if (line != "" && line.at(line.length() -1) == '\r')
+        line.resize(line.length() - 1); //to get rid of the carriage return sequence at the end of buffer
+
 	return line;
 }
 
@@ -103,7 +105,7 @@ void ReadSettPre2_4(ifstream &in, SimOptions &Options)
 	string line;
 	unsigned int x = 0;
 
-	Options.SpeciesNum = static_cast<unsigned int>(GrabNumber(in));
+	Options.SpeciesNum = GrabNumber(in);
 	Options.SpeciesNum++;
 
 	for (x = 0; x < Options.SpeciesNum; x++)
@@ -118,21 +120,20 @@ void ReadSettPre2_4(ifstream &in, SimOptions &Options)
 		/////////////////////////////////////////
 
 		
-		Options.Specie[x].Mutables.mutarray[0] =
-										static_cast<long int>(GrabNumber(in));
-		Options.Specie[x].path = GrabString(in);
-		Options.Specie[x].qty = static_cast<long unsigned int>(GrabNumber(in));
-		Options.Specie[x].Name = GrabString(in);
-		Options.Specie[x].Veg = static_cast<unsigned int>(GrabBool(in));
-		Options.Specie[x].Fixed = static_cast<unsigned int>(GrabBool(in));
+		Options.Specie[x].Mutables.mutarray[0] = GrabNumber(in);
+		Options.Specie[x].path =				 GrabString(in);
+		Options.Specie[x].qty =					 GrabNumber(in);
+		Options.Specie[x].Name =				 GrabString(in);
+		Options.Specie[x].Veg =					 GrabBool(in);
+		Options.Specie[x].Fixed =				 GrabBool(in);
 				
-		Options.Specie[x].color = static_cast<unsigned int>(GrabNumber(in));
-		line = GrabString(in); //obsolete
-		Options.Specie[x].nrg = static_cast<unsigned int>(GrabNumber(in));
+		Options.Specie[x].color =				 GrabNumber(in);
+		line =									 GrabString(in);  //obsolete
+		Options.Specie[x].nrg =					 GrabNumber(in);
 
 		for (unsigned int k = 0; k <= 13; k++)
 		{
-			Options.Specie[x].Mutables.mutarray[k] = static_cast<long int>(GrabNumber(in));
+			Options.Specie[x].Mutables.mutarray[k] = GrabNumber(in);
 		}
 
 		for (unsigned int l = 0; l <= 12; l++)
@@ -143,21 +144,21 @@ void ReadSettPre2_4(ifstream &in, SimOptions &Options)
 
 	Options.SimName =							GrabString(in);
 	line =										GrabString(in);  //obsolete
-	Options.FieldSize =							static_cast<unsigned int>(GrabNumber(in));
+	Options.FieldSize =							GrabNumber(in);
 	Options.FieldDimensions.set(				GrabNumber(in), GrabNumber(in), 0.0f);
-	Options.MaxPopulation =						static_cast<unsigned int>(GrabNumber(in));
+	Options.MaxPopulation =						GrabNumber(in);
 	line =										GrabString(in);  //obsolete
 	Options.DisableTies =						GrabBool(in);
-	Options.PopLimMethod =						static_cast<unsigned int>(GrabNumber(in));
+	Options.PopLimMethod =						GrabNumber(in);
 	Options.Toroidal =							GrabBool(in);
 	Options.NrgCyc =							GrabNumber(in);
-	Options.MinVegs =							static_cast<unsigned int>(GrabNumber(in));
+	Options.MinVegs =							GrabNumber(in);
 	Options.Costs[CONDCOST] =					GrabNumber(in);
 	Options.Costs[COSTSTORE] =					GrabNumber(in);
 	Options.Costs[SHOTCOST] =					GrabNumber(in);
 	Options.Costs[TIECOST] = Options.Costs[SHOTCOST];
 	Options.EnergyProp =						GrabNumber(in);
-	Options.EnergyFix =							static_cast<unsigned int>(GrabNumber(in));
+	Options.EnergyFix =							GrabNumber(in);
 	Options.EnergyExType =						GrabBool(in);
 
 	Options.YGravity =							GrabNumber(in);
@@ -167,14 +168,14 @@ void ReadSettPre2_4(ifstream &in, SimOptions &Options)
 	line =										GrabString(in); //obsolete
 
 	Options.AutoSimPath =						GrabString(in);
-	Options.AutoSimTime =						static_cast<unsigned int>(GrabNumber(in));
+	Options.AutoSimTime =						GrabNumber(in);
 	Options.AutoRobPath =						GrabString(in);
-	Options.AutoRobTime =						static_cast<unsigned int>(GrabNumber(in));
+	Options.AutoRobTime =						GrabNumber(in);
 
 	Options.MutCurrMult =						GrabNumber(in);
 	Options.MutOscill =							GrabBool(in);
-	Options.MutCycMax =							static_cast<long unsigned int>(GrabNumber(in));
-	Options.MutCycMin =							static_cast<long unsigned int>(GrabNumber(in));
+	Options.MutCycMax =							GrabNumber(in);
+	Options.MutCycMin =							GrabNumber(in);
 
 	Options.DBName =							GrabString(in);
 	Options.DBEnable =							GrabBool(in);
@@ -187,9 +188,9 @@ void ReadSettPre2_4(ifstream &in, SimOptions &Options)
 	if (!in.eof()) Options.Decay =				GrabNumber(in);
 	if (!in.eof()) Options.Gradient  =			GrabNumber(in);
 	if (!in.eof()) Options.DayNight  =			GrabBool(in);
-	if (!in.eof()) Options.CycleLength  =		static_cast<unsigned int>(GrabNumber(in));
-	if (!in.eof()) Options.DecayType  =			static_cast<unsigned int>(GrabNumber(in));
-	if (!in.eof()) Options.DecayDelay  =		static_cast<unsigned int>(GrabNumber(in));
+	if (!in.eof()) Options.CycleLength  =		GrabNumber(in);
+	if (!in.eof()) Options.DecayType  =			GrabNumber(in);
+	if (!in.eof()) Options.DecayDelay  =		GrabNumber(in);
 	if (!in.eof()) line =						GrabString(in); //obsolete
 
 	if (!in.eof()) Options.F1 =					GrabBool(in);
@@ -204,11 +205,11 @@ void ReadSettPre2_4(ifstream &in, SimOptions &Options)
 	}
 	if (!in.eof()) Options.Dxsxconnected  =		GrabBool(in);
 	if (!in.eof()) Options.Updnconnected  =		GrabBool(in);
-	if (!in.eof()) Options.RepopAmount  =		static_cast<unsigned int>(GrabNumber(in));
-	if (!in.eof()) Options.RepopCooldown  =		static_cast<unsigned int>(GrabNumber(in));
+	if (!in.eof()) Options.RepopAmount  =		GrabNumber(in);
+	if (!in.eof()) Options.RepopCooldown  =		GrabNumber(in);
 	if (!in.eof()) Options.ZeroMomentum  =		GrabBool(in);
 	if (!in.eof()) Options.UserSeedToggle  =	GrabBool(in);
-	if (!in.eof()) Options.UserSeedNumber  =	static_cast<long int>(GrabNumber(in));
+	if (!in.eof()) Options.UserSeedNumber  =	GrabNumber(in);
 	
 	
 	for (x = 0; x < Options.SpeciesNum; x++)
@@ -216,16 +217,15 @@ void ReadSettPre2_4(ifstream &in, SimOptions &Options)
 		for (int k = 14; k <= 20; k++)
 		{
 			if (!in.eof())
-				Options.Specie[x].Mutables.mutarray[k] = static_cast<long int>(GrabNumber(in));
+				Options.Specie[x].Mutables.mutarray[k] = GrabNumber(in);
 		}
 
 		if (!in.eof())
 				Options.Specie[x].Mutables.Mutations = GrabBool(in);
 	}
 	
-	if (!in.eof()) Options.VegFeedingMethod =	static_cast<unsigned int>(GrabNumber(in));
-	if (!in.eof()) Options.VegFeedingToBody =	GrabNumber(in);
-	else Options.VegFeedingToBody = 0.1f;
+	if (!in.eof()) Options.VegFeedingMethod =	GrabNumber(in);
+	if (!in.eof()) Options.VegFeedingToBody =	GrabNumber(in); else Options.VegFeedingToBody = 0.1f;
 	
 	if (!in.eof()) Options.CoefficientStatic =	GrabNumber(in);
 	if (!in.eof()) Options.CoefficientKinetic =	GrabNumber(in);
@@ -240,8 +240,8 @@ void ReadSettPre2_4(ifstream &in, SimOptions &Options)
 
 	for (x = 0; x < Options.SpeciesNum ; x++)
 	{
-		if (!in.eof()) Options.Specie[x].Mutables.CopyErrorWhatToChange = static_cast<unsigned int>(GrabNumber(in));
-		if (!in.eof()) Options.Specie[x].Mutables.PointWhatToChange = static_cast<unsigned int>(GrabNumber(in));
+		if (!in.eof()) Options.Specie[x].Mutables.CopyErrorWhatToChange = GrabNumber(in);
+		if (!in.eof()) Options.Specie[x].Mutables.PointWhatToChange = GrabNumber(in);
 
 		for (int k = 0; k <= 20; k++)
 		{
@@ -277,4 +277,64 @@ void ReadSettPre2_4(ifstream &in, SimOptions &Options)
 		Options.FieldDimensions.set(16000, Options.FieldDimensions.y(), Options.FieldDimensions.z());
 	if (Options.FieldDimensions.y() == 0)
 		Options.FieldDimensions.set(Options.FieldDimensions.x(), 12000, Options.FieldDimensions.z());
+}
+
+bool BuildSysvars()
+{
+    ifstream in;
+    string path, line;
+
+    path = Engine.MainDir() + "\\sysvars2.4.txt";
+
+    //attempt to open file
+    //close file if it is already open
+	if (in.is_open() != 0)
+		in.close();
+
+	in.open(path.c_str(), ios::nocreate | ios::in);
+
+    if (in.fail() == true)
+    {
+        //can't find sysvars file
+        std::cout << "Sysvars file " << path.c_str() << " not found." << endl;
+		in.close();
+		return false;
+    }
+
+    maxsysvar = 0;
+
+    while (!in.eof())
+    {
+        in >> line;
+        sysvar[maxsysvar].value = atoi(line.c_str());
+        
+        in >> line;
+        sysvar[maxsysvar].name = line;
+
+        maxsysvar++;
+    }
+
+    in.close();
+
+    return true;
+}
+
+bool DNA_Class::LoadDNA(string path)
+{
+    ifstream in;
+
+    in.open(path.c_str(), ios::nocreate | ios::in);
+
+	if (in.fail() == true)
+	{
+		//this isn't a valid settings file
+		std::cout << "Robot file " << path.c_str() << " not found." << endl;
+		in.close();
+		return false;
+	}
+    
+    this->LoadDNA(in);
+    
+    in.close();
+    return true;
 }

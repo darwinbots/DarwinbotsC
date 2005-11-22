@@ -1,10 +1,10 @@
 #include <cmath>
 #include "Globals.h"
 
-const __int16 iceil(float value)
+inline __int16 iceil(float value)
 {
-	if (fabs(value) > 32000)
+	if (fabs(value) > 32000.0f)
 		return 32000;
 	else
-		return int(value);
+		return __int16(value);
 }
