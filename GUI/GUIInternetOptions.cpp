@@ -39,7 +39,9 @@ long MainWindow::InternetOptions(FXTabBook *TabBook,FXDialogBox *Options){
     
     new FXLabel(LayoutMatrix2,"DarwinBots will upload up to one\n""organism every 100,000 cycles to\n""the specified server. Also, the first\n""upload will be allowed at 100,000 cycles.",NULL,LAYOUT_LEFT|JUSTIFY_LEFT);
     
-    FXMatrix *LayoutMatrix3=new FXMatrix(LayoutMatrix,6,MATRIX_BY_COLUMNS|LAYOUT_SIDE_TOP|LAYOUT_FILL_X|LAYOUT_FILL_Y);
+    FXGroupBox *ButtonGroup=new FXGroupBox(LayoutMatrix,0,GROUPBOX_TITLE_LEFT|FRAME_RIDGE|LAYOUT_FILL_X|LAYOUT_FILL_Y);
+    
+    FXMatrix *LayoutMatrix3=new FXMatrix(ButtonGroup,6,MATRIX_BY_COLUMNS|LAYOUT_SIDE_TOP|LAYOUT_FILL_X|LAYOUT_FILL_Y);
     
     FXButton *button5 = new FXButton(LayoutMatrix3, "Load Settings", 0, Options,
         	FXDialogBox::ID_ACCEPT, BUTTON_INITIAL|BUTTON_DEFAULT|FRAME_RAISED|FRAME_THICK|LAYOUT_CENTER_X,

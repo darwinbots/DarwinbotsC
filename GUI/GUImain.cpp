@@ -56,6 +56,7 @@ MainWindow::MainWindow(FXApp *app)
     new FXMenuTitle(menubar, "&Help", 0, helpMenu);
     
     GLWindow();
+    ConnectVar();
 }
 
 MainWindow::~MainWindow()

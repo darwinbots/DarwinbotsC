@@ -1,5 +1,5 @@
 #include "GUImain.h"
-#include "../Engine/SimOptions.h"
+//#include "../Engine/SimOptions.h"
 
 long MainWindow::onCmdQuit(FXObject *, FXSelector, void *)
 {
@@ -61,7 +61,7 @@ long MainWindow::onCmdNewViewer(FXObject*,FXSelector,void*){return 1;}
 
 void MainWindow::ConnectVar()
 {
-     CoefficientKinetic_Tar.Connect(TmpOpts.CoefficientKinetic);
+     /*CoefficientKinetic_Tar.Connect(TmpOpts.CoefficientKinetic);
      CoefficientStatic_Tar.Connect(TmpOpts.CoefficientStatic);
      ZGravity_Tar.Connect(TmpOpts.ZGravity);
      YGravity_Tar.Connect(TmpOpts.YGravity);
@@ -70,5 +70,5 @@ void MainWindow::ConnectVar()
      Brownian_Tar.Connect(TmpOpts.Brownian);
      MovingEfficiency_Tar.Connect(TmpOpts.MovingEfficiency);
      PlanetEaters_Tar.Connect(TmpOpts.PlanetEaters);
-     PlanetEatersG_Tar.Connect(TmpOpts.PlanetEatersG);
+     PlanetEatersG_Tar.Connect(TmpOpts.PlanetEatersG);*/
 }

@@ -17,11 +17,11 @@ long MainWindow::onCmdPCAdvancedControls(FXObject *, FXSelector, void *){
         FXMatrix *FluidMatrix=new FXMatrix(group1,3,MATRIX_BY_COLUMNS|LAYOUT_SIDE_TOP|LAYOUT_FILL_X|LAYOUT_FILL_Y);
 
         new FXLabel(FluidMatrix,"Viscosity",NULL,LAYOUT_RIGHT|JUSTIFY_RIGHT);
-        new FXTextField(FluidMatrix,10,Viscosity_Tar,FXDataTarget::ID_VALUE,TEXTFIELD_REAL|JUSTIFY_RIGHT|LAYOUT_CENTER_Y|FRAME_SUNKEN|LAYOUT_CENTER_X|FRAME_THICK|LAYOUT_FILL_ROW);
+        new FXTextField(FluidMatrix,10,&Viscosity_Tar,FXDataTarget::ID_VALUE,TEXTFIELD_REAL|JUSTIFY_RIGHT|LAYOUT_CENTER_Y|FRAME_SUNKEN|LAYOUT_CENTER_X|FRAME_THICK|LAYOUT_FILL_ROW);
         new FXLabel(FluidMatrix,"E-5 Bangs per square twips",NULL,LAYOUT_LEFT|JUSTIFY_LEFT);
         
         new FXLabel(FluidMatrix,"Density",NULL,LAYOUT_RIGHT|JUSTIFY_RIGHT);
-        new FXTextField(FluidMatrix,10,Density_Tar,FXDataTarget::ID_VALUE,TEXTFIELD_REAL|JUSTIFY_RIGHT|LAYOUT_CENTER_Y|FRAME_SUNKEN|LAYOUT_CENTER_X|FRAME_THICK|LAYOUT_FILL_ROW);
+        new FXTextField(FluidMatrix,10,&Density_Tar,FXDataTarget::ID_VALUE,TEXTFIELD_REAL|JUSTIFY_RIGHT|LAYOUT_CENTER_Y|FRAME_SUNKEN|LAYOUT_CENTER_X|FRAME_THICK|LAYOUT_FILL_ROW);
         new FXLabel(FluidMatrix,"E-5 Mass per cubic twip",NULL,LAYOUT_LEFT|JUSTIFY_LEFT);
 
         FXGroupBox *SubGroup1=new FXGroupBox(FluidMatrix,"Flow Type",GROUPBOX_TITLE_LEFT|FRAME_RIDGE|LAYOUT_FILL_X|LAYOUT_FILL_Y);
@@ -56,12 +56,12 @@ long MainWindow::onCmdPCAdvancedControls(FXObject *, FXSelector, void *){
         new FXTextField(MiscMatrix,10,0,FXDataTarget::ID_VALUE,JUSTIFY_RIGHT|LAYOUT_CENTER_Y|LAYOUT_CENTER_X|FRAME_SUNKEN|FRAME_THICK|LAYOUT_FILL_ROW);
 
         new FXLabel(MiscMatrix,"Y axis Gravity",NULL,LAYOUT_LEFT|JUSTIFY_LEFT);
-        FXRealSlider *slider2=new FXRealSlider(MiscMatrix,YGravity_Tar,FXDataTarget::ID_VALUE,LAYOUT_CENTER_Y|LAYOUT_FILL_X|LAYOUT_FILL_ROW|LAYOUT_FIX_WIDTH,0,0,100);
+        FXRealSlider *slider2=new FXRealSlider(MiscMatrix,&YGravity_Tar,FXDataTarget::ID_VALUE,LAYOUT_CENTER_Y|LAYOUT_FILL_X|LAYOUT_FILL_ROW|LAYOUT_FIX_WIDTH,0,0,100);
         slider2->setRange(0,10);
         new FXTextField(MiscMatrix,10,0,FXDataTarget::ID_VALUE,TEXTFIELD_REAL|JUSTIFY_RIGHT|LAYOUT_CENTER_Y|FRAME_SUNKEN|LAYOUT_CENTER_X|FRAME_THICK|LAYOUT_FILL_ROW);
 
         new FXLabel(MiscMatrix,"Brownian Motion",NULL,LAYOUT_LEFT|JUSTIFY_LEFT);
-        FXRealSlider *slider3=new FXRealSlider(MiscMatrix,Brownian_Tar,FXDataTarget::ID_VALUE,LAYOUT_CENTER_Y|LAYOUT_FILL_X|LAYOUT_FILL_ROW|LAYOUT_FIX_WIDTH,0,0,100);
+        FXRealSlider *slider3=new FXRealSlider(MiscMatrix,&Brownian_Tar,FXDataTarget::ID_VALUE,LAYOUT_CENTER_Y|LAYOUT_FILL_X|LAYOUT_FILL_ROW|LAYOUT_FIX_WIDTH,0,0,100);
         slider3->setRange(0,10);
         new FXTextField(MiscMatrix,10,0,FXDataTarget::ID_VALUE,TEXTFIELD_REAL|JUSTIFY_RIGHT|LAYOUT_CENTER_Y|FRAME_SUNKEN|LAYOUT_CENTER_X|FRAME_THICK|LAYOUT_FILL_ROW);
 
@@ -80,13 +80,13 @@ long MainWindow::onCmdPCAdvancedControls(FXObject *, FXSelector, void *){
 
         FXMatrix *MiscMatrix3=new FXMatrix(MiscGroup2,1,MATRIX_BY_COLUMNS|LAYOUT_SIDE_TOP|LAYOUT_FILL_X|LAYOUT_FILL_Y);
 
-        FXCheckButton *Check1 = new FXCheckButton(MiscMatrix3,"Planet Eaters",PlanetEaters_Tar,FXDataTarget::ID_VALUE,CHECKBUTTON_NORMAL);
+        FXCheckButton *Check1 = new FXCheckButton(MiscMatrix3,"Planet Eaters",&PlanetEaters_Tar,FXDataTarget::ID_VALUE,CHECKBUTTON_NORMAL);
 
         FXMatrix *MiscMatrix4=new FXMatrix(MiscMatrix3,3,MATRIX_BY_COLUMNS|LAYOUT_SIDE_TOP|LAYOUT_FILL_X|LAYOUT_FILL_Y);
 
         new FXLabel(MiscMatrix4,"G:",NULL,LAYOUT_RIGHT|JUSTIFY_RIGHT);
         
-        new FXTextField(MiscMatrix4,5,PlanetEatersG_Tar,FXDataTarget::ID_VALUE,TEXTFIELD_REAL|JUSTIFY_RIGHT|LAYOUT_CENTER_Y|FRAME_SUNKEN|LAYOUT_CENTER_X|FRAME_THICK|LAYOUT_FILL_ROW);
+        new FXTextField(MiscMatrix4,5,&PlanetEatersG_Tar,FXDataTarget::ID_VALUE,TEXTFIELD_REAL|JUSTIFY_RIGHT|LAYOUT_CENTER_Y|FRAME_SUNKEN|LAYOUT_CENTER_X|FRAME_THICK|LAYOUT_FILL_ROW);
         
         new FXLabel(MiscMatrix4,"E+3",NULL,LAYOUT_LEFT|JUSTIFY_LEFT);
         
@@ -99,17 +99,17 @@ long MainWindow::onCmdPCAdvancedControls(FXObject *, FXSelector, void *){
         FXMatrix *FricMatrix=new FXMatrix(group3,3,MATRIX_BY_COLUMNS|LAYOUT_SIDE_TOP|LAYOUT_FILL_X|LAYOUT_FILL_Y);
 
         new FXLabel(FricMatrix,"Z axis Gravity",NULL,LAYOUT_LEFT|JUSTIFY_LEFT);
-        FXRealSlider *slider4=new FXRealSlider(FricMatrix,XGravity_Tar,FXDataTarget::ID_VALUE,LAYOUT_CENTER_Y|LAYOUT_FILL_X|LAYOUT_FILL_ROW|LAYOUT_FIX_WIDTH,0,0,100);
+        FXRealSlider *slider4=new FXRealSlider(FricMatrix,&YGravity_Tar,FXDataTarget::ID_VALUE,LAYOUT_CENTER_Y|LAYOUT_FILL_X|LAYOUT_FILL_ROW|LAYOUT_FIX_WIDTH,0,0,100);
         slider4->setRange(0,10);
         new FXTextField(FricMatrix,10,0,FXDataTarget::ID_VALUE,TEXTFIELD_REAL|JUSTIFY_RIGHT|LAYOUT_CENTER_Y|FRAME_SUNKEN|LAYOUT_CENTER_X|FRAME_THICK|LAYOUT_FILL_ROW);
         
         new FXLabel(FricMatrix,"Static Coefficient",NULL,LAYOUT_LEFT|JUSTIFY_LEFT);
-        FXRealSlider *slider5=new FXRealSlider(FricMatrix,CoefficientStatic_Tar,FXDataTarget::ID_VALUE,LAYOUT_CENTER_Y|LAYOUT_FILL_X|LAYOUT_FILL_ROW|LAYOUT_FIX_WIDTH,0,0,100);
+        FXRealSlider *slider5=new FXRealSlider(FricMatrix,&CoefficientStatic_Tar,FXDataTarget::ID_VALUE,LAYOUT_CENTER_Y|LAYOUT_FILL_X|LAYOUT_FILL_ROW|LAYOUT_FIX_WIDTH,0,0,100);
         slider5->setRange(0,1.5);
         new FXTextField(FricMatrix,10,0,FXDataTarget::ID_VALUE,TEXTFIELD_REAL|JUSTIFY_RIGHT|LAYOUT_CENTER_Y|FRAME_SUNKEN|LAYOUT_CENTER_X|FRAME_THICK|LAYOUT_FILL_ROW);
         
         new FXLabel(FricMatrix,"Kinetic Coefficient",NULL,LAYOUT_LEFT|JUSTIFY_LEFT);
-        FXRealSlider *slider6=new FXRealSlider(FricMatrix,CoefficientKinetic_Tar,FXDataTarget::ID_VALUE,LAYOUT_CENTER_Y|LAYOUT_FILL_X|LAYOUT_FILL_ROW|LAYOUT_FIX_WIDTH,0,0,100);
+        FXRealSlider *slider6=new FXRealSlider(FricMatrix,&CoefficientKinetic_Tar,FXDataTarget::ID_VALUE,LAYOUT_CENTER_Y|LAYOUT_FILL_X|LAYOUT_FILL_ROW|LAYOUT_FIX_WIDTH,0,0,100);
         slider6->setRange(0,1.5);
         new FXTextField(FricMatrix,10,0,FXDataTarget::ID_VALUE,TEXTFIELD_REAL|JUSTIFY_RIGHT|LAYOUT_CENTER_Y|FRAME_SUNKEN|LAYOUT_CENTER_X|FRAME_THICK|LAYOUT_FILL_ROW);
         
@@ -139,7 +139,7 @@ long MainWindow::onCmdPAndCAdv(FXObject *, FXSelector, void *){
 	FXDialogBox AdvCosts(this, "Advanced Costs", DECOR_TITLE|DECOR_BORDER,
  		0,0,0,0, 0,0,0,0, 0,0);
  		
- 	FXMatrix *LayoutMatrix=new FXMatrix(&AdvCosts,2,MATRIX_BY_COLUMNS|LAYOUT_SIDE_TOP|LAYOUT_FILL_X|LAYOUT_FILL_Y);
+	    FXMatrix *LayoutMatrix=new FXMatrix(&AdvCosts,2,MATRIX_BY_COLUMNS|LAYOUT_SIDE_TOP|LAYOUT_FILL_X|LAYOUT_FILL_Y);
 
         FXGroupBox *group1=new FXGroupBox(LayoutMatrix,"DNA Command Costs",GROUPBOX_TITLE_LEFT|FRAME_RIDGE|LAYOUT_FILL_X|LAYOUT_FILL_Y);
         FXMatrix *Matrix1=new FXMatrix(group1,3,MATRIX_BY_COLUMNS|LAYOUT_SIDE_TOP|LAYOUT_FILL_X|LAYOUT_FILL_Y);
@@ -253,8 +253,10 @@ long MainWindow::onCmdPAndCAdv(FXObject *, FXSelector, void *){
 long MainWindow::PhysicsAndCosts(FXTabBook *TabBook,FXDialogBox *Options){
     FXTabItem *linesTab3=new FXTabItem(TabBook,"&Physics and Costs",NULL);
     FXPacker *linesPage3=new FXPacker(TabBook,FRAME_THICK|FRAME_RAISED);
-
-    FXMatrix *LayoutMatrix=new FXMatrix(linesPage3,2,MATRIX_BY_COLUMNS|LAYOUT_SIDE_TOP|LAYOUT_FILL_X|LAYOUT_FILL_Y);
+    
+    FXMatrix *LayoutMatrixMain=new FXMatrix(linesPage3,1,MATRIX_BY_COLUMNS|LAYOUT_SIDE_TOP|LAYOUT_FILL_X|LAYOUT_FILL_Y);
+    
+    FXMatrix *LayoutMatrix=new FXMatrix(LayoutMatrixMain,2,MATRIX_BY_COLUMNS|LAYOUT_SIDE_TOP|LAYOUT_FILL_X|LAYOUT_FILL_Y);
 
     FXGroupBox *group1=new FXGroupBox(LayoutMatrix,"Physics",GROUPBOX_TITLE_LEFT|FRAME_RIDGE|LAYOUT_FILL_X|LAYOUT_FILL_Y);
     FXMatrix *matrix3=new FXMatrix(group1,1,MATRIX_BY_COLUMNS|LAYOUT_SIDE_TOP|LAYOUT_FILL_X|LAYOUT_FILL_Y);
@@ -298,9 +300,9 @@ long MainWindow::PhysicsAndCosts(FXTabBook *TabBook,FXDialogBox *Options){
     new FXLabel(matrix2,"Brownian Movement",NULL,LAYOUT_LEFT|JUSTIFY_LEFT);
     
     FXPopup *popup3=new FXPopup(this);
-    new FXOption(popup3,"Ideal",NULL,MovingEfficiency_Tar,FXDataTarget::ID_OPTION+0,JUSTIFY_HZ_APART|ICON_AFTER_TEXT);
-    new FXOption(popup3,"Biological",NULL,MovingEfficiency_Tar,FXDataTarget::ID_OPTION+1,JUSTIFY_HZ_APART|ICON_AFTER_TEXT);
-    new FXOption(popup3,"Mechanical",NULL,MovingEfficiency_Tar,FXDataTarget::ID_OPTION+2,JUSTIFY_HZ_APART|ICON_AFTER_TEXT);
+    new FXOption(popup3,"Ideal",NULL,&MovingEfficiency_Tar,FXDataTarget::ID_OPTION+0,JUSTIFY_HZ_APART|ICON_AFTER_TEXT);
+    new FXOption(popup3,"Biological",NULL,&MovingEfficiency_Tar,FXDataTarget::ID_OPTION+1,JUSTIFY_HZ_APART|ICON_AFTER_TEXT);
+    new FXOption(popup3,"Mechanical",NULL,&MovingEfficiency_Tar,FXDataTarget::ID_OPTION+2,JUSTIFY_HZ_APART|ICON_AFTER_TEXT);
     FXOptionMenu *options3=new FXOptionMenu(matrix2,popup3,LAYOUT_TOP|FRAME_RAISED|FRAME_THICK|JUSTIFY_HZ_APART|ICON_AFTER_TEXT);
     options2->setTarget(0);
     options2->setSelector(FXDataTarget::ID_VALUE);
@@ -355,31 +357,31 @@ long MainWindow::PhysicsAndCosts(FXTabBook *TabBook,FXDialogBox *Options){
 
     new FXSpinner(matrix4,5,0,FXDataTarget::ID_VALUE,SPIN_CYCLIC|FRAME_SUNKEN|FRAME_THICK|LAYOUT_CENTER_Y|LAYOUT_FILL_ROW);
 
-    FXMatrix *matrix5=new FXMatrix(LayoutMatrix,3,MATRIX_BY_COLUMNS|LAYOUT_SIDE_TOP|LAYOUT_FILL_X|LAYOUT_FILL_Y);
-    
-    FXMatrix *matrix6=new FXMatrix(LayoutMatrix,3,MATRIX_BY_COLUMNS|LAYOUT_SIDE_TOP|LAYOUT_FILL_X|LAYOUT_FILL_Y);
+    FXGroupBox *buttongroup=new FXGroupBox(LayoutMatrixMain,0,GROUPBOX_TITLE_LEFT|FRAME_RIDGE|LAYOUT_FILL_X|LAYOUT_FILL_Y);
 
-    FXButton *button5 = new FXButton(matrix5, "Load Settings", 0, Options,
+    FXMatrix *GroupMatrix=new FXMatrix(buttongroup,6,MATRIX_BY_COLUMNS|LAYOUT_SIDE_TOP|LAYOUT_FILL_X|LAYOUT_FILL_Y);
+
+    FXButton *button5 = new FXButton(GroupMatrix, "Load Settings", 0, Options,
         	FXDialogBox::ID_ACCEPT, BUTTON_INITIAL|BUTTON_DEFAULT|FRAME_RAISED|FRAME_THICK|LAYOUT_CENTER_X,
                 0,0,0,0,10,10,0,0);
 
-    FXButton *button6 = new FXButton(matrix5, "Save Settings", 0, Options,
+    FXButton *button6 = new FXButton(GroupMatrix, "Save Settings", 0, Options,
         	FXDialogBox::ID_ACCEPT, BUTTON_INITIAL|BUTTON_DEFAULT|FRAME_RAISED|FRAME_THICK|LAYOUT_CENTER_X,
                 0,0,0,0,10,10,0,0);
                 
-    FXButton *button7 = new FXButton(matrix5, "Cancel", 0, Options,
+    FXButton *button7 = new FXButton(GroupMatrix, "Cancel", 0, Options,
         	FXDialogBox::ID_CANCEL, BUTTON_INITIAL|BUTTON_DEFAULT|FRAME_RAISED|FRAME_THICK|LAYOUT_CENTER_X,
                 0,0,0,0,10,10,0,0);
                 
-    FXButton *button8 = new FXButton(matrix6, "Pause", 0, Options,
+    FXButton *button8 = new FXButton(GroupMatrix, "Pause", 0, Options,
         	FXDialogBox::ID_ACCEPT, BUTTON_INITIAL|BUTTON_DEFAULT|FRAME_RAISED|FRAME_THICK|LAYOUT_CENTER_X,
                 0,0,0,0,10,10,0,0);
                 
-    FXButton *button9 = new FXButton(matrix6, "Start New", 0, Options,
+    FXButton *button9 = new FXButton(GroupMatrix, "Start New", 0, Options,
         	FXDialogBox::ID_ACCEPT, BUTTON_INITIAL|BUTTON_DEFAULT|FRAME_RAISED|FRAME_THICK|LAYOUT_CENTER_X,
                 0,0,0,0,10,10,0,0);
                 
-    FXButton *button10 = new FXButton(matrix6, "Change", 0, Options,
+    FXButton *button10 = new FXButton(GroupMatrix, "Change", 0, Options,
         	FXDialogBox::ID_ACCEPT, BUTTON_INITIAL|BUTTON_DEFAULT|FRAME_RAISED|FRAME_THICK|LAYOUT_CENTER_X,
                 0,0,0,0,10,10,0,0);
 
