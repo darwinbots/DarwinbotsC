@@ -60,32 +60,5 @@ long MainWindow::Recording(FXTabBook *TabBook,FXDialogBox *Options){
     
     FXGroupBox *group3=new FXGroupBox(LayoutMatrix2,"Future Recording Method",GROUPBOX_TITLE_LEFT|FRAME_RIDGE|LAYOUT_FILL_X|LAYOUT_FILL_Y);
     
-    FXGroupBox *group4=new FXGroupBox(LayoutMatrix,0,GROUPBOX_TITLE_LEFT|FRAME_RIDGE|LAYOUT_FILL_X|LAYOUT_FILL_Y);
-    FXMatrix *LayoutMatrix3=new FXMatrix(group4,6,MATRIX_BY_COLUMNS|LAYOUT_SIDE_TOP|LAYOUT_FILL_X|LAYOUT_FILL_Y);
-    
-    new FXButton(LayoutMatrix3, "Load Settings", 0, Options,
-        FXDialogBox::ID_ACCEPT, BUTTON_INITIAL|BUTTON_DEFAULT|FRAME_RAISED|FRAME_THICK|LAYOUT_CENTER_X,
-              0,0,0,0,10,10,0,0);
-
-    new FXButton(LayoutMatrix3, "Save Settings", 0, Options,
-        FXDialogBox::ID_ACCEPT, BUTTON_INITIAL|BUTTON_DEFAULT|FRAME_RAISED|FRAME_THICK|LAYOUT_CENTER_X,
-              0,0,0,0,10,10,0,0);
-                
-    new FXButton(LayoutMatrix3, "Cancel", 0, Options,
-        FXDialogBox::ID_CANCEL, BUTTON_INITIAL|BUTTON_DEFAULT|FRAME_RAISED|FRAME_THICK|LAYOUT_CENTER_X,
-              0,0,0,0,10,10,0,0);
-                
-    new FXButton(LayoutMatrix3, "Pause", 0, Options,
-        FXDialogBox::ID_ACCEPT, BUTTON_INITIAL|BUTTON_DEFAULT|FRAME_RAISED|FRAME_THICK|LAYOUT_CENTER_X,
-              0,0,0,0,10,10,0,0);
-                
-    FXButton(LayoutMatrix3, "Start New", 0, Options,
-        FXDialogBox::ID_ACCEPT, BUTTON_INITIAL|BUTTON_DEFAULT|FRAME_RAISED|FRAME_THICK|LAYOUT_CENTER_X,
-              0,0,0,0,10,10,0,0);
-                
-    new FXButton(LayoutMatrix3, "Change", 0, Options,
-        FXDialogBox::ID_ACCEPT, BUTTON_INITIAL|BUTTON_DEFAULT|FRAME_RAISED|FRAME_THICK|LAYOUT_CENTER_X,
-              0,0,0,0,10,10,0,0);
-    
     return 1;
 }

@@ -253,10 +253,8 @@ long MainWindow::onCmdPAndCAdv(FXObject *, FXSelector, void *){
 long MainWindow::PhysicsAndCosts(FXTabBook *TabBook,FXDialogBox *Options){
     FXTabItem *linesTab3=new FXTabItem(TabBook,"&Physics and Costs",NULL);
     FXPacker *linesPage3=new FXPacker(TabBook,FRAME_THICK|FRAME_RAISED);
-    
-    FXMatrix *LayoutMatrixMain=new FXMatrix(linesPage3,1,MATRIX_BY_COLUMNS|LAYOUT_SIDE_TOP|LAYOUT_FILL_X|LAYOUT_FILL_Y);
-    
-    FXMatrix *LayoutMatrix=new FXMatrix(LayoutMatrixMain,2,MATRIX_BY_COLUMNS|LAYOUT_SIDE_TOP|LAYOUT_FILL_X|LAYOUT_FILL_Y);
+        
+    FXMatrix *LayoutMatrix=new FXMatrix(linesPage3,2,MATRIX_BY_COLUMNS|LAYOUT_SIDE_TOP|LAYOUT_FILL_X|LAYOUT_FILL_Y);
 
     FXGroupBox *group1=new FXGroupBox(LayoutMatrix,"Physics",GROUPBOX_TITLE_LEFT|FRAME_RIDGE|LAYOUT_FILL_X|LAYOUT_FILL_Y);
     FXMatrix *matrix3=new FXMatrix(group1,1,MATRIX_BY_COLUMNS|LAYOUT_SIDE_TOP|LAYOUT_FILL_X|LAYOUT_FILL_Y);
@@ -356,34 +354,6 @@ long MainWindow::PhysicsAndCosts(FXTabBook *TabBook,FXDialogBox *Options){
     new FXRadioButton(matrix4,"Propotional",0,FXDataTarget::ID_OPTION+1,LAYOUT_CENTER_Y|LAYOUT_FILL_COLUMN|LAYOUT_FILL_ROW|ICON_BEFORE_TEXT);
 
     new FXSpinner(matrix4,5,0,FXDataTarget::ID_VALUE,SPIN_CYCLIC|FRAME_SUNKEN|FRAME_THICK|LAYOUT_CENTER_Y|LAYOUT_FILL_ROW);
-
-    FXGroupBox *buttongroup=new FXGroupBox(LayoutMatrixMain,0,GROUPBOX_TITLE_LEFT|FRAME_RIDGE|LAYOUT_FILL_X|LAYOUT_FILL_Y);
-
-    FXMatrix *GroupMatrix=new FXMatrix(buttongroup,6,MATRIX_BY_COLUMNS|LAYOUT_SIDE_TOP|LAYOUT_FILL_X|LAYOUT_FILL_Y);
-
-    FXButton *button5 = new FXButton(GroupMatrix, "Load Settings", 0, Options,
-        	FXDialogBox::ID_ACCEPT, BUTTON_INITIAL|BUTTON_DEFAULT|FRAME_RAISED|FRAME_THICK|LAYOUT_CENTER_X,
-                0,0,0,0,10,10,0,0);
-
-    FXButton *button6 = new FXButton(GroupMatrix, "Save Settings", 0, Options,
-        	FXDialogBox::ID_ACCEPT, BUTTON_INITIAL|BUTTON_DEFAULT|FRAME_RAISED|FRAME_THICK|LAYOUT_CENTER_X,
-                0,0,0,0,10,10,0,0);
-                
-    FXButton *button7 = new FXButton(GroupMatrix, "Cancel", 0, Options,
-        	FXDialogBox::ID_CANCEL, BUTTON_INITIAL|BUTTON_DEFAULT|FRAME_RAISED|FRAME_THICK|LAYOUT_CENTER_X,
-                0,0,0,0,10,10,0,0);
-                
-    FXButton *button8 = new FXButton(GroupMatrix, "Pause", 0, Options,
-        	FXDialogBox::ID_ACCEPT, BUTTON_INITIAL|BUTTON_DEFAULT|FRAME_RAISED|FRAME_THICK|LAYOUT_CENTER_X,
-                0,0,0,0,10,10,0,0);
-                
-    FXButton *button9 = new FXButton(GroupMatrix, "Start New", 0, Options,
-        	FXDialogBox::ID_ACCEPT, BUTTON_INITIAL|BUTTON_DEFAULT|FRAME_RAISED|FRAME_THICK|LAYOUT_CENTER_X,
-                0,0,0,0,10,10,0,0);
-                
-    FXButton *button10 = new FXButton(GroupMatrix, "Change", 0, Options,
-        	FXDialogBox::ID_ACCEPT, BUTTON_INITIAL|BUTTON_DEFAULT|FRAME_RAISED|FRAME_THICK|LAYOUT_CENTER_X,
-                0,0,0,0,10,10,0,0);
 
 	return 1;
 }

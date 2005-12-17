@@ -4,8 +4,7 @@ long MainWindow::InternetOptions(FXTabBook *TabBook,FXDialogBox *Options){
     FXTabItem *linesTab6=new FXTabItem(TabBook,"&Internet",NULL);
     FXPacker *linesPage6=new FXPacker(TabBook,FRAME_THICK|FRAME_RAISED);
                 
-    FXMatrix *LayoutMatrix=new FXMatrix(linesPage6,1,MATRIX_BY_COLUMNS|LAYOUT_SIDE_TOP|LAYOUT_FILL_X|LAYOUT_FILL_Y);
-    FXMatrix *LayoutMatrix2=new FXMatrix(LayoutMatrix,2,MATRIX_BY_COLUMNS|LAYOUT_SIDE_TOP|LAYOUT_FILL_X|LAYOUT_FILL_Y);
+    FXMatrix *LayoutMatrix2=new FXMatrix(linesPage6,2,MATRIX_BY_COLUMNS|LAYOUT_SIDE_TOP|LAYOUT_FILL_X|LAYOUT_FILL_Y);
     FXGroupBox *group1=new FXGroupBox(LayoutMatrix2,"Parameters",GROUPBOX_TITLE_LEFT|FRAME_RIDGE|LAYOUT_FILL_X|LAYOUT_FILL_Y);
     FXMatrix *ParameterMatrix=new FXMatrix(group1,1,MATRIX_BY_COLUMNS|LAYOUT_SIDE_TOP|LAYOUT_FILL_X|LAYOUT_FILL_Y);
     
@@ -38,34 +37,6 @@ long MainWindow::InternetOptions(FXTabBook *TabBook,FXDialogBox *Options){
     FXCheckButton *Check3 = new FXCheckButton(ParameterMatrix,"and every time somthing is uploaded",0,0,CHECKBUTTON_NORMAL);
     
     new FXLabel(LayoutMatrix2,"DarwinBots will upload up to one\n""organism every 100,000 cycles to\n""the specified server. Also, the first\n""upload will be allowed at 100,000 cycles.",NULL,LAYOUT_LEFT|JUSTIFY_LEFT);
-    
-    FXGroupBox *ButtonGroup=new FXGroupBox(LayoutMatrix,0,GROUPBOX_TITLE_LEFT|FRAME_RIDGE|LAYOUT_FILL_X|LAYOUT_FILL_Y);
-    
-    FXMatrix *LayoutMatrix3=new FXMatrix(ButtonGroup,6,MATRIX_BY_COLUMNS|LAYOUT_SIDE_TOP|LAYOUT_FILL_X|LAYOUT_FILL_Y);
-    
-    FXButton *button5 = new FXButton(LayoutMatrix3, "Load Settings", 0, Options,
-        	FXDialogBox::ID_ACCEPT, BUTTON_INITIAL|BUTTON_DEFAULT|FRAME_RAISED|FRAME_THICK|LAYOUT_CENTER_X,
-                0,0,0,0,10,10,0,0);
-
-    FXButton *button6 = new FXButton(LayoutMatrix3, "Save Settings", 0, Options,
-        	FXDialogBox::ID_ACCEPT, BUTTON_INITIAL|BUTTON_DEFAULT|FRAME_RAISED|FRAME_THICK|LAYOUT_CENTER_X,
-                0,0,0,0,10,10,0,0);
-                
-    FXButton *button7 = new FXButton(LayoutMatrix3, "Cancel", 0, Options,
-        	FXDialogBox::ID_CANCEL, BUTTON_INITIAL|BUTTON_DEFAULT|FRAME_RAISED|FRAME_THICK|LAYOUT_CENTER_X,
-                0,0,0,0,10,10,0,0);
-                
-    FXButton *button8 = new FXButton(LayoutMatrix3, "Pause", 0, Options,
-        	FXDialogBox::ID_ACCEPT, BUTTON_INITIAL|BUTTON_DEFAULT|FRAME_RAISED|FRAME_THICK|LAYOUT_CENTER_X,
-                0,0,0,0,10,10,0,0);
-                
-    FXButton *button9 = new FXButton(LayoutMatrix3, "Start New", 0, Options,
-        	FXDialogBox::ID_ACCEPT, BUTTON_INITIAL|BUTTON_DEFAULT|FRAME_RAISED|FRAME_THICK|LAYOUT_CENTER_X,
-                0,0,0,0,10,10,0,0);
-                
-    FXButton *button10 = new FXButton(LayoutMatrix3, "Change", 0, Options,
-        	FXDialogBox::ID_ACCEPT, BUTTON_INITIAL|BUTTON_DEFAULT|FRAME_RAISED|FRAME_THICK|LAYOUT_CENTER_X,
-                0,0,0,0,10,10,0,0);
     
     return 1;
 }

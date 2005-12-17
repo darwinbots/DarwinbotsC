@@ -9,8 +9,10 @@ long MainWindow::onCmdQuit(FXObject *, FXSelector, void *)
 long MainWindow::onCmdNewSimulation(FXObject *, FXSelector, void *){
 	FXDialogBox Options(this, "Sim options ", DECOR_TITLE|DECOR_BORDER,
  		0,0,0,0, 0,0,0,0, 0,0);
- 		
-    FXTabBook *tabbook=new FXTabBook(&Options,NULL,0,LAYOUT_FILL_X|LAYOUT_FILL_Y|LAYOUT_RIGHT);
+    
+    FXMatrix *LayoutMatrix=new FXMatrix(&Options,1,MATRIX_BY_COLUMNS|LAYOUT_SIDE_TOP|LAYOUT_FILL_X|LAYOUT_FILL_Y);
+    
+    FXTabBook *tabbook=new FXTabBook(LayoutMatrix,NULL,0,LAYOUT_FILL_X|LAYOUT_FILL_Y|LAYOUT_RIGHT);
     
     Species(tabbook, &Options);
     
@@ -26,7 +28,34 @@ long MainWindow::onCmdNewSimulation(FXObject *, FXSelector, void *){
     
     Recording(tabbook, &Options);
     
-    Options.execute(PLACEMENT_OWNER);
+    FXGroupBox *ButtonGroup=new FXGroupBox(LayoutMatrix,0,GROUPBOX_TITLE_LEFT|FRAME_RIDGE|LAYOUT_FILL_X|LAYOUT_FILL_Y);
+    FXMatrix *ButtonMatrix=new FXMatrix(ButtonGroup,6,MATRIX_BY_COLUMNS|LAYOUT_SIDE_TOP|LAYOUT_FILL_X|LAYOUT_FILL_Y);
+    
+    FXButton *button5 = new FXButton(ButtonMatrix, "Load Settings", 0, &Options,
+        	FXDialogBox::ID_ACCEPT, BUTTON_INITIAL|BUTTON_DEFAULT|FRAME_RAISED|FRAME_THICK|LAYOUT_CENTER_X,
+                0,0,0,0,10,10,0,0);
+
+    FXButton *button6 = new FXButton(ButtonMatrix, "Save Settings", 0, &Options,
+        	FXDialogBox::ID_ACCEPT, BUTTON_INITIAL|BUTTON_DEFAULT|FRAME_RAISED|FRAME_THICK|LAYOUT_CENTER_X,
+                0,0,0,0,10,10,0,0);
+                
+    FXButton *button7 = new FXButton(ButtonMatrix, "Cancel", 0, &Options,
+        	FXDialogBox::ID_CANCEL, BUTTON_INITIAL|BUTTON_DEFAULT|FRAME_RAISED|FRAME_THICK|LAYOUT_CENTER_X,
+                0,0,0,0,10,10,0,0);
+                
+    FXButton *button8 = new FXButton(ButtonMatrix, "Pause", 0, &Options,
+        	FXDialogBox::ID_ACCEPT, BUTTON_INITIAL|BUTTON_DEFAULT|FRAME_RAISED|FRAME_THICK|LAYOUT_CENTER_X,
+                0,0,0,0,10,10,0,0);
+                
+    FXButton *button9 = new FXButton(ButtonMatrix, "Start New", 0, &Options,
+        	FXDialogBox::ID_ACCEPT, BUTTON_INITIAL|BUTTON_DEFAULT|FRAME_RAISED|FRAME_THICK|LAYOUT_CENTER_X,
+                0,0,0,0,10,10,0,0);
+                
+    FXButton *button10 = new FXButton(ButtonMatrix, "Change", 0, &Options,
+        	FXDialogBox::ID_ACCEPT, BUTTON_INITIAL|BUTTON_DEFAULT|FRAME_RAISED|FRAME_THICK|LAYOUT_CENTER_X,
+                0,0,0,0,10,10,0,0);
+                
+    Options.execute(PLACEMENT_OWNER);   
     
     return 1;
         

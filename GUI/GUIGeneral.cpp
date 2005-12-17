@@ -3,10 +3,8 @@
 long MainWindow::General(FXTabBook *TabBook,FXDialogBox *Options){
     FXTabItem *linesTab2=new FXTabItem(TabBook,"&General",NULL);
     FXPacker *linesPage2=new FXPacker(TabBook,FRAME_THICK|FRAME_RAISED);  
-  
-    FXMatrix *LayoutMatrix1=new FXMatrix(linesPage2,1,MATRIX_BY_COLUMNS|LAYOUT_SIDE_TOP|LAYOUT_FILL_X|LAYOUT_FILL_Y);
-  
-    FXGroupBox *GeneralGroup=new FXGroupBox(LayoutMatrix1,"General Properties",GROUPBOX_TITLE_LEFT|FRAME_RIDGE|LAYOUT_FILL_X|LAYOUT_FILL_Y);
+    
+    FXGroupBox *GeneralGroup=new FXGroupBox(linesPage2,"General Properties",GROUPBOX_TITLE_LEFT|FRAME_RIDGE|LAYOUT_FILL_X|LAYOUT_FILL_Y);
   
     FXMatrix *GeneralMatrix=new FXMatrix(GeneralGroup,2,MATRIX_BY_COLUMNS|LAYOUT_SIDE_TOP|LAYOUT_FILL_X|LAYOUT_FILL_Y);
   
@@ -137,34 +135,7 @@ long MainWindow::General(FXTabBook *TabBook,FXDialogBox *Options){
     new FXLabel(VBMatrix,"NRG",NULL,LAYOUT_RIGHT|JUSTIFY_RIGHT);
     FXSlider *slider2=new FXSlider(VBMatrix,0,FXDataTarget::ID_VALUE,LAYOUT_CENTER_Y|LAYOUT_FILL_X|LAYOUT_FILL_ROW|LAYOUT_FIX_WIDTH,0,0,100);
     slider2->setRange(0,100);
-    new FXLabel(VBMatrix,"Body",NULL,LAYOUT_LEFT|JUSTIFY_RIGHT);
-    
-    FXGroupBox *ButtonGroup=new FXGroupBox(LayoutMatrix1,0,GROUPBOX_TITLE_LEFT|FRAME_RIDGE|LAYOUT_FILL_X|LAYOUT_FILL_Y);
-    FXMatrix *ButtonMatrix=new FXMatrix(ButtonGroup,6,MATRIX_BY_COLUMNS|LAYOUT_SIDE_TOP|LAYOUT_FILL_X|LAYOUT_FILL_Y);
-    
-    FXButton *button5 = new FXButton(ButtonMatrix, "Load Settings", 0, Options,
-        	FXDialogBox::ID_ACCEPT, BUTTON_INITIAL|BUTTON_DEFAULT|FRAME_RAISED|FRAME_THICK|LAYOUT_CENTER_X,
-                0,0,0,0,10,10,0,0);
-
-    FXButton *button6 = new FXButton(ButtonMatrix, "Save Settings", 0, Options,
-        	FXDialogBox::ID_ACCEPT, BUTTON_INITIAL|BUTTON_DEFAULT|FRAME_RAISED|FRAME_THICK|LAYOUT_CENTER_X,
-                0,0,0,0,10,10,0,0);
-                
-    FXButton *button7 = new FXButton(ButtonMatrix, "Cancel", 0, Options,
-        	FXDialogBox::ID_CANCEL, BUTTON_INITIAL|BUTTON_DEFAULT|FRAME_RAISED|FRAME_THICK|LAYOUT_CENTER_X,
-                0,0,0,0,10,10,0,0);
-                
-    FXButton *button8 = new FXButton(ButtonMatrix, "Pause", 0, Options,
-        	FXDialogBox::ID_ACCEPT, BUTTON_INITIAL|BUTTON_DEFAULT|FRAME_RAISED|FRAME_THICK|LAYOUT_CENTER_X,
-                0,0,0,0,10,10,0,0);
-                
-    FXButton *button9 = new FXButton(ButtonMatrix, "Start New", 0, Options,
-        	FXDialogBox::ID_ACCEPT, BUTTON_INITIAL|BUTTON_DEFAULT|FRAME_RAISED|FRAME_THICK|LAYOUT_CENTER_X,
-                0,0,0,0,10,10,0,0);
-                
-    FXButton *button10 = new FXButton(ButtonMatrix, "Change", 0, Options,
-        	FXDialogBox::ID_ACCEPT, BUTTON_INITIAL|BUTTON_DEFAULT|FRAME_RAISED|FRAME_THICK|LAYOUT_CENTER_X,
-                0,0,0,0,10,10,0,0);    
+    new FXLabel(VBMatrix,"Body",NULL,LAYOUT_LEFT|JUSTIFY_RIGHT);  
 
     return 1;
 }

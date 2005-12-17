@@ -46,35 +46,6 @@ long MainWindow::Mutations(FXTabBook *TabBook,FXDialogBox *Options){
     FXMatrix *GroupMatrix6=new FXMatrix(GroupMatrix4,5,MATRIX_BY_COLUMNS|LAYOUT_SIDE_TOP|LAYOUT_FILL_X|LAYOUT_FILL_Y);
     
     FXMatrix *GroupMatrix7=new FXMatrix(GroupMatrix4,1,MATRIX_BY_COLUMNS|LAYOUT_SIDE_TOP|LAYOUT_FILL_X|LAYOUT_FILL_Y);
-    
-    
-    FXGroupBox *group4=new FXGroupBox(MainMatrix,0,GROUPBOX_TITLE_LEFT|FRAME_RIDGE|LAYOUT_FILL_X|LAYOUT_FILL_Y);
-    FXMatrix *GroupMatrix8=new FXMatrix(group4,6,MATRIX_BY_COLUMNS|LAYOUT_SIDE_TOP|LAYOUT_FILL_X|LAYOUT_FILL_Y);
-
-    FXButton *button5 = new FXButton(GroupMatrix8, "Load Settings", 0, Options,
-        	FXDialogBox::ID_ACCEPT, BUTTON_INITIAL|BUTTON_DEFAULT|FRAME_RAISED|FRAME_THICK|LAYOUT_CENTER_X,
-                0,0,0,0,10,10,0,0);
-
-    FXButton *button6 = new FXButton(GroupMatrix8, "Save Settings", 0, Options,
-        	FXDialogBox::ID_ACCEPT, BUTTON_INITIAL|BUTTON_DEFAULT|FRAME_RAISED|FRAME_THICK|LAYOUT_CENTER_X,
-                0,0,0,0,10,10,0,0);
-                
-    FXButton *button7 = new FXButton(GroupMatrix8, "Cancel", 0, Options,
-        	FXDialogBox::ID_CANCEL, BUTTON_INITIAL|BUTTON_DEFAULT|FRAME_RAISED|FRAME_THICK|LAYOUT_CENTER_X,
-                0,0,0,0,10,10,0,0);
-                
-    FXButton *button8 = new FXButton(GroupMatrix8, "Pause", 0, Options,
-        	FXDialogBox::ID_ACCEPT, BUTTON_INITIAL|BUTTON_DEFAULT|FRAME_RAISED|FRAME_THICK|LAYOUT_CENTER_X,
-                0,0,0,0,10,10,0,0);
-                
-    FXButton *button9 = new FXButton(GroupMatrix8, "Start New", 0, Options,
-        	FXDialogBox::ID_ACCEPT, BUTTON_INITIAL|BUTTON_DEFAULT|FRAME_RAISED|FRAME_THICK|LAYOUT_CENTER_X,
-                0,0,0,0,10,10,0,0);
-                
-    FXButton *button10 = new FXButton(GroupMatrix8, "Change", 0, Options,
-        	FXDialogBox::ID_ACCEPT, BUTTON_INITIAL|BUTTON_DEFAULT|FRAME_RAISED|FRAME_THICK|LAYOUT_CENTER_X,
-                0,0,0,0,10,10,0,0);
-
 
     return 1;
     

@@ -5,7 +5,7 @@ long MainWindow::ReststartAndL(FXTabBook *TabBook,FXDialogBox *Options){
     FXPacker *linesPage5=new FXPacker(TabBook,FRAME_THICK|FRAME_RAISED);
     
     FXMatrix *LayoutMatrix=new FXMatrix(linesPage5,1,MATRIX_BY_COLUMNS|LAYOUT_SIDE_TOP|LAYOUT_FILL_X|LAYOUT_FILL_Y);
-    FXMatrix *LayoutMatrix2=new FXMatrix(LayoutMatrix,2,MATRIX_BY_COLUMNS|LAYOUT_SIDE_TOP|LAYOUT_FILL_X|LAYOUT_FILL_Y);
+    FXMatrix *LayoutMatrix2=new FXMatrix(linesPage5,2,MATRIX_BY_COLUMNS|LAYOUT_SIDE_TOP|LAYOUT_FILL_X|LAYOUT_FILL_Y);
     
     FXGroupBox *group1=new FXGroupBox(LayoutMatrix2,"Contest Conditions",GROUPBOX_TITLE_LEFT|FRAME_RIDGE|LAYOUT_FILL_X|LAYOUT_FILL_Y);
     FXMatrix *Matrix=new FXMatrix(group1,2,MATRIX_BY_COLUMNS|LAYOUT_SIDE_TOP|LAYOUT_FILL_X|LAYOUT_FILL_Y);
@@ -57,33 +57,6 @@ long MainWindow::ReststartAndL(FXTabBook *TabBook,FXDialogBox *Options){
                 0,0,0,0,10,10,0,0);
                 
     FXCheckButton *Check3 = new FXCheckButton(Matrix3,"Rerun League",0,0,CHECKBUTTON_NORMAL);
-    
-    FXGroupBox *group4=new FXGroupBox(LayoutMatrix,0,GROUPBOX_TITLE_LEFT|FRAME_RIDGE|LAYOUT_FILL_X|LAYOUT_FILL_Y);
-    FXMatrix *Matrix7=new FXMatrix(group4,6,MATRIX_BY_COLUMNS|LAYOUT_SIDE_TOP|LAYOUT_FILL_X|LAYOUT_FILL_Y);
-    FXButton *button5 = new FXButton(Matrix7, "Load Settings", 0, Options,
-        	FXDialogBox::ID_ACCEPT, BUTTON_INITIAL|BUTTON_DEFAULT|FRAME_RAISED|FRAME_THICK|LAYOUT_CENTER_X,
-                0,0,0,0,10,10,0,0);
-
-    FXButton *button6 = new FXButton(Matrix7, "Save Settings", 0, Options,
-        	FXDialogBox::ID_ACCEPT, BUTTON_INITIAL|BUTTON_DEFAULT|FRAME_RAISED|FRAME_THICK|LAYOUT_CENTER_X,
-                0,0,0,0,10,10,0,0);
-                
-    FXButton *button7 = new FXButton(Matrix7, "Cancel", 0, Options,
-        	FXDialogBox::ID_CANCEL, BUTTON_INITIAL|BUTTON_DEFAULT|FRAME_RAISED|FRAME_THICK|LAYOUT_CENTER_X,
-                0,0,0,0,10,10,0,0);
-                
-    FXButton *button8 = new FXButton(Matrix7, "Pause", 0, Options,
-        	FXDialogBox::ID_ACCEPT, BUTTON_INITIAL|BUTTON_DEFAULT|FRAME_RAISED|FRAME_THICK|LAYOUT_CENTER_X,
-                0,0,0,0,10,10,0,0);
-                
-    FXButton *button9 = new FXButton(Matrix7, "Start New", 0, Options,
-        	FXDialogBox::ID_ACCEPT, BUTTON_INITIAL|BUTTON_DEFAULT|FRAME_RAISED|FRAME_THICK|LAYOUT_CENTER_X,
-                0,0,0,0,10,10,0,0);
-                
-    FXButton *button10 = new FXButton(Matrix7, "Change", 0, Options,
-        	FXDialogBox::ID_ACCEPT, BUTTON_INITIAL|BUTTON_DEFAULT|FRAME_RAISED|FRAME_THICK|LAYOUT_CENTER_X,
-                0,0,0,0,10,10,0,0);
-
 
     return 1;
 }
