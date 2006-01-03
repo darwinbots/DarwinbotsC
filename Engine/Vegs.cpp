@@ -17,3 +17,82 @@ void Robot::FeedVegWaste()
 		}
 	}
 }
+
+void Robot::FeedVegSun()
+{
+    static long counter=0;
+    int daymod;
+    float depth=0, tok=0;
+
+    const float QuadConstant = .00000005859375f;
+    
+    counter++;
+
+    if (counter > SimOpts.CycleLength && SimOpts.DayNight)
+    {
+        SimOpts.Daytime = !SimOpts.Daytime;
+        counter = 0;
+    }
+
+    if (SimOpts.Daytime)
+    {
+        //display day picture;
+    }
+    else
+    {
+        //display night picture
+    }
+
+    if (SimOpts.Daytime) daymod = 1;
+    else daymod = 0;
+    
+    if (SimOpts.DayNight && SimOpts.Daytime == false)
+        return;
+
+    if (Veg && nrg > 0)
+    {
+        if (SimOpts.PondMode)
+        {
+            depth = this->pos.y() / 2000 + 1;
+            if (depth < 1)
+                depth = 1;
+
+            tok = (SimOpts.LightIntensity / pow(depth, SimOpts.Gradient) * daymod + 1);
+        }
+        else
+        {
+            tok = SimOpts.NrgCyc;
+        }
+
+        if (tok < 0)
+            tok = 0;
+
+        switch(SimOpts.VegFeedingMethod)
+        {
+            case 0: //per veg
+            {
+                this->nrg += tok * (1 - SimOpts.VegFeedingToBody);
+                this->Body += tok * (SimOpts.VegFeedingToBody) / 10;
+            }break;
+            case 1: //per kilobody
+            {
+                this->nrg += tok * (1 - SimOpts.VegFeedingToBody) * this->Body / 1000;
+                this->Body += tok * (SimOpts.VegFeedingToBody) / 10 * this->Body / 1000;
+            }break;
+            case 2: //quadtratically based on body.  Close to type 0 near 1000 body points, but quickly diverges at about 5K body points
+            {
+                tok *= ((this->Body * this->Body * QuadConstant) + (1 - QuadConstant * 1000 * 1000));
+                this->nrg += tok * (1 - SimOpts.VegFeedingToBody);
+                this->Body += tok * (SimOpts.VegFeedingToBody) / 10;
+            }break;
+        }
+
+        if (this->nrg > 32000)
+            this->nrg = 32000;
+        if (this->Body > 32000)
+            this->Body = 32000;
+
+        this->UpdateRadius();
+        this->UpdateMass();
+    }
+}

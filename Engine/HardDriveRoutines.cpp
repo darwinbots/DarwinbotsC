@@ -127,7 +127,7 @@ void ReadSettPre2_4(ifstream &in, SimOptions &Options)
 		Options.Specie[x].Veg =					 GrabBool(in);
 		Options.Specie[x].Fixed =				 GrabBool(in);
 				
-		Options.Specie[x].color =				 GrabNumber(in);
+		Options.Specie[x].color =	Vector4(GrabNumber(in), 0,0);
 		line =									 GrabString(in);  //obsolete
 		Options.Specie[x].nrg =					 GrabNumber(in);
 

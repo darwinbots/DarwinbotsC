@@ -355,5 +355,33 @@ long MainWindow::PhysicsAndCosts(FXTabBook *TabBook,FXDialogBox *Options){
 
     new FXSpinner(matrix4,5,0,FXDataTarget::ID_VALUE,SPIN_CYCLIC|FRAME_SUNKEN|FRAME_THICK|LAYOUT_CENTER_Y|LAYOUT_FILL_ROW);
 
+//<<<<< .mine
+    FXMatrix *matrix5=new FXMatrix(LayoutMatrix,3,MATRIX_BY_COLUMNS|LAYOUT_SIDE_TOP|LAYOUT_FILL_X|LAYOUT_FILL_Y);
+    
+    FXMatrix *matrix6=new FXMatrix(LayoutMatrix,3,MATRIX_BY_COLUMNS|LAYOUT_SIDE_TOP|LAYOUT_FILL_X|LAYOUT_FILL_Y);
+
+    FXButton *button5 = new FXButton(matrix5, "Load Settings", 0, Options,
+        	FXDialogBox::ID_ACCEPT, BUTTON_INITIAL|BUTTON_DEFAULT|FRAME_RAISED|FRAME_THICK|LAYOUT_CENTER_X,
+                0,0,0,0,10,10,0,0);
+
+    FXButton *button6 = new FXButton(matrix5, "Save Settings", 0, Options,
+        	FXDialogBox::ID_ACCEPT, BUTTON_INITIAL|BUTTON_DEFAULT|FRAME_RAISED|FRAME_THICK|LAYOUT_CENTER_X,
+                0,0,0,0,10,10,0,0);
+                
+    FXButton *button7 = new FXButton(matrix5, "Cancel", 0, Options,
+        	FXDialogBox::ID_CANCEL, BUTTON_INITIAL|BUTTON_DEFAULT|FRAME_RAISED|FRAME_THICK|LAYOUT_CENTER_X,
+                0,0,0,0,10,10,0,0);
+                
+    FXButton *button8 = new FXButton(matrix6, "Pause", 0, Options,
+        	FXDialogBox::ID_ACCEPT, BUTTON_INITIAL|BUTTON_DEFAULT|FRAME_RAISED|FRAME_THICK|LAYOUT_CENTER_X,
+                0,0,0,0,10,10,0,0);
+                
+    FXButton *button9 = new FXButton(matrix6, "Start New", 0, Options,
+        	FXDialogBox::ID_ACCEPT, BUTTON_INITIAL|BUTTON_DEFAULT|FRAME_RAISED|FRAME_THICK|LAYOUT_CENTER_X,
+                0,0,0,0,10,10,0,0);
+                
+    FXButton *button10 = new FXButton(matrix6, "Change", 0, Options,
+        	FXDialogBox::ID_ACCEPT, BUTTON_INITIAL|BUTTON_DEFAULT|FRAME_RAISED|FRAME_THICK|LAYOUT_CENTER_X,
+                0,0,0,0,10,10,0,0);
 	return 1;
 }

@@ -10,12 +10,12 @@
 
 using namespace std;
 
-int main(void)
+/*int main(void)
 {
 	Engine.SetupSim();	
-    /*vector<int> beta;
+    vector<bool> beta;
 	
-    string alpha("Hello");
+    /*string alpha("Hello");
 
     cout << alpha.at(0) << endl;
 
@@ -42,6 +42,15 @@ int main(void)
     cout << beta[3] << endl;
     cout << beta[4] << endl;
     cout << beta[5] << endl;*/
+
+    /*cout << endl;
+    cout << sizeof(beta);
+    cout << endl;
+
+    beta.resize(50);
+
+    cout << sizeof(beta);
+    cout << endl;
 	
     return 0;    
-}
+}*/

@@ -19,6 +19,8 @@ class Engine_Class
 	
 	private:
 	void LoadRobots(void);
+    void ExecuteDNA();
+    void ExecuteShots();
     string maindir;
 };
 

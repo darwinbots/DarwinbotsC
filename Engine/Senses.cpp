@@ -290,12 +290,14 @@ End Sub
 /********************************************
 field's default value is 12 from the VB days
 ********************************************/
-inline void Robot::CompareRobots(Robot *other, unsigned int field)
+void Robot::CompareRobots(Robot *other, unsigned int field)
 {
 	Vector4 ab, ac, ad;
 	float magsquare, mag;
 	float discheck;
 	unsigned int eyecellD, eyecellC;
+
+    if (other == NULL) return;
 
 
 	ab = VectorSub2D(other->pos, this->pos);

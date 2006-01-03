@@ -51,14 +51,6 @@ void ExecuteLogic(int n);
 //'''''''''''handle the stacks ''''''''''''''''''''
 //'''''''''''''''''''''''''''''''''''''''''''''''''
 
-float fsgn(float value)
-{
-    if (value < 0)
-        return -1.0f;
-
-    return 1.0f;
-}
-
 __int32 StackCeil(float value)
 {
     if (value < -2147483648)
@@ -137,7 +129,8 @@ void Robot::ExecuteDNA()
     IntStack.pos = 0;
     IntStack.val[0] = 0;
 
-    this->DNA->Execute();
+    if (this->DNA != NULL)
+        this->DNA->Execute();
 }
 
 void DNA_Class::Execute()
@@ -190,14 +183,14 @@ void DNA_Class::Execute()
 
             case 5:
             {
-                if (CurrentFlow != COND)
+                if (CurrentFlow == COND)
                     ExecuteConditions(this->Code[pointer].value);
                 break;
             }
 
             case 6:
             {
-                if (CurrentFlow != COND)
+                if (CurrentFlow == COND)
                     ExecuteLogic(this->Code[pointer].value);
                 break;
             }

@@ -3,14 +3,20 @@
 #include "Robot.h"
 #include "Engine.h"
 #include "HardDriveRoutines.h"
+#include "Shots.h"
 
 Engine_Class Engine;
 
 void Engine_Class::UpdateSim(void)
 {
+    //the order of functions here is very important.
+    //don't idley add or (re)move functions without
+    //_really_ thinking about how it changes the
+    //order of other functions
+
 	unsigned int counter;
-	//ExecuteDNA
-	//UpdateShots
+	this->ExecuteDNA();
+    this->ExecuteShots();
 	
 	////////////////////
 	//UpdateBots
@@ -46,7 +52,7 @@ void Engine_Class::UpdateSim(void)
 		if (rob[counter] != NULL)
 			rob[counter]->TurnEnd();
 
-	//update cycle count
+    //update cycle count
 	SimOpts.TotRunCycle++;
 }
 
@@ -69,17 +75,17 @@ void Engine_Class::SetupSim(void)
 
 	//reset graphs
 	
-    //initialize the robot pointer array
+    //initialize the robot and shot pointer array
 	for (unsigned int x = 0; x < 5000; x++)
     {
         rob[x] = NULL;
+        shots[x] = NULL;
     }
 
 	MaxRobs = 0;
-	//maxshots = 0
+    MaxShots = 0;
 
 	this->LoadRobots();
-	//setfeed (?)
 
 	//draw first frame
 
@@ -107,19 +113,19 @@ void Engine_Class::SetupSim(void)
 	//setup graphics thread
 	//setup input thread
 
-	unsigned long clocks;
+	/*unsigned long clocks;
 	unsigned long counter=0;
 
     cout << rob[0]->DNA_Text();
 	
-	/*do
+	do
 	{
 		clocks = GetTickCount();
 		this->UpdateSim();
 		clocks = GetTickCount() - clocks;
 		clocks = (clocks);
 		cout << clocks << endl;
-	}while(++counter < 20);*/
+	}while(++counter < 5);*/
 }
 
 void Engine_Class::LoadRobots(void)
@@ -132,4 +138,18 @@ void Engine_Class::LoadRobots(void)
 			temp = new Robot(&SimOpts.Specie[y]);
 		}
 	}
+}
+
+void Engine_Class::ExecuteDNA()
+{
+    for (unsigned long x = 0; x < MaxRobs; x++)
+        if (rob[x] != NULL)
+            rob[x]->ExecuteDNA();
+}
+
+void Engine_Class::ExecuteShots()
+{   
+	for(unsigned long counter = 0; counter <= MaxShots; counter++)
+        if(shots[counter] != NULL)
+            shots[counter]->UpdateShot();
 }

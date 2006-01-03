@@ -69,7 +69,7 @@ struct SimOptions: PhysicsConstants
 	bool DisableTies;			//bool
     unsigned int PopLimMethod;	//unsigned int
 
-    //'toroidal is updnconnected = dxsxconected = true
+    //toroidal is updnconnected = dxsxconected = true
     bool Toroidal;				//bool
     bool Updnconnected;			//bool
     bool Dxsxconnected;			//bool
@@ -126,7 +126,7 @@ struct SimOptions: PhysicsConstants
     unsigned int RepopAmount;	//unsigned int
 
     unsigned int VegFeedingMethod;//unsigned int
-    float VegFeedingToBody;		//how much nrg given to vegs gets put into body? (float)
+    float VegFeedingToBody;		  //how much nrg given to vegs gets put into body? (float)
 
 	unsigned int BadWasteLevel;  //be sure to save in settings files (wasn't in 2.4VB) and be sure to catch if this is set to 0 (unsigned int)
 	unsigned int MaxSpeed;		 //Same as above
@@ -136,4 +136,3 @@ extern SimOptions SimOpts;  //for use in sims
 extern SimOptions TmpOpts; //for use in GUI, gets copied to SimOpts
 
 #endif
-

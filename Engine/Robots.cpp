@@ -52,7 +52,6 @@ void Robot::BasicRobotSetup(datispecie *myspecies)
 	if (myspecies == NULL)
 		return;
 
-
 	this->Veg = myspecies->Veg;
 	this->Fixed = myspecies->Fixed;
 
@@ -71,13 +70,13 @@ void Robot::BasicRobotSetup(datispecie *myspecies)
 	this->UpdateMass();
 
 	this->Dead = false;
-	this->Mutables = myspecies->Mutables;
 
 	this->color = myspecies->color;
 
     this->DNA = new DNA_Class;
 
     this->DNA->LoadDNA(myspecies->path + "\\" + myspecies->Name);
+    this->DNA->Mutables = myspecies->Mutables;
 }
 
 Robot::Robot()
@@ -99,17 +98,37 @@ void Robot::UpdateRadius()
 	if (Body < 1)
 		radius = 1;
 	else
-		radius = pow((Body * CUBICTWIPPERBODY * 3 / 4 / PI), 1/3);
+		radius = pow((Body * CUBICTWIPPERBODY * 3 / 4 / PI), .3333333333333333f);
 }
 
 //be sure to call this when a bot is created and given stuff inside it
 void Robot::UpdateMass()
 {
 	this->mass = (this->Body / 1000) + (this->Shell / 200);
-	if (this->mass < 0)
+	
+    //massless bots would wreak havoc
+    if (this->mass < 0)
 		this->mass = .00000001f;
 
 	(*this)[masssys] = iceil(mass * 100);
+}
+
+//returns true if the bot is alive, false if it died
+bool Robot::ChargeNRG(float amount)
+{
+    this->nrg = this->nrg - amount;
+    this->Waste = this->Waste + amount / 10;
+    
+    //conceptually it needs to be checked if killing a bot during the turn
+    //instead of at the end isn't fair to the bot
+    /*if (this->nrg < 0)
+    {
+        this->nrg = 0;
+        this->Dead = true;
+        return false;
+    }*/
+
+    return true;
 }
 
 void Robot::UpdateAim()
@@ -215,9 +234,8 @@ void Robot::MakeShell()
 	cost = (Shell - oldshell) * SimOpts.Costs[SHELLCOST];
 	if (cost < 0)
 		cost = 0;
-
-	nrg = nrg - cost;
-	Waste = Waste + cost/10;
+    
+    this->ChargeNRG(cost);
 }
 
 void Robot::MakeSlime()
@@ -240,8 +258,7 @@ void Robot::MakeSlime()
 	if (cost < 0)
 		cost = 0;
 
-	nrg = nrg - cost;
-	Waste = Waste + cost/10;
+	this->ChargeNRG(cost);
 }
 
 void Robot::MakeVenom()
@@ -264,8 +281,8 @@ void Robot::MakeVenom()
 	if (cost < 0)
 		cost = 0;
 
-	nrg = nrg - cost;
-	Waste = Waste + cost/10 * 1.4;  //making venom or poison produces slightly more waste
+	this->ChargeNRG(cost);
+	Waste += cost/10 * 0.4;  //making venom or poison produces slightly more waste
 }
 
 void Robot::MakePoison()
@@ -288,8 +305,8 @@ void Robot::MakePoison()
 	if (cost < 0)
 		cost = 0;
 
-	nrg = nrg - cost;
-	Waste = Waste + cost/10 * 1.4;  //making venom or poison produces slightly more waste
+	this->ChargeNRG(cost);
+	Waste += cost/10 * 0.4;  //making venom or poison produces slightly more waste
 }
 
 void Robot::WasteManagement()
@@ -325,12 +342,10 @@ void Robot::WasteManagement()
 void Robot::Upkeep()
 {
     //'BODY UPKEEP
-    nrg = nrg - Body * SimOpts.Costs[BODYUPKEEP];
-	Waste = Waste + Body/10 * SimOpts.Costs[BODYUPKEEP];
+    this->ChargeNRG(Body * SimOpts.Costs[BODYUPKEEP]);
     
     //'DNA upkeep cost
-    nrg = nrg - (DnaLen - 1) * SimOpts.Costs[BPCYCCOST];
-	Waste = Waste + (DnaLen - 1) * SimOpts.Costs[BPCYCCOST] / 10;
+    this->ChargeNRG(this->DNA->length() * SimOpts.Costs[BPCYCCOST]);
 }
 
 /*
@@ -361,10 +376,6 @@ void Robot::PoisonManagement()
 			Vval = 0;
 		}
 		(*this)[paralyzed] = ParaCount;   //undocumented sysvar found during C++ port
-										//(PY is terribly this way.  He likes to code sysvars as straight
-										//numbers instead of using constants, resulting in either subtle
-										//bugs or undocumented sysvars.  There was a virus bug that fell
-										//into this category.  -Numsgil
 	}
 
 	if (Poisoned == true)
@@ -456,7 +467,7 @@ void Robot::DeltaBody(int value)
 
 	if (value > 0 && nrg > value && Body + value/10 <= 32000) //increase body points
 	{
-		nrg = nrg - value;
+        nrg = nrg - value;
 		Body = Body + value / 10;  //10 nrg = 1 body
 	}
 
@@ -526,49 +537,57 @@ bool Robot::KillRobot()
     End If
   End If
   */
+
+    if (this == NULL)
+        return false;
   
 	unsigned int counter = 0;
 
 	//find where in the array this robot is
-	while(rob[counter] != this)
-	{
-		counter++;
-		/*if (/*rob.capacity() 5000 <= counter)
-		/*{
-			return false;
-		}*/
-	}
+	while(rob[counter] != this && counter <= MaxRobs)
+	    counter++;
+
+    if (counter > MaxRobs)
+        return false;
 
 	if (MaxRobs == counter)
 	{
 		MaxRobs = 0;
 		for(unsigned int x = counter-1; x >= 0; x--)
 		{
-			if (rob[counter] != NULL)
+			if (rob[x] != NULL)
 			{
 				MaxRobs = x;
 				break;
 			}
 		}
 	}
-
+    
+    if (this->DNA != NULL)
+    {
+        delete this->DNA;
+        this->DNA = NULL;
+    }
     rob[counter] = NULL;
-    delete this->DNA;
-
-
+    
 	//delete all ties
-	//delete DNA
-	//remember that shots may still exist that think of us as the parents
-	//remove bot from any eye grid squares
-
+	
+    //remember that shots may still exist that think of us as the parents
 	//make poff
+    
+    //is this the appropriate way to delete the bot, or is this like releasing
+    //a variable then trying to release one of its members?
+    delete this;
+
 	return true;
 }
 
 //call this very last along with the death management above
 void Robot::Reproduction()
 {
-	if ((*this)[Repro] > 0 || (*this)[mrepro] > 0)
+	Robot *baby=NULL;
+    
+    if ((*this)[Repro] > 0 || (*this)[mrepro] > 0)
 	{
 		if ((*this)[Repro] >= 100)
 			(*this)[Repro] = 99;
@@ -579,13 +598,23 @@ void Robot::Reproduction()
 			(*this)[mrepro] = 99;
 		if ((*this)[mrepro] < 0)
 			(*this)[mrepro] = 0;
-
-		this->Split(((*this)[Repro] + (*this)[mrepro])/100);
-
-		//insert DNA into child bot
-		//mutate DNA in child bot
-		//update sysvars etc. for new DNA
-		//makeoccurrlist
+        
+        if ( (*this)[Repro] + (*this)[mrepro] > 0)
+        {
+            baby = this->Split( ( (*this)[Repro] + (*this)[mrepro] )/100.0f);
+            if (baby != NULL)
+            {
+                baby->DNA = new DNA_Class((*this->DNA));
+                baby->DNA->Mutables = this->DNA->Mutables;
+                baby->DNA->Mutations = this->DNA->Mutations;
+                baby->DNA->LastMutDetail = this->DNA->LastMutDetail;
+            
+                //mutate DNA
+		        //mutate DNA in child bot
+		        //update sysvars etc. for new DNA
+		        //makeoccurrlist
+            }
+        }
 	}
 
 	//If .mem(sexrepro) > 0 Then
@@ -631,8 +660,8 @@ void Robot::PreTurn()
 	this->WasteManagement();
 	this->Upkeep();
 	this->Aging();
-	//NetForces <-- all the physics stuff (calculates it, but does not move the bot)
-	//EraseSenses
+    this->NetForces(); //<-- all the physics stuff (calculates it, but does not move the bot)
+	this->EraseSenses();
 	//readtie t 'reads all of the tref variables from a given tie number  <---  Need to be sure we do this for all bots before ties are fired
 }
 
@@ -649,13 +678,13 @@ void Robot::DuringTurn()
 
 void Robot::PostTurn()
 {
-	//Mutate t <--- mutating by point cycle
+	this->DNA->Mutate(false); //<--- mutating by point cycle
 	//BotDNAManipulation t <--- Things like delgene, making viruses, etc.
     this->Construction();
 	this->ShotManagement();
 	this->BodyManagement();
 	this->FireTie();
-	//feed veggies
+    this->FeedVegSun();
 	this->UpdateRadius();
 	this->UpdateMass();
 }
@@ -705,20 +734,17 @@ void Robot::ShotManagement()
 		cost = (pow(2, multiplier) - 1) * SimOpts.Costs[SHOTCOST];
 		if (cost <= this->nrg)
 		{
-			nrg = nrg - cost;
-			Waste = Waste + cost / 10;
+			this->ChargeNRG(cost);
 		}
 		else
 		{
 			multiplier = log((nrg / SimOpts.Costs[SHOTCOST]) + 1) / log(2);
-			nrg = 0;
-			Waste = Waste + nrg / 10;
+			this->ChargeNRG(this->nrg);
 		}
 	}
 	else
 	{
-		nrg = nrg - SimOpts.Costs[SHOTCOST];
-		Waste = Waste + SimOpts.Costs[SHOTCOST] / 10;
+		this->ChargeNRG(SimOpts.Costs[SHOTCOST]);
 	}
 	//////////////////////////////////////////////////////
 
@@ -758,7 +784,7 @@ void Robot::ShotManagement()
 Robot *Robot::Split(float percentage)
 {
 	long sondist;
-	Robot *baby;
+	static Robot *baby;
 	float babyradius;
 	float thisradius;
 	float Length;
@@ -802,7 +828,7 @@ Robot *Robot::Split(float percentage)
 	//if there is a collision,
 	//return false;	
 		
-	baby = new Robot;
+	baby = new Robot();
 	
 	baby->obody = baby->Body = this->Body * percentage;
 	this->obody = this->Body *= (1.0f - percentage);
@@ -851,26 +877,17 @@ Robot *Robot::Split(float percentage)
 	//memcpy(baby->vars, this->vars, sizeof(var) * 50);
 	//baby->vnum = this->vnum;
 
-	baby->Mutables = this->Mutables;
-	
 	this->SonNumber++;
-	baby->Mutations = this->Mutations;
 	
-	baby->parent = this->AbsNum;
+    baby->parent = this->AbsNum;
 	baby->generation = this->generation + 1;
 	baby->LastOwner = this->LastOwner;
 	baby->fname = this->fname;
-	baby->LastMutDetail = this->LastMutDetail;
 	
 	baby->vel = this->vel;
 
 	baby->UpdateMass();
 	this->UpdateMass();
-
-	Robot tempa;
-	__int16 a;
-
-	a = tempa[0];
 
 	this->UpdateRadius();
 	baby->UpdateRadius();
@@ -892,10 +909,12 @@ Robot *Robot::Split(float percentage)
 
 	temp->MakeTie(this, baby, 0);
 
+    baby->fname = this->fname;
+
 	baby->SetMems();
 	this->SetMems();
-
-	return baby;
+    
+    return baby;
 }
 
 void Robot::SetMems()

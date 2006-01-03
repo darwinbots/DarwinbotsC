@@ -29,7 +29,7 @@ long DNA_Class::length()
 
         while(this->Code[counter++] != DNA_END);
 
-        DNAlength = counter - 1;
+        DNAlength = counter - 1;//don't count the end
     }
 
     return DNAlength;
@@ -39,4 +39,9 @@ DNA_Class::DNA_Class()
 {
     DNAlength = -1;
     DNAgenenum = -1;
+}
+
+DNA_Class::DNA_Class(const DNA_Class &other)
+{
+    (*this) = other;
 }

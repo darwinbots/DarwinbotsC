@@ -484,6 +484,9 @@ void DNA_Class::LoadDNA(ifstream &in)
 
     this->Code.reserve(this->Code.size() + 2);
     this->Code.push_back(DNA_END);
+
+    this->length();
+    this->genenum();
 }
 
 string &DNA_Class::UnparseCommand(const block &Command, bool converttosysvar)

@@ -6,6 +6,6 @@ Function prototypes for our random number generator
 void DBsrand(long seed);
 inline float DBrand();
 inline float Gauss();
-inline float Gauss(const float &StdDev);
+float Gauss(float StdDev);
 inline float Gauss(const float &StdDev,const float &Mean);
 long frnd(long low, long hi);

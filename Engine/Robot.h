@@ -14,6 +14,7 @@
 #include "Specie.h"
 #include "RobotSysvars.h"
 #include "SimOptions.h"
+#include "Shots.h"
 
 using namespace std;
 
@@ -24,29 +25,30 @@ const int RobSize          = 120;
 ///////GLOBALS/////////////////
 extern unsigned int MaxRobs; //how far into the robot array to go
 
-class Robot : ObjectPrimitive
+class Robot : public ObjectPrimitive
 {
 	friend Tie; //tie class has access to bot memory among other things
+    friend class Shot;
 	friend Robot; //instances of the Robot class can access each other
 
 private:
 
 	//Physical Attributes
 	float radius; 
-	//int Shape;								// shape of the robot, how many sides
+	//int Shape;                            // shape of the robot, how many sides
 
 	//int Skin[13];        					// skin definition
 	//int OSkin[13];       					// Old skin definition
 
 	float aim;								// aim angle
-	Vector4 aimvector;					// the unit vector for aim
+	Vector4 aimvector;                      // the unit vector for aim
 
-	Tie HeadTie;							// linked list of ties (this is the head, head is never addressed except as through Headtie->next)
+	Tie HeadTie;                            // linked list of ties (this is the head, head is never addressed except as through Headtie->next)
 	int numties;
 	
 	//Physics
-	Vector4 ImpulseInd;					// independant forces vector
-	Vector4 ImpulseRes;					// Resistive forces vector
+	Vector4 ImpulseInd;                     // independant forces vector
+	Vector4 ImpulseRes;					    // Resistive forces vector
 	float ImpulseStatic;					// static force scalar (always opposes current forces)
 
 	bool Veg;								// is it a vegetable?
@@ -55,6 +57,7 @@ private:
 	bool Fixed;								// is it blocked?
 	bool Dead;								// Allows program to define a robot; dead after a certain operation
 	bool Multibot;        					// Is robot part of a multi-bot
+    bool NewMove;                           // does this bot use the new movement controls or is it a pussy?
 
 	int occurr[20];							// array with the ref* values
 	
@@ -95,18 +98,10 @@ private:
 	class Robot *lastopp;         			// last robot in eye5
 	long AbsNum;             				// absolute robot number
 
-	//Mutation related
-	mutationprobs Mutables;
-
-	long PointMutCycle;      				// Next cycle to point mutate (expressed in cycles since birth.  ie: age)
-	long PointMutBP;         				// the base pair to mutate
-
 	//console; Consoleform    				// console object;sociated to the robot
 
 	// informative
 	unsigned int SonNumber;       			// number of sons
-	unsigned int Mutations;       			// total mutations
-	unsigned int LastMut;         			// last mutations
 	unsigned long parent;      				// parent absolute number
 	unsigned long BirthCycle;  				// birth cycle
 	unsigned int genenum;      				// genes number
@@ -114,7 +109,6 @@ private:
 	string LastOwner;        				// last internet owner//s name
 	string fname;            				// species name
 	unsigned int DnaLen;   					// dna length
-	string LastMutDetail;    				// description of last mutations
 
 	int virusshot;       					// the viral shot being stored
 	int Vtimer;          					// Count down timer to produce a virus
@@ -159,6 +153,18 @@ private:
 	inline void CompareRobots(Robot *other, unsigned int field);
 	unsigned int EyeCells(const Vector4 &ab);
 
+    //physics
+    void NetForces();
+    
+    //subordinate physics functions
+    void VoluntaryForces();
+    void GravityForces();
+    void BrownianForces();
+    void BouyancyForces();
+
+    //veg controls
+    void FeedVegSun();
+
 public:
     bool View;
 
@@ -193,6 +199,18 @@ public:
     }
 
     void ExecuteDNA();
+    bool ChargeNRG(float amount);
+    float rad()
+    {
+        return radius;
+    }
+
+    const Vector4 &findpos() const
+    {
+        return this->pos;
+    }
+
+    void Robot::DrawRobotEye();
 };
 
 extern Robot *rob[5000];  //an array of pointers to Robots.

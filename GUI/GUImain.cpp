@@ -1,10 +1,12 @@
 #include "GUImain.h"
 #include <signal.h>
+#include "../Engine/SimOptions.h"
+#include "../Engine/Engine.h"
 
 FXIMPLEMENT(MainWindow, FXMainWindow, MainWindowMap, ARRAYNUMBER(MainWindowMap))
 
 MainWindow::MainWindow(FXApp *app)
-    : FXMainWindow(app, PROJECT_NAME, 0, 0, DECOR_ALL, 0, 0, 800, 600)
+    : FXMainWindow(app, PROJECT_NAME, NULL, NULL, DECOR_ALL, 0, 0, 800, 600)
 {
     FXMenuBar *menubar;
     
@@ -75,10 +77,19 @@ int main(int argc, char **argv)
         app.init(argc, argv);
 
         MainWindow *w = new MainWindow(&app);
+        
         app.addSignal(SIGINT, w, MainWindow::ID_Quit);
         app.create();
+
+        app.addTimeout(w, MainWindow::ID_UpdGfx);
+                
+        Engine.SetupSim();
+        //app.addChore(w, MainWindow::ID_Engine);
+
         w->show(PLACEMENT_CURSOR);
         w->setFocus();
+
+        //this is where I'm thinking we should implement the engine thread(s)
 
         return app.run();
 }

@@ -4,6 +4,8 @@
 #include <iostream>
 #include <vector>
 
+#include "specie.h"
+
 using namespace std;
 
 struct block
@@ -11,6 +13,7 @@ struct block
 	__int16 tipo;
     __int16 value;
 
+    public:
     block(const int &a=0, const int &b=0) { tipo = a; value = b; }
     const bool operator == (const block &other) const
     {
@@ -20,6 +23,12 @@ struct block
     const bool operator != (const block &other) const
     {
         return !(tipo == other.tipo && value == other.value);
+    }
+
+    void erase()
+    {
+        this->tipo = -1;
+        this->value = -1;
     }
 };
 
@@ -38,17 +47,33 @@ class DNA_Class
 	long DNAgenenum; //number of genes in the genome
 	long DNAlength;
 
+    public:
+    //Mutation related
+	mutationprobs Mutables;
+
+	long PointMutCycle;      				// Next cycle to point mutate (expressed in cycles since birth.  ie: age)
+	long PointMutBP;         				// the base pair to mutate
+
+    //later we'll replace the below with pointers to a tree structure to save memory
+    string LastMutDetail;    				// description of last mutations
+    
+    unsigned int Mutations;       			// total mutations
+	unsigned int LastMut;         			// last mutations
+
+    private:
     //functions
     string &SysvarDetok(__int16 number);
     __int16 SysvarTok(const string &in);
     block ParseCommand(const string &Command);
     string &UnparseCommand(const block &Command, bool converttosysvar = false);
     void LoadDNA(ifstream &in);
-
+    
 	public:
     DNA_Class(); //constructor
+    DNA_Class(const DNA_Class &other);
 	long length();
 	long genenum();
+    bool Mutate(bool reproducing);
 
     string &text(); //parse into a string
     bool LoadDNA(string path);

@@ -368,7 +368,7 @@ inline float Gauss()
 	return gasdev();
 }
 
-inline float Gauss(const float &StdDev)
+float Gauss(float StdDev)
 {
 	return gasdev() * StdDev;	
 }

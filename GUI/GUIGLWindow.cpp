@@ -1,5 +1,13 @@
 #include "GUImain.h"
 #include <gl/gl.h>
+#include <gl/glu.h>
+#include "../Engine/Globals.h"
+#include "../Engine/Robot.h"
+#include "../Common/Math3d.h"
+#include "../GFX/DrawWorld.h"
+#include "../GFX/Camera.h"
+
+using Math3D::Vector4;
 
 const unsigned char winapp[]={
   0x47,0x49,0x46,0x38,0x37,0x61,0x10,0x00,0x10,0x00,0xf2,0x00,0x00,0xb2,0xc0,0xdc,
@@ -13,9 +21,11 @@ const unsigned char winapp[]={
 
 long MainWindow::GLWindow()
 {
-    FXHorizontalFrame *frame=new FXHorizontalFrame(this,LAYOUT_SIDE_TOP|LAYOUT_FILL_X|LAYOUT_FILL_Y, 100,100,100,100, 0,0,0,0, 4,4);
+    FXHorizontalFrame *frame=new FXHorizontalFrame(this,LAYOUT_SIDE_TOP|LAYOUT_FILL_X|LAYOUT_FILL_Y,
+        100,100,100,100, 0,0,0,0, 4,4);
 
-    FXVerticalFrame *box=new FXVerticalFrame(frame,FRAME_SUNKEN|FRAME_THICK|LAYOUT_FILL_X|LAYOUT_FILL_Y,0,0,0,0, 0,0,0,0);
+    FXVerticalFrame *box=new FXVerticalFrame(frame,FRAME_SUNKEN|FRAME_THICK|LAYOUT_FILL_X|LAYOUT_FILL_Y,
+        0,0,0,0, 0,0,0,0);
 
     FXMDIClient *mdiclient=new FXMDIClient(box,LAYOUT_FILL_X|LAYOUT_FILL_Y);
     
@@ -23,132 +33,78 @@ long MainWindow::GLWindow()
     
     FXMDIMenu *mdimenu=new FXMDIMenu(this,mdiclient);
      
-    FXMDIChild* mdichild=new FXMDIChild(mdiclient,"FOX GL Viewer",winappicon,mdimenu,MDI_TRACKING|MDI_MAXIMIZED,30,30,300,200);
+    FXMDIChild* mdichild=new FXMDIChild(mdiclient,"Darwinbots Main View",winappicon,mdimenu,
+        MDI_TRACKING|MDI_MAXIMIZED,30,30,300,200);
     
-    mdichild->maximize(true);
-    
-    glvisual=new FXGLVisual(getApp(),VISUAL_DOUBLEBUFFER);
-    
-    FXGLViewer *viewer=new FXGLViewer(mdichild,glvisual,this,ID_Viewer,LAYOUT_FILL_X|LAYOUT_FILL_Y|LAYOUT_TOP|LAYOUT_LEFT);
+    glvisual = new FXGLVisual(getApp(),VISUAL_DOUBLEBUFFER | VISUAL_STEREO);
+
+    this->canvas = new FXGLCanvas(mdichild, glvisual, this, ID_MainView, LAYOUT_FILL_X|LAYOUT_FILL_Y|LAYOUT_TOP|LAYOUT_LEFT);
 
     mdiclient->setActiveChild(mdichild);
-  
-  viewer->setProjection(0);
-  
-  return 1;
+
+    getApp()->addTimeout(this, ID_UpdGfx, 25);    
+
+    return 1;
 }
 
-// Render all the graphics into a world box
-void FXGLViewer::drawWorld(FXViewport& wv){
+long MainWindow::onUpdGfx(FXObject *, FXSelector, void *)
+{    
+    //update world if we're tying the world update to a specific speed    
+    
+    //Draw World    
+    this->DrawScene();
+    
+    getApp()->addTimeout(this, ID_UpdGfx, 25);    
+    return 1;
+}
 
-  // Set viewport
-  glViewport(0,0,wv.w,wv.h);
+long MainWindow::DrawScene()
+{
+    return MainWindow::DrawScene(NULL, 0, NULL);
+}
 
-  // Reset important stuff
-  glShadeModel(GL_SMOOTH);
-  glPolygonMode(GL_FRONT_AND_BACK,GL_FILL);
-  glDisable(GL_LIGHTING);
-  glDisable(GL_ALPHA_TEST);
-  glDisable(GL_BLEND);
-  glDisable(GL_DITHER);
-  glDisable(GL_FOG);
-  glDisable(GL_LOGIC_OP);
-  glDisable(GL_POLYGON_SMOOTH);
-  glDisable(GL_POLYGON_STIPPLE);
-  glDisable(GL_STENCIL_TEST);
-  glDisable(GL_CULL_FACE);
-  glDisable(GL_COLOR_MATERIAL);
+long MainWindow::DrawScene(FXObject *, FXSelector, void *)
+{    
 
-  // Reset matrices
-  glMatrixMode(GL_PROJECTION);
-  glLoadIdentity();
-  glMatrixMode(GL_MODELVIEW);
-  glLoadIdentity();
+  // Make context current
+  canvas->makeCurrent();
 
-  // Clear to solid background
-  glClearDepth(1.0);
-  glClearColor(background[0][0],background[0][1],background[0][2],background[0][3]);
-  if(background[0]==background[1]){
-    glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
-    }
+  GLdouble width = canvas->getWidth();
+  GLdouble height = canvas->getHeight();
+  GLdouble aspect = height>0 ? width/height : 1.0;
 
-  // Clear to gradient background
-  else{
-    glClear(GL_DEPTH_BUFFER_BIT);
-    glDisable(GL_DEPTH_TEST);
-    glDepthMask(GL_FALSE);
-    glBegin(GL_TRIANGLE_STRIP);
-    glColor4fv(background[1]); glVertex3f(-1.0f,-1.0f,0.0f); glVertex3f( 1.0f,-1.0f,0.0f);
-    glColor4fv(background[0]); glVertex3f(-1.0f, 1.0f,0.0f); glVertex3f( 1.0f, 1.0f,0.0f);
-    glEnd();
-    }
+  glViewport(0,0,width,height);
 
-  // Depth test on by default
-  glDepthMask(GL_TRUE);
+  glClearColor(0.0235294118f, 0.0705882353f, 0.3176470588f, 1.0);				// classic blue color
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
   glEnable(GL_DEPTH_TEST);
 
-  // Switch to projection matrix
+  glDisable(GL_DITHER);
+
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
-  switch(projection){
-    case PARALLEL:
-      glOrtho(wv.left,wv.right,wv.bottom,wv.top,wv.hither,wv.yon);
-      break;
-    case PERSPECTIVE:
-      glFrustum(wv.left,wv.right,wv.bottom,wv.top,wv.hither,wv.yon);
-      break;
-    }
+  gluPerspective(45.,aspect,.1,1000000);
 
-  // Switch to model matrix
+  //camera (?)
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
+  
+  glTranslatef(MainCamera.pos().x() - 9327/2,
+               -MainCamera.pos().y() - 6928/2,
+               MainCamera.pos().z() - 9000);
+  
+  glRotatef(MainCamera.LOOKAT.x(), 1.0f, 0.0f, 0.0f);
+  glRotatef(MainCamera.LOOKAT.y(), 0.0f, 1.0f, 0.0f);
+  
+  DrawWorld();
 
-  // Set light parameters
-  glEnable(GL_LIGHT0);
-  glLightfv(GL_LIGHT0,GL_AMBIENT,light.ambient);
-  glLightfv(GL_LIGHT0,GL_DIFFUSE,light.diffuse);
-  glLightfv(GL_LIGHT0,GL_SPECULAR,light.specular);
-  glLightfv(GL_LIGHT0,GL_POSITION,light.position);
-  glLightfv(GL_LIGHT0,GL_SPOT_DIRECTION,light.direction);
-  glLightf(GL_LIGHT0,GL_SPOT_EXPONENT,light.exponent);
-  glLightf(GL_LIGHT0,GL_SPOT_CUTOFF,light.cutoff);
-  glLightf(GL_LIGHT0,GL_CONSTANT_ATTENUATION,light.c_attn);
-  glLightf(GL_LIGHT0,GL_LINEAR_ATTENUATION,light.l_attn);
-  glLightf(GL_LIGHT0,GL_QUADRATIC_ATTENUATION,light.q_attn);
-
-  // Default material colors
-  glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT,material.ambient);
-  glMaterialfv(GL_FRONT_AND_BACK,GL_DIFFUSE,material.diffuse);
-  glMaterialfv(GL_FRONT_AND_BACK,GL_SPECULAR,material.specular);
-  glMaterialfv(GL_FRONT_AND_BACK,GL_EMISSION,material.emission);
-  glMaterialf(GL_FRONT_AND_BACK,GL_SHININESS,material.shininess);
-
-  // Color commands change both
-  glColorMaterial(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE);
-
-  // Global ambient light
-  glLightModelfv(GL_LIGHT_MODEL_AMBIENT,ambient);
-
-  // Enable fog
-  if(options&VIEWER_FOG){
-    glEnable(GL_FOG);
-    glFogfv(GL_FOG_COLOR,background[0]);                // Disappear into the background
-    //glFogf(GL_FOG_DENSITY,1.0f);
-    glFogf(GL_FOG_START,(GLfloat)(distance-diameter));  // Range tight around model position
-    glFogf(GL_FOG_END,(GLfloat)(distance+diameter));    // Far place same as clip plane:- clipped stuff is in the mist!
-    glFogi(GL_FOG_MODE,GL_LINEAR);	                // Simple linear depth cueing
+  // Swap if it is double-buffered
+  if(glvisual->isDoubleBuffer()){
+    canvas->swapBuffers();
     }
 
-  // Dithering
-  if(options&VIEWER_DITHER){
-    glEnable(GL_DITHER);
-    }
+  // Make context non-current
+  canvas->makeNonCurrent();
 
-  // Enable lighting
-  if(options&VIEWER_LIGHTING){
-    glEnable(GL_LIGHTING);
-    }
-
-  // Set model matrix
-  glLoadMatrixf(transform);
-  }
+  return 1;
+}

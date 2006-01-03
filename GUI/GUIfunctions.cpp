@@ -1,4 +1,5 @@
 #include "GUImain.h"
+#include "../Engine/Engine.h"
 //#include "../Engine/SimOptions.h"
 
 long MainWindow::onCmdQuit(FXObject *, FXSelector, void *)
@@ -86,7 +87,10 @@ long MainWindow::onCmdAbout(FXObject *, FXSelector, void *)
 }
 long MainWindow::onCmdShowOptions(FXObject *, FXSelector, void *){return 1;}
 long MainWindow::onCmdShowLog(FXObject *, FXSelector, void *){return 1;}
-long MainWindow::onCmdNewViewer(FXObject*,FXSelector,void*){return 1;}
+long MainWindow::onCmdNewViewer(FXObject*,FXSelector,void*)
+{
+    return 1;
+}
 
 void MainWindow::ConnectVar()
 {
@@ -100,4 +104,11 @@ void MainWindow::ConnectVar()
      MovingEfficiency_Tar.Connect(TmpOpts.MovingEfficiency);
      PlanetEaters_Tar.Connect(TmpOpts.PlanetEaters);
      PlanetEatersG_Tar.Connect(TmpOpts.PlanetEatersG);*/
+}
+
+long MainWindow::onUpdSim(FXObject*,FXSelector,void*)
+{
+    Engine.UpdateSim();
+    getApp()->addChore(this, MainWindow::ID_Engine);
+    return 1;
 }

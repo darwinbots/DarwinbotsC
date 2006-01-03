@@ -11,7 +11,9 @@ class ObjectPrimitive
 	Vector4 pos, opos, vel;
 	//bool Exist;
 	unsigned long age;
-	long color;	
+	
+    public:
+    Vector4 color;
 };
 
 #endif

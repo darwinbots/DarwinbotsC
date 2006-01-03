@@ -29,7 +29,7 @@ struct datispecie
     float nrg;
     bool Veg;
     bool Fixed;
-    unsigned long color;
+    Vector4 color;
     Vector4 PosTopLeft, PosLowRight;
     unsigned int qty;
     string Comment;
