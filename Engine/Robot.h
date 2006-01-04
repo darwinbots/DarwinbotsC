@@ -8,7 +8,7 @@
 #include "../Common/Random.h"
 #include "ObjectPrimitive.h"
 #include "Tie.h"
-#include "Block.h"
+//#include "Block.h"
 #include "DNAClass.h"
 #include "Globals.h"
 #include "Specie.h"
@@ -27,9 +27,9 @@ extern unsigned int MaxRobs; //how far into the robot array to go
 
 class Robot : public ObjectPrimitive
 {
-	friend Tie; //tie class has access to bot memory among other things
-    friend class Shot;
-	friend Robot; //instances of the Robot class can access each other
+	friend class Tie; //tie class has access to bot memory among other things
+  friend class Shot;
+	//friend Robot; //instances of the Robot class can access each other
 
 private:
 
@@ -216,3 +216,4 @@ public:
 extern Robot *rob[5000];  //an array of pointers to Robots.
 
 #endif
+

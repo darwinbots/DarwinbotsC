@@ -49,7 +49,7 @@ __int16 DNA_Class::SysvarTok(const string &in)
             if (sysvar[t].name == a)
                 return sysvar[t].value;
 
-        for (t = 0; t < this->Private_Variables.size(); t++)
+        for (int t = 0; t < this->Private_Variables.size(); t++)
             if (this->Private_Variables[t].name == a)
                 return this->Private_Variables[t].value;
     }

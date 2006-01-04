@@ -52,7 +52,7 @@ void Robot::Touch(Robot *other, float distance)
 	if (angle < 0)
 		angle = angle + 2*PI;
 
-	this->mem[HitAngsys] = angle * 200;
+	this->mem[HitAngsys] = iceil(angle * 200);
 
 	////////////////////////////////
 
@@ -66,7 +66,7 @@ void Robot::Touch(Robot *other, float distance)
 	if (angle < 0)
 		angle = angle + 2*PI;
 
-	other->mem[HitAngsys] = angle * 200;
+	other->mem[HitAngsys] = iceil(angle * 200);
 	
 	///////////////////////////////
 
@@ -140,7 +140,7 @@ void Robot::EraseSenses()
 	mem[trefxpos] = 0;
     mem[trefbody] = 0;
 
-	for (x = EyeStart; x <= EyeEnd; x++)
+	for (int x = EyeStart; x <= EyeEnd; x++)
 		this->mem[x] = 0;
 	
 	this->lastopp = NULL;
@@ -219,11 +219,11 @@ void Robot::WriteRefVars(Robot *lastopp)
 		this->mem[reffixed] = 0;
 
 	//these should be double checked
-	this->mem[refvelup] = (lastopp->vel - this->vel) * this->aimvector;
+	this->mem[refvelup] = iceil((lastopp->vel - this->vel) * this->aimvector);
 	this->mem[refveldn] = this->mem[refvelup] * -1;
 	
 	//these should be double checked
-	this->mem[refveldx] = (this->aimvector % (lastopp->vel - this->vel));
+	this->mem[refveldx] = iceil((this->aimvector % (lastopp->vel - this->vel)));
 	this->mem[refvelsx] = this->mem[refveldx] * -1;
 
 	this->mem[refvelscalar] = iceil(sqrt(mem[refvelup] * mem[refvelup] + mem[refveldx]*mem[refveldx]));

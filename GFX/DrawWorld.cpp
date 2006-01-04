@@ -1,9 +1,9 @@
+#include <gl/gl.h>
+#include <gl/glu.h>
 #include "../GUI/GUImain.h"
 #include "../Engine/Robot.h"
 #include "Primitives.h"
 #include "Camera.h"
-#include <gl/gl.h>
-#include <gl/glu.h>
 
 #include "DrawWorld.h"
 

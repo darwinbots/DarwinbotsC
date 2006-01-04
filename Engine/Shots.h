@@ -6,7 +6,7 @@
 
 class Shot : ObjectPrimitive
 {
-    friend Shot;
+    //friend Shot;
 
     private:
     Robot *parent; //pointer to parent
@@ -48,4 +48,4 @@ class Shot : ObjectPrimitive
 extern Shot *shots[5000];
 extern unsigned int MaxShots; //how far into the shot array to go
 
-#endif SHOTS_H
+#endif //SHOTS_H

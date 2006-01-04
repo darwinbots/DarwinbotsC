@@ -53,7 +53,7 @@ void ExecuteLogic(int n);
 
 __int32 StackCeil(float value)
 {
-    if (value < -2147483648)
+    if (value < -2147483648.)
         return -2147483648;
     else
         return 2147483647;
@@ -245,7 +245,7 @@ void DNA_Class::Execute()
 void DNAadd()
 {
     //floats to handle overflows
-    float a;
+    __int32 a;
 
     a = StackCeil(float(PopIntStack()) + float(PopIntStack()));
     PushIntStack(a);
@@ -254,7 +254,7 @@ void DNAadd()
 void DNAsub()
 {
     //floats to handle overflows
-    float a;
+    __int32 a;
 
     a = StackCeil(float(-PopIntStack()) + float(PopIntStack()));
     PushIntStack(a);
@@ -263,7 +263,7 @@ void DNAsub()
 void DNAmult()
 {
     //floats to handle overflows
-    float a;
+    __int32 a;
 
     a = StackCeil(float(PopIntStack()) * float(PopIntStack()));
     PushIntStack(a);
@@ -432,15 +432,15 @@ void findang()
     if (e > 2 * PI)
         e -= 2 * PI;
 
-    PushIntStack(e*200);
+    PushIntStack(StackCeil(e*200));
 }
 
 void finddist()
 {
     float a,b,c;
 
-    b = long(currbot->y()) - PopIntStack();
-    a = long(currbot->x()) - PopIntStack();
+    b = currbot->y() - PopIntStack();
+    a = currbot->x() - PopIntStack();
     c = sqrt(b*b+a*a);
 
     PushIntStack(StackCeil(c));

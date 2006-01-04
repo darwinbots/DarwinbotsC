@@ -1,7 +1,6 @@
-#include "../GUI/GUImain.h"
 #include <gl/gl.h>
 #include <gl/glu.h>
-
+#include "../GUI/GUImain.h"
 #include "../Common/Math3d.h"
 #include "../Engine/Globals.h"
 

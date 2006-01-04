@@ -8,7 +8,7 @@ Class containing all the info for robots
 #include "../Common/Math3D.h"
 #include "ObjectPrimitive.h"
 #include "Tie.h"
-#include "Block.h"
+//#include "Block.h"
 #include "Globals.h"
 #include "../Common/Random.h"
 #include "Specie.h"
@@ -245,7 +245,7 @@ void Robot::MakeSlime()
 
 	oldslime = Slime;
 	if ((*this)[mkslime] * SimOpts.Costs[SLIMECOST] > nrg && nrg > 0)
-		(*this)[mkslime] = (nrg / 2) / SimOpts.Costs[SLIMECOST];
+		(*this)[mkslime] = iceil((nrg / 2) / SimOpts.Costs[SLIMECOST]);
 
 	Slime = Slime + (*this)[mkslime];
 	(*this)[mkslime] = 0;
@@ -268,7 +268,7 @@ void Robot::MakeVenom()
 
 	oldvenom = Venom;
 	if ((*this)[mkvenom] * SimOpts.Costs[VENOMCOST] > nrg && nrg > 0)
-		(*this)[mkvenom] = (nrg / 2) / SimOpts.Costs[VENOMCOST];
+		(*this)[mkvenom] = iceil((nrg / 2) / SimOpts.Costs[VENOMCOST]);
 
 	Venom = Venom + (*this)[mkvenom];
 	(*this)[mkvenom] = 0;
@@ -292,7 +292,7 @@ void Robot::MakePoison()
 
 	oldpoison = Poison;
 	if ((*this)[mkpoison] * SimOpts.Costs[POISONCOST] > nrg && nrg > 0)
-		(*this)[mkpoison] = (nrg / 2) / SimOpts.Costs[POISONCOST];
+		(*this)[mkpoison] = iceil((nrg / 2) / SimOpts.Costs[POISONCOST]);
 
 	Poison = Poison + (*this)[mkpoison];
 	(*this)[mkpoison] = 0;
@@ -318,7 +318,7 @@ void Robot::WasteManagement()
 	{
 		//Altzheimer's
 		long loops;
-		loops = (Pwaste + Waste - SimOpts.BadWasteLevel) / 4;
+		loops = (long)(Pwaste + Waste - SimOpts.BadWasteLevel) / 4;
 
 		for (long x = 1; x < loops; x++)
 		{
@@ -375,7 +375,7 @@ void Robot::PoisonManagement()
 			Vloc = 0;
 			Vval = 0;
 		}
-		(*this)[paralyzed] = ParaCount;   //undocumented sysvar found during C++ port
+		(*this)[paralyzed] = iceil(ParaCount);   //undocumented sysvar found during C++ port
 	}
 
 	if (Poisoned == true)
@@ -387,7 +387,7 @@ void Robot::PoisonManagement()
 			Poisoned = false;
 			Ploc = 0;
 		}
-		(*this)[poisoned] = PoisonCount;
+		(*this)[poisoned] = iceil(PoisonCount);
 	}
 }
 
@@ -454,7 +454,7 @@ void Robot::BodyManagement()
 	if (Wall == true)
 		Body = 1;
 	
-	(*this)[bodysys] = Body;
+	(*this)[bodysys] = iceil(Body);
 	UpdateRadius();
 }
 

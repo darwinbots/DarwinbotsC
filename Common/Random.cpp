@@ -358,7 +358,7 @@ void DBsrand(long seed)
 	gset = 0;
 }
 
-inline float DBrand()
+float DBrand()
 {
 	return ran2(&seedholder);
 }
