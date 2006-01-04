@@ -68,14 +68,11 @@ long MainWindow::onRightBtnPress(FXObject *, FXSelector, void *ptr)
     FXEvent* event=(FXEvent*)ptr;
 
     mode = ROTATE;
-
-    //event->state&MIDDLEBUTTONMASK
     return 1;
 }
 
 long MainWindow::onRightBtnRelease(FXObject *, FXSelector, void *ptr)
 {
-    mode = NONE;
-    
+    mode = NONE;    
     return 1;
 }

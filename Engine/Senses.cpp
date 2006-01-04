@@ -140,7 +140,7 @@ void Robot::EraseSenses()
 	mem[trefxpos] = 0;
     mem[trefbody] = 0;
 
-	for (int x = EyeStart; x <= EyeEnd; x++)
+	for (x = EyeStart; x <= EyeEnd; x++)
 		this->mem[x] = 0;
 	
 	this->lastopp = NULL;
@@ -220,11 +220,11 @@ void Robot::WriteRefVars(Robot *lastopp)
 
 	//these should be double checked
 	this->mem[refvelup] = iceil((lastopp->vel - this->vel) * this->aimvector);
-	this->mem[refveldn] = this->mem[refvelup] * -1;
+	this->mem[refveldn] = iceil(this->mem[refvelup] * -1);
 	
 	//these should be double checked
 	this->mem[refveldx] = iceil((this->aimvector % (lastopp->vel - this->vel)));
-	this->mem[refvelsx] = this->mem[refveldx] * -1;
+	this->mem[refvelsx] = iceil(this->mem[refveldx] * -1);
 
 	this->mem[refvelscalar] = iceil(sqrt(mem[refvelup] * mem[refvelup] + mem[refveldx]*mem[refveldx]));
 }

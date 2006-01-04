@@ -115,8 +115,6 @@ private:
 	SCALAR e[16];
 };
 
-// Scalar operations
-
 // Returns false if there are 0 solutions
   inline bool SolveQuadratic (SCALAR a, SCALAR b, SCALAR c, SCALAR* x1, SCALAR* x2);
 

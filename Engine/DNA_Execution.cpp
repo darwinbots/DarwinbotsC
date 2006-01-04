@@ -53,7 +53,7 @@ void ExecuteLogic(int n);
 
 __int32 StackCeil(float value)
 {
-    if (value < -2147483648.)
+    if (value < -2147483648)
         return -2147483648;
     else
         return 2147483647;
@@ -439,8 +439,8 @@ void finddist()
 {
     float a,b,c;
 
-    b = currbot->y() - PopIntStack();
-    a = currbot->x() - PopIntStack();
+    b = float(long(currbot->y()) - PopIntStack());
+    a = float(long(currbot->x()) - PopIntStack());
     c = sqrt(b*b+a*a);
 
     PushIntStack(StackCeil(c));

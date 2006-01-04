@@ -1,11 +1,12 @@
+#include "GUImain.h"
 #include <gl/gl.h>
 #include <gl/glu.h>
-#include "GUImain.h"
 #include "../Engine/Globals.h"
 #include "../Engine/Robot.h"
 #include "../Common/Math3d.h"
 #include "../GFX/DrawWorld.h"
 #include "../GFX/Camera.h"
+#include "../Engine/Engine.h"
 
 using Math3D::Vector4;
 
@@ -52,9 +53,10 @@ long MainWindow::onUpdGfx(FXObject *, FXSelector, void *)
     //update world if we're tying the world update to a specific speed    
     
     //Draw World    
+    Engine.UpdateSim();
     this->DrawScene();
-    
-    getApp()->addTimeout(this, ID_UpdGfx, 25);    
+
+    getApp()->addTimeout(this, ID_UpdGfx, 1);
     return 1;
 }
 
@@ -89,12 +91,12 @@ long MainWindow::DrawScene(FXObject *, FXSelector, void *)
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
   
+  glRotatef(MainCamera.LOOKAT.x(), 1.0f, 0.0f, 0.0f);
+  glRotatef(MainCamera.LOOKAT.y(), 0.0f, 1.0f, 0.0f);
+
   glTranslatef(MainCamera.pos().x() - 9327/2,
                -MainCamera.pos().y() - 6928/2,
                MainCamera.pos().z() - 9000);
-  
-  glRotatef(MainCamera.LOOKAT.x(), 1.0f, 0.0f, 0.0f);
-  glRotatef(MainCamera.LOOKAT.y(), 0.0f, 1.0f, 0.0f);
   
   DrawWorld();
 

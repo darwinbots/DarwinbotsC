@@ -1,4 +1,4 @@
-#include <iostream>
+#include <iostream.h>
 #include <fstream>
 #include <string>
 #include <cmath>
@@ -24,7 +24,7 @@ bool ReadSett(const string &path, SimOptions &Options)
 	if (settingsin.is_open() != 0)
 		settingsin.close();
 
-	settingsin.open(path.c_str(), ios::in); //ios::nocreate doesn't exist
+	settingsin.open(path.c_str(), ios::nocreate | ios::in);
 
 	if (settingsin.fail() == true)
 	{
@@ -291,7 +291,7 @@ bool BuildSysvars()
 	if (in.is_open() != 0)
 		in.close();
 
-	in.open(path.c_str(), ios::in); //ios::nocreate doesn't exist
+	in.open(path.c_str(), ios::nocreate | ios::in);
 
     if (in.fail() == true)
     {
@@ -323,7 +323,7 @@ bool DNA_Class::LoadDNA(string path)
 {
     ifstream in;
 
-    in.open(path.c_str(), ios::in); //ios::nocreate doesn't exist
+    in.open(path.c_str(), ios::nocreate | ios::in);
 
 	if (in.fail() == true)
 	{

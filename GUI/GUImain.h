@@ -78,14 +78,14 @@ public:
     long DrawScene              (FXObject *, FXSelector, void *);
     long DrawScene              ();
 
-    //long onMouseWheel           (FXObject *, FXSelector, void *);
-    //long onMotion               (FXObject *, FXSelector, void *);
+    long onMouseWheel           (FXObject *, FXSelector, void *);
+    long onMotion               (FXObject *, FXSelector, void *);
     
-    //long onLeftBtnPress         (FXObject *, FXSelector, void *);
-    //long onLeftBtnRelease       (FXObject *, FXSelector, void *);
+    long onLeftBtnPress         (FXObject *, FXSelector, void *);
+    long onLeftBtnRelease       (FXObject *, FXSelector, void *);
 
-    //long onRightBtnPress         (FXObject *, FXSelector, void *);
-    //long onRightBtnRelease       (FXObject *, FXSelector, void *);
+    long onRightBtnPress         (FXObject *, FXSelector, void *);
+    long onRightBtnRelease       (FXObject *, FXSelector, void *);
     
     long onUpdSim               (FXObject *, FXSelector, void *);
 

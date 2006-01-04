@@ -1,6 +1,7 @@
+#include "../GUI/GUImain.h"
 #include <gl/gl.h>
 #include <gl/glu.h>
-#include "../GUI/GUImain.h"
+
 #include "../Common/Math3d.h"
 #include "../Engine/Globals.h"
 
@@ -11,6 +12,21 @@ void CreatePoint(Vector4 c, float bigness)
 	glPointSize(bigness);
 	glBegin(GL_POINTS);
     glVertex3f(c.x(),c.y(),c.z());
+	glEnd();
+}
+
+void CreateCircle(Vector4 c, float radius, long divisions)
+{
+	float angle;
+
+    divisions = (long)pow(2, divisions);
+
+	glBegin(GL_LINE_LOOP);
+    for(int i =0;i<divisions;i++)
+	{
+      angle = float(i*2*PI/divisions);
+      glVertex2f(c.x()+cos(angle)*radius,c.y()+sin(angle)*radius);
+    }
 	glEnd();
 }
 

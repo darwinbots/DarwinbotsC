@@ -9,6 +9,7 @@ void Robot::NetForces()
         this->GravityForces();
         this->BouyancyForces();
         this->BrownianForces();
+
         
         //tie springs for elastic ties
         //tie angles
@@ -22,9 +23,12 @@ void Robot::NetForces()
 
     //RESTRAINTS (done after movement)
         //collisions with bots
-        //collisions with walls
+        this->EdgeCollisions();
         //collisions with edges (if rigid edges are selected)
         //max tie length and rigid ties (if ties are hardened)
+
+        this->ImpulseInd = this->ImpulseInd - this->ImpulseRes;
+        this->ImpulseRes.set(0,0,0);
 }
 
 //collisions with bots:
@@ -91,4 +95,20 @@ void Robot::BouyancyForces()
     float Impulse = -SimOpts.Density * this->radius * this->radius * this->radius * 4 / 3 * PI * SimOpts.YGravity;
     Vector4 temp(0, Impulse, 0);
     this->ImpulseInd += temp;
+}
+
+void Robot::EdgeCollisions()
+{
+    //'treat the borders as spongy ground
+    //'that makes you bounce off.
+    
+    Vector4 dist;
+    
+    dist = this->pos - 
+    VectorMin(
+    VectorMax(this->pos, Vector4(0,0,0)),
+    SimOpts.FieldDimensions); 
+    
+    if (LengthSquared3(dist) > 0)
+        this->ImpulseRes -= dist * -.1f;
 }

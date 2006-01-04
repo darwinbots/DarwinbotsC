@@ -1,6 +1,6 @@
+#include "../GUI/GUImain.h"
 #include <gl/gl.h>
 #include <gl/glu.h>
-#include "../GUI/GUImain.h"
 #include "../Engine/Robot.h"
 #include "Primitives.h"
 #include "Camera.h"
@@ -43,7 +43,8 @@ void DrawRobots()
             //glColor3f(rob[x]->color.x(), rob[x]->color.y(), rob[x]->color.z());
             
             glColor3f(0,0,0);
-            CreateSphere(rob[x]->findpos(), rob[x]->rad());
+            CreateCircle(rob[x]->findpos(), 60, 4);//rob[x]->rad(), 4);
+            //CreateSphere(rob[x]->findpos(), rob[x]->rad());
             rob[x]->DrawRobotEye();
             //CreateSphere(Vector4(0,0,0), rob[x]->rad());
         }
@@ -56,5 +57,5 @@ void DrawRobots()
 void Robot::DrawRobotEye()
 {
     glColor3f(1,1,1);
-    CreatePoint(this->pos + this->aimvector * (1.1 * this->radius), 2);
+    CreatePoint(this->pos + this->aimvector * (1.0 * this->radius), 2);
 }

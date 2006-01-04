@@ -8,7 +8,7 @@ Class containing all the info for robots
 #include "../Common/Math3D.h"
 #include "ObjectPrimitive.h"
 #include "Tie.h"
-//#include "Block.h"
+#include "Block.h"
 #include "Globals.h"
 #include "../Common/Random.h"
 #include "Specie.h"
@@ -177,14 +177,15 @@ void Robot::UpdatePosition()
 		vel = vel + (ImpulseInd * 1/(mass + AddedMass));  //delta velocity = Impulse / mass
 
 		vt = LengthSquared3(vel);
+        SimOpts.MaxSpeed = 60;
 		if (vt > SimOpts.MaxSpeed * SimOpts.MaxSpeed)
 		{
-			Normalize3(vel);
+			vel = vel / sqrt(vt);
 			vel = vel * SimOpts.MaxSpeed;
 			vt = SimOpts.MaxSpeed * SimOpts.MaxSpeed;
 		}
 		
-		pos = pos + vel;			
+		pos = pos + vel;
 	}
 
 	if (Fixed == true || SimOpts.ZeroMomentum == true)
@@ -318,7 +319,7 @@ void Robot::WasteManagement()
 	{
 		//Altzheimer's
 		long loops;
-		loops = (long)(Pwaste + Waste - SimOpts.BadWasteLevel) / 4;
+		loops = long((Pwaste + Waste - SimOpts.BadWasteLevel) / 4);
 
 		for (long x = 1; x < loops; x++)
 		{
