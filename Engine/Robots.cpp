@@ -8,7 +8,7 @@ Class containing all the info for robots
 #include "../Common/Math3D.h"
 #include "ObjectPrimitive.h"
 #include "Tie.h"
-#include "Block.h"
+//#include "Block.h" //File doesn't exist!
 #include "Globals.h"
 #include "../Common/Random.h"
 #include "Specie.h"

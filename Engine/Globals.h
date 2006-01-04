@@ -9,7 +9,7 @@
 
 using namespace Math3D;
 
-extern inline __int16 iceil(float value);
+__int16 iceil(float value);
 
 extern float fsgn(float value);
 extern SCALAR minS(SCALAR a, SCALAR b);

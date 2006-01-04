@@ -140,7 +140,7 @@ void Robot::EraseSenses()
 	mem[trefxpos] = 0;
     mem[trefbody] = 0;
 
-	for (x = EyeStart; x <= EyeEnd; x++)
+	for (int x = EyeStart; x <= EyeEnd; x++)
 		this->mem[x] = 0;
 	
 	this->lastopp = NULL;

@@ -17,9 +17,9 @@ class CameraClass
 
     CameraClass() { POS.set(0,0,0);  LOOKAT.set(0,0,0);}
 
-    void Zoom(float value);
-    void Translate(float xvalue, float yvalue);
-    void Rotate(float xvalue, float yvalue);
+    void Zoom(float value){};
+    void Translate(float xvalue, float yvalue){};
+    void Rotate(float xvalue, float yvalue){};
 
     const Vector4 pos() {return POS;}
     const Vector4 lookat() {return LOOKAT;}

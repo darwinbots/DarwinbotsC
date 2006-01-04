@@ -6,7 +6,7 @@
 
 class Shot : ObjectPrimitive
 {
-    friend Shot;
+    //friend class Shot; //
 
     private:
     Robot *parent; //pointer to parent
