@@ -25,8 +25,10 @@ protected:
     FXDataTarget   MovingEfficiency_Tar;
     FXDataTarget   PlanetEaters_Tar;
     FXDataTarget   PlanetEatersG_Tar;
+    
     FXGLVisual     *glvisual;
     FXGLCanvas     *canvas;
+    
     void ConnectVar();
         
 public:
@@ -84,12 +86,15 @@ public:
     long onLeftBtnPress         (FXObject *, FXSelector, void *);
     long onLeftBtnRelease       (FXObject *, FXSelector, void *);
 
-    long onRightBtnPress         (FXObject *, FXSelector, void *);
-    long onRightBtnRelease       (FXObject *, FXSelector, void *);
+    long onRightBtnPress        (FXObject *, FXSelector, void *);
+    long onRightBtnRelease      (FXObject *, FXSelector, void *);
     
     long onUpdSim               (FXObject *, FXSelector, void *);
 
     long GLWindow               ();
+
+
+    long onBotDebug             ();
     
 };
 

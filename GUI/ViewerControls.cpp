@@ -67,7 +67,10 @@ long MainWindow::onRightBtnPress(FXObject *, FXSelector, void *ptr)
 {
     FXEvent* event=(FXEvent*)ptr;
 
-    mode = ROTATE;
+    //mode = ROTATE;
+
+    this->onBotDebug();
+
     return 1;
 }
 

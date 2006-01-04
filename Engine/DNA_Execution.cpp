@@ -53,10 +53,12 @@ void ExecuteLogic(int n);
 
 __int32 StackCeil(float value)
 {
-    if (value < -2147483648)
+    if (value < -2147483648.0f)
         return -2147483648;
-    else
+    else if (value > 2147483647.0f)
         return 2147483647;
+    else
+        return value;
 }
 
 //intstack.pos points to the Least Upper Bound element of the stack

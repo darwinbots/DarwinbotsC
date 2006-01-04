@@ -127,12 +127,13 @@ End Sub
 
 void Robot::EraseSenses()
 {
+    int x;
 	mem[HitAngsys] = 0;
 	mem[shangsys] = 0;
 	mem[shflav] = 0;
 
 	mem[edgesys] = 0;
-	for (int x = 0; x < 10; x++)
+	for (x = 0; x < 10; x++)
 	{
 		mem[456 + x] = 0;
 		mem[trefxpos + x] = 0;
@@ -140,7 +141,7 @@ void Robot::EraseSenses()
 	mem[trefxpos] = 0;
     mem[trefbody] = 0;
 
-	for (int x = EyeStart; x <= EyeEnd; x++)
+	for (x = EyeStart; x <= EyeEnd; x++)
 		this->mem[x] = 0;
 	
 	this->lastopp = NULL;

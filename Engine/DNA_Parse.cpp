@@ -40,16 +40,17 @@ string &DNA_Class::SysvarDetok(__int16 number)
 __int16 DNA_Class::SysvarTok(const string &in)
 {
     string a = in;
+    int t;
     
     if (a[0] == '.') //is indeed a sysvar
     {
         a = a.substr(1, a.size()); //get rid of the period
 
-        for (int t = 0; t < maxsysvar; t++)
+        for (t = 0; t < maxsysvar; t++)
             if (sysvar[t].name == a)
                 return sysvar[t].value;
 
-        for (int t = 0; t < this->Private_Variables.size(); t++)
+        for (t = 0; t < this->Private_Variables.size(); t++)
             if (this->Private_Variables[t].name == a)
                 return this->Private_Variables[t].value;
     }

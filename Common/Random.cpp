@@ -358,12 +358,12 @@ void DBsrand(long seed)
 	gset = 0;
 }
 
-float DBrand()
+inline float DBrand()
 {
 	return ran2(&seedholder);
 }
 
-float Gauss()
+inline float Gauss()
 {
 	return gasdev();
 }

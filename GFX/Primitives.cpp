@@ -25,7 +25,7 @@ void CreateCircle(Vector4 c, float radius, long divisions)
     for(int i =0;i<divisions;i++)
 	{
       angle = float(i*2*PI/divisions);
-      glVertex2f(c.x()+cos(angle)*radius,c.y()+sin(angle)*radius);
+      glVertex2f(c.x()+cosf(angle)*radius,c.y()+sinf(angle)*radius);
     }
 	glEnd();
 }

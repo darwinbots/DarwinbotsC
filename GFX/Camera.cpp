@@ -6,8 +6,8 @@ CameraClass MainCamera;
 void CameraClass::Rotate(float xvalue, float yvalue)
 {
     
-    this->LOOKAT(0) += xvalue * .10;
-    this->LOOKAT(1) += yvalue * .10;
+    this->LOOKAT(0) += float(xvalue * .10f);
+    this->LOOKAT(1) += float(yvalue * .10f);
 
 }
 

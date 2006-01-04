@@ -6,7 +6,9 @@
 
 class Shot : ObjectPrimitive
 {
-    //friend class Shot; //
+    #ifdef _MSC_VER
+    friend class Shot;
+    #endif
 
     private:
     Robot *parent; //pointer to parent

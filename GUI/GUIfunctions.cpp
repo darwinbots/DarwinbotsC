@@ -8,7 +8,9 @@ long MainWindow::onCmdQuit(FXObject *, FXSelector, void *)
         return 1;
 }
 long MainWindow::onCmdNewSimulation(FXObject *, FXSelector, void *){
-	FXDialogBox Options(this, "Sim options ", DECOR_TITLE|DECOR_BORDER,
+	
+    
+    FXDialogBox Options(this, "Sim options ", DECOR_TITLE|DECOR_BORDER,
  		0,0,0,0, 0,0,0,0, 0,0);
     
     FXMatrix *LayoutMatrix=new FXMatrix(&Options,1,MATRIX_BY_COLUMNS|LAYOUT_SIDE_TOP|LAYOUT_FILL_X|LAYOUT_FILL_Y);

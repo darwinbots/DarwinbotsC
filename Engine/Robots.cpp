@@ -8,7 +8,6 @@ Class containing all the info for robots
 #include "../Common/Math3D.h"
 #include "ObjectPrimitive.h"
 #include "Tie.h"
-//#include "Block.h" //File doesn't exist!
 #include "Globals.h"
 #include "../Common/Random.h"
 #include "Specie.h"
@@ -59,7 +58,7 @@ void Robot::BasicRobotSetup(datispecie *myspecies)
 
 	//do I need to set up *.fixed?
 
-	this->pos.set( frnd( myspecies->PosTopLeft[0], myspecies->PosLowRight[0]) ,
+	this->pos.set( frnd((long)myspecies->PosTopLeft[0], (long)myspecies->PosLowRight[0]) ,
 				  frnd((long)myspecies->PosTopLeft[1], (long)myspecies->PosLowRight[1]), 0.0f);
 	this->opos = this->pos;
 
@@ -223,7 +222,7 @@ void Robot::MakeShell()
 
 	oldshell = Shell;
 	if ((*this)[mkshell] * SimOpts.Costs[SHELLCOST] > nrg && nrg > 0)
-		(*this)[mkshell] = (nrg / 2) / SimOpts.Costs[SHELLCOST];
+		(*this)[mkshell] = iceil((nrg / 2) / SimOpts.Costs[SHELLCOST]);
 
 	Shell = Shell + (*this)[mkshell];
 	(*this)[mkshell] = 0;
@@ -488,7 +487,7 @@ void Robot::Shock()
 {
 	long temp;
 
-	temp = this->onrg - this->nrg;
+	temp = long(this->onrg - this->nrg);
 	if (temp > (onrg / 2))
 	{
 		Body = Body + nrg / 10;
@@ -732,7 +731,7 @@ void Robot::ShotManagement()
 	{
 		unsigned long cost;
 
-		cost = (pow(2, multiplier) - 1) * SimOpts.Costs[SHOTCOST];
+		cost = long((pow(2, multiplier) - 1) * SimOpts.Costs[SHOTCOST]);
 		if (cost <= this->nrg)
 		{
 			this->ChargeNRG(cost);
@@ -893,7 +892,7 @@ Robot *Robot::Split(float percentage)
 	this->UpdateRadius();
 	baby->UpdateRadius();
 
-	sondist = this->radius + baby->radius;
+	sondist = long(this->radius + baby->radius);
 	this->pos = this->pos - percentage * sondist * this->aimvector;
 	baby->pos = this->pos + Length * this->aimvector;
 

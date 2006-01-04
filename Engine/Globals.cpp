@@ -1,7 +1,7 @@
 #include <cmath>
 #include "Globals.h"
 
-__int16 iceil(float value)
+inline __int16 iceil(float value)
 {
 	if (fabs(value) > 32000.0f)
 		return 32000;

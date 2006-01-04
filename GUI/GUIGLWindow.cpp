@@ -91,8 +91,8 @@ long MainWindow::DrawScene(FXObject *, FXSelector, void *)
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
   
-  glRotatef(MainCamera.LOOKAT.x(), 1.0f, 0.0f, 0.0f);
-  glRotatef(MainCamera.LOOKAT.y(), 0.0f, 1.0f, 0.0f);
+  glRotatef(MainCamera.lookat().x(), 1.0f, 0.0f, 0.0f);
+  glRotatef(MainCamera.lookat().y(), 0.0f, 1.0f, 0.0f);
 
   glTranslatef(MainCamera.pos().x() - 9327/2,
                -MainCamera.pos().y() - 6928/2,
