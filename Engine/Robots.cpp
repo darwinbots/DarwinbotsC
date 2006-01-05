@@ -34,8 +34,6 @@ Does not even set up color, nrg, etc.
 ****************************************/
 void Robot::BasicRobotSetup(datispecie *myspecies)
 {
-	memset(this, 0, sizeof(*this)); //clear out the Robot structure
-	
 	SimOpts.TotBorn++;
 	this->AbsNum = SimOpts.TotBorn;
 	
