@@ -12,10 +12,10 @@ MainWindow::MainWindow(FXApp *app)
     
     FXToolBarShell *dragshell1 = new FXToolBarShell(this, FRAME_RAISED);
     menubar = new FXMenuBar(this, dragshell1, FRAME_RAISED|LAYOUT_SIDE_TOP|LAYOUT_FILL_X);
-    new FXToolBarGrip(menubar, menubar, FXMenuBar::ID_TOOLBARGRIP);
+    //new FXToolBarGrip(menubar, menubar, FXMenuBar::ID_TOOLBARGRIP);
     
     FXStatusBar *statusbar;
-    statusbar = new FXStatusBar(this, LAYOUT_SIDE_BOTTOM|LAYOUT_FILL_X|STATUSBAR_WITH_DRAGCORNER|FRAME_RAISED);
+    statusbar = new FXStatusBar(this, LAYOUT_SIDE_BOTTOM|LAYOUT_FILL_X|/*STATUSBAR_WITH_DRAGCORNER|*/FRAME_RAISED);
     
     fileMenu = new FXMenuPane(this);
     new FXMenuCommand(fileMenu, "&New Simulation\tF1\tStart a new Simulation.", 0, this, ID_NewSimulation);

@@ -32,16 +32,21 @@ const unsigned char winapp[]={
 long MainWindow::onBotDebug()
 {
     int x;
-    /*FXDialogBox BotDebug(this, "Bot Debug Controls", DECOR_TITLE|DECOR_BORDER);//,
- 		//0,0,640,480);
-        //0,0,0,0);*/
 
-    FXToolBarShell BotDebug(this, FRAME_RAISED|FRAME_THICK, 0, 100);
-
-    FXMatrix *LayoutMatrix1=new FXMatrix(&BotDebug,1,MATRIX_BY_ROWS|LAYOUT_SIDE_LEFT|LAYOUT_FILL_X|LAYOUT_FILL_Y);
-        
-    //FXMatrix *LayoutMatrix2=new FXMatrix(LayoutMatrix1,2,MATRIX_BY_COLUMNS|LAYOUT_SIDE_TOP|LAYOUT_FILL_X|LAYOUT_FILL_Y);
-        
+    //FXToolBarShell *dragshell= new FXToolBarShell(this,FRAME_RAISED);
+    
+    //FXMDIChild BotDebug(mdiclient, "Bot Debug");
+    //FXDialogBox BotDebug(this, "Bot Debug Controls", DECOR_TITLE|DECOR_BORDER);
+    //FXToolBarShell BotDebug(this, FRAME_RAISED|FRAME_THICK, 0, 100);
+    
+    FXDockSite *topdock=new FXDockSite(this,LAYOUT_SIDE_TOP|LAYOUT_FILL_X);
+    FXToolBarShell *dragshell = new FXToolBarShell(this,FRAME_RAISED);
+    
+    FXToolBar *BotDebug = new FXToolBar(topdock, dragshell, LAYOUT_DOCK_NEXT|LAYOUT_SIDE_TOP|FRAME_RAISED);
+    new FXToolBarGrip(BotDebug,BotDebug,FXToolBar::ID_TOOLBARGRIP,TOOLBARGRIP_DOUBLE);    
+    
+    FXMatrix *LayoutMatrix1=new FXMatrix(BotDebug,1,MATRIX_BY_ROWS|LAYOUT_SIDE_LEFT|LAYOUT_FILL_X|LAYOUT_FILL_Y);
+            
     //THE STACK
     
     //the frame
@@ -55,11 +60,11 @@ long MainWindow::onBotDebug()
     for(x = 20; x > 10; x--)
     {
         new FXLabel(StackMatrix,strcat(itoa(x, buffer, 10), "th"),NULL,LAYOUT_RIGHT|JUSTIFY_RIGHT);
-        new FXTextField(StackMatrix,10,NULL,FXDataTarget::ID_VALUE,
+        new FXTextField(StackMatrix,10,NULL,0,
             TEXTFIELD_REAL|JUSTIFY_RIGHT|LAYOUT_CENTER_Y|FRAME_SUNKEN|LAYOUT_CENTER_X|FRAME_THICK|LAYOUT_FILL_ROW);
 
         new FXLabel(StackMatrix,strcat(itoa(x-10, buffer, 10), "th"),NULL,LAYOUT_RIGHT|JUSTIFY_RIGHT);
-        new FXTextField(StackMatrix,10,NULL,FXDataTarget::ID_VALUE,
+        new FXTextField(StackMatrix,10,NULL,0,
             TEXTFIELD_REAL|JUSTIFY_RIGHT|LAYOUT_CENTER_Y|FRAME_SUNKEN|LAYOUT_CENTER_X|FRAME_THICK|LAYOUT_FILL_ROW);
     }
 
@@ -96,14 +101,14 @@ long MainWindow::onBotDebug()
     while( strcmp(BotDetails[x++], "") != 0)
     {
         new FXLabel(DetailsMatrix,BotDetails[x-1],NULL,LAYOUT_RIGHT|JUSTIFY_RIGHT);
-        new FXTextField(DetailsMatrix,10,NULL,FXDataTarget::ID_VALUE,
+        new FXTextField(DetailsMatrix,10,NULL,0,
             TEXTFIELD_REAL|JUSTIFY_RIGHT|LAYOUT_CENTER_Y|FRAME_SUNKEN|LAYOUT_CENTER_X|FRAME_THICK|LAYOUT_FILL_ROW);   
     }
     
-    BotDebug.create();   
-    BotDebug.show();
+    dragshell->create();
+    //BotDebug->create();
+    //BotDebug->show();
+
     return getApp()->runModalFor(this);
-    
-    //mdiclient->setActiveChild(&BotDebug);
     return 1;
 }

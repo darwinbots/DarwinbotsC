@@ -28,6 +28,10 @@ protected:
     
     FXGLVisual     *glvisual;
     FXGLCanvas     *canvas;
+
+    FXHorizontalFrame *frame;
+    FXVerticalFrame *box;
+    FXMDIClient *mdiclient;
     
     void ConnectVar();
         

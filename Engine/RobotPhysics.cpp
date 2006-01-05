@@ -76,7 +76,7 @@ void Robot::GravityForces()
 {
     Vector4 temp(0,1,0);
     
-    this->ImpulseInd = this->ImpulseInd + (this->mass * SimOpts.YGravity) * temp;
+    this->ImpulseInd = this->ImpulseInd - (this->mass * SimOpts.YGravity) * temp;
 }
 
 void Robot::BrownianForces()

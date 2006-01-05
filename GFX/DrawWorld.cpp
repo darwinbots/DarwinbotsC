@@ -15,15 +15,19 @@ void DrawWorld(void)
 {
   glShadeModel(GL_SMOOTH);
   
-  /*Begin(GL_QUADS);
+  glBegin(GL_LINES);
     
    glColor3f(1.0f,1.0f,1.0f);//,0.5f);			// Full Brightness, 50% Alpha ( NEW )
    //glBlendFunc(GL_SRC_ALPHA,GL_ONE);
-    glVertex3f(0,0,1000);
-    glVertex3f(9327,0,1000);
-    glVertex3f(9327, 6928,1000);
-    glVertex3f(0, 6928, 1000);
-  glEnd();*/
+    glVertex3f(0,0,0);
+    glVertex3f(SimOpts.FieldDimensions.x(),0,0);
+    glVertex3f(SimOpts.FieldDimensions.x(),0,0);
+    glVertex3f(SimOpts.FieldDimensions.x(), SimOpts.FieldDimensions.y(),0);
+    glVertex3f(SimOpts.FieldDimensions.x(), SimOpts.FieldDimensions.y(),0);
+    glVertex3f(0, SimOpts.FieldDimensions.y(), 0);
+    glVertex3f(0, SimOpts.FieldDimensions.y(), 0);
+    glVertex3f(0,0,0);
+  glEnd();
     
     //can we use display lists for the spheres for teh bots and just scale them?  Is that faster?
     DrawRobots();
