@@ -13,6 +13,7 @@ using namespace std;
 var sysvar[1000]; //all possible sysvars
 int maxsysvar = 0;
 char buffer[1024];
+vector<pair<string,__int16> > vSysvars;
 
 ///////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////
@@ -94,9 +95,9 @@ string &BasicCommandDetok(__int16 number)
 
 block &BasicCommandTok(const string &s)
 {
-    static block returnme(2,0);
-
-    returnme.tipo = 2;
+    static block returnme(btBasicCommand,0);
+    
+    returnme.tipo = btBasicCommand;
     returnme.value = 0;
 
     if (s == "add")
@@ -153,9 +154,9 @@ string &AdvancedCommandDetok(__int16 number)
 
 block &AdvancedCommandTok(string s)
 {
-    static block returnme(3,0);
-
-    returnme.tipo = 3;
+    static block returnme(btAdvancedCommand,0);
+    
+    returnme.tipo = btAdvancedCommand;
     returnme.value = 0;
 
     if (s == "angle") returnme.value = 1;
@@ -203,9 +204,9 @@ string &BitwiseCommandDetok(const __int16 number)
 
 block &BitwiseCommandTok(string s)
 {
-    static block returnme(4,0);
-
-    returnme.tipo = 4;
+    static block returnme(btBitwiseCommand,0);
+    
+    returnme.tipo = btBitwiseCommand;
     returnme.value = 0;
 
     if (s == "~") returnme.value = 1;
@@ -220,6 +221,7 @@ block &BitwiseCommandTok(string s)
     return returnme;
 }
 
+// "%=", "!%=", "~=", "!~=" aren't supported ATM.
 string &ConditionsDetok(__int16 number)
 {
     static string returnme;
@@ -248,10 +250,11 @@ string &ConditionsDetok(__int16 number)
 
 block &ConditionsTok(string s)
 {
-    static block returnme(5,0);
-    returnme.tipo = 5;
-    returnme.value = 0;
+    static block returnme(btCondition,0);
 
+    returnme.tipo = btCondition;
+    returnme.value = 0;
+    
     if (s == "<") returnme.value = 1;
     if (s == ">") returnme.value = 2;
     if (s == "=") returnme.value = 3;
@@ -290,9 +293,9 @@ string &LogicDetok(__int16 number)
 
 block &LogicTok(string s)
 {
-    static block returnme(6,0);
+    static block returnme(btLogic,0);
 
-    returnme.tipo = 6;
+    returnme.tipo = btLogic;
     returnme.value = 0;
 
     if (s == "and") returnme.value = 1;
@@ -329,9 +332,9 @@ string &StoresDetok(__int16 number)
 
 block &StoresTok(string s)
 {
-    static block returnme(7,0);
+    static block returnme(btStores,0);
 
-    returnme.tipo = 7;
+    returnme.tipo = btStores;
     returnme.value = 0;
 
     if (s == "store") returnme.value = 1;
@@ -365,9 +368,9 @@ string &FlowDetok(__int16 number)
 
 block &FlowTok(string s)
 {
-    static block returnme(9,0);
+    static block returnme(btFlow,0);
 
-    returnme.tipo = 9;
+    returnme.tipo = btFlow;
     returnme.value = 0;
 
     if (s == "cond") returnme.value = 1;
@@ -397,9 +400,9 @@ string &MasterFlowDetok(__int16 number)
 
 block &MasterFlowTok(const string &s)
 {
-    static block returnme(10,0);
+    static block returnme(btMasterFlow,0);
 
-    returnme.tipo = 10;
+    returnme.tipo = btMasterFlow;
     returnme.value = 0;
 
     if (s == "end")
@@ -421,11 +424,11 @@ string &DNA_Class::text()
     returnme = "";
     while(this->Code[t] != DNA_END)
     {
-        temp = UnparseCommand(this->Code[t], this->Code[t+1].tipo == DNA_STORES_TYPE);
+        temp = UnparseCommand(this->Code[t], this->Code[t+1].tipo == btStores);
         if (temp == "")
             temp = "VOID";
 
-        if (Code[t].tipo == 5 || Code[t].tipo == 6 || Code[t].tipo == 7 || Code[t].tipo == 9)
+        if (Code[t].tipo == btCondition || Code[t].tipo == btLogic || Code[t].tipo == btStores || Code[t].tipo == btFlow)
         {
             temp = temp + "\n";
             
@@ -498,30 +501,38 @@ string &DNA_Class::UnparseCommand(const block &Command, bool converttosysvar)
     
     switch(Command.tipo)
     {
-        case 0: //number
-        {
-            if (converttosysvar) returnme = this->SysvarDetok(Command.value);
-            else returnme = itoa(Command.value, buffer, 10);
-        }break;                         
-        case 1: //*.number
-            returnme = "*" + this->SysvarDetok(Command.value); break;
-        case 2: //basic command
-            returnme = BasicCommandDetok(Command.value); break;
-        case 3: //advanced command
-            returnme = AdvancedCommandDetok(Command.value); break;
-        case 4: //bit command
-            returnme = BitwiseCommandDetok(Command.value); break;
-        case 5: //condition
-            returnme = ConditionsDetok(Command.value); break;
-        case 6: //logic
-            returnme = LogicDetok(Command.value); break;
-        case 7: //stores
-            returnme = StoresDetok(Command.value); break;
-        case 8: //nothing (yet)
+        case btValue: //number
+            if (converttosysvar) {
+              returnme = this->SysvarDetok(Command.value); }
+            else {
+              returnme = itoa(Command.value, buffer, 10);
+            }
             break;
-        case 9: //Flow Commands
+        case btPointer: //*.number
+            if (converttosysvar) {
+              returnme = "*" + this->SysvarDetok(Command.value); }
+            else {
+              returnme = string("*") + itoa(Command.value, buffer, 10);
+            }
+            break;
+
+        case btBasicCommand: //basic command
+            returnme = BasicCommandDetok(Command.value); break;
+        case btAdvancedCommand: //advanced command
+            returnme = AdvancedCommandDetok(Command.value); break;
+        case btBitwiseCommand: //bit command
+            returnme = BitwiseCommandDetok(Command.value); break;
+        case btCondition: //condition
+            returnme = ConditionsDetok(Command.value); break;
+        case btLogic: //logic
+            returnme = LogicDetok(Command.value); break;
+        case btStores: //stores
+            returnme = StoresDetok(Command.value); break;
+        case btReserved: //nothing (yet)
+            break;
+        case btFlow: //Flow Commands
             returnme = FlowDetok(Command.value); break;
-        case 10: //master flow
+        case btMasterFlow: //master flow
             returnme = MasterFlowDetok(Command.value); break;
         default:
             break;
@@ -532,10 +543,7 @@ string &DNA_Class::UnparseCommand(const block &Command, bool converttosysvar)
 
 block DNA_Class::ParseCommand(const string &Command)
 {
-    block bp(0,0);
-
-    bp.value = 0;
-    bp.tipo = 0;
+    block bp;
 
     if (bp.value == 0) bp = BasicCommandTok(Command);
     if (bp.value == 0) bp = AdvancedCommandTok(Command);
@@ -547,12 +555,12 @@ block DNA_Class::ParseCommand(const string &Command)
     if (bp.value == 0) bp = MasterFlowTok(Command);
     if (bp.value == 0 && Command.at(0) == '*')
     {
-        bp.tipo = 1;
+        bp.tipo = btPointer;
         bp.value = SysvarTok(Command.substr(1, Command.size()));
     }
     else if (bp.value == 0)
     {
-        bp.tipo = 0;
+        bp.tipo = btValue;
         bp.value = SysvarTok(Command);
     }
 

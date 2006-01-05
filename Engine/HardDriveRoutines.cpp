@@ -1,3 +1,4 @@
+#include "HardDriveRoutines.h"
 #ifdef _MSC_VER
 #include <iostream.h>  //must be iostream.h and not iostream, otherwise ios::nocreate doesn't exist
 #else
@@ -355,3 +356,82 @@ bool DNA_Class::LoadDNA(string path)
     in.close();
     return true;
 }
+
+// This is an all purpose tokenizer respecting Darwinbots' conventions
+// Spaces and linebreaks count as delimiters and everything after "'" is
+// ignored till end of line.
+vector<string> tokenize(std::istream& inputStream) {
+  int pos;
+  vector<string> tokenList;
+  string lineBuf,token;
+
+  while(!inputStream.eof()){
+    getline(inputStream,lineBuf);
+    //DEBUG: myNotify("Line : "+lineBuf);
+    pos=lineBuf.find("'");
+    if (pos!=string::npos) lineBuf.erase(pos);
+    std::stringstream ssLineBuf(lineBuf,std::stringstream::in);
+    while( !ssLineBuf.eof() ){
+      while (isspace(ssLineBuf.peek()))
+        ssLineBuf.get();
+      if( ssLineBuf.eof()) break;
+      ssLineBuf>>token;
+      tokenList.push_back(token);
+    }
+  }
+  return tokenList;
+};
+
+bool LoadSysvars() {
+    std::string path;
+    path = Engine.MainDir() + "\\sysvars2.4.txt";
+    return LoadSysvars(path);
+};
+
+bool LoadSysvars(std::string path) {
+  vector<string> tokenList;
+  ifstream in;
+
+  //attempt to open file
+  //close file if it is already open
+	if (in.is_open() != 0)
+		in.close();
+
+	in.open(path.c_str(),
+        #ifdef _MSC_VER
+        ios::nocreate |
+        #endif
+        ios::in);
+
+    if (in.fail() == true)
+    {
+        //can't find sysvars file
+        std::cout << "Sysvars file " << path.c_str() << " not found." << endl;
+		    in.close();
+		    return false;
+    }
+  tokenList=tokenize(in);
+  if (tokenList.size() % 2 == 1) return false;
+
+  vector<string>::iterator tIter;
+  pair<string,short> tmpPair;
+  for(tIter = tokenList.begin(); tIter!=tokenList.end(); tIter++){
+    tmpPair.first=*tIter;
+    tIter++;
+    if(!from_string<short>(tmpPair.second, *tIter, std::dec)) {
+      std::cout<<"from_string failed while loading sysvars."<<std::endl;
+      return false;
+    }
+    vSysvars.push_back(tmpPair);
+  }
+  
+  int i=0;
+  for(vector<pair<string,__int16> >::iterator tIter = vSysvars.begin(); tIter!=vSysvars.end(); tIter++){
+    sysvar[i].name=tIter->first;
+    sysvar[i].value=tIter->second;
+    i++;
+  }
+  
+  maxsysvar=vSysvars.size();
+  return true;
+};

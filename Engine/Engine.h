@@ -16,6 +16,7 @@ class Engine_Class
     {
         return maindir;    
     }    
+	void SetMainDir(std::string newDir){maindir=newDir;};
 	
 	private:
 	void LoadRobots(void);

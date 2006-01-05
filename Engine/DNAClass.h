@@ -3,18 +3,45 @@
 
 #include <iostream>
 #include <vector>
+#include <sstream>
 
 #include "specie.h"
 
 using namespace std;
 
+template <class T>
+bool from_string(T &t,
+                 const std::string &s,
+                 std::ios_base & (*f)(std::ios_base&))
+{
+   std::istringstream iss(s);
+   return !(iss>>f>>t).fail();
+}
+
+enum tBlockType {
+    btNONE = -1 ,
+    btValue,              //0
+    btPointer,            //1
+    btBasicCommand,       //2
+    btAdvancedCommand,    //3
+    btBitwiseCommand,     //4
+    btCondition,          //5
+    btLogic,              //6
+    btStores,             //7
+    btReserved,           //8
+    btFlow,               //9
+    btMasterFlow,         //10
+    btMAX
+};
+
 struct block
 {
-	__int16 tipo;
-    __int16 value;
+	tBlockType tipo;
+  __int16 value;
 
-    public:
-    block(const int &a=0, const int &b=0) { tipo = a; value = b; }
+  public:
+
+    block(const tBlockType &a=btNONE, const __int16 &b=0): tipo(a), value(b){};
     const bool operator == (const block &other) const
     {
         return tipo == other.tipo && value == other.value;
@@ -27,7 +54,7 @@ struct block
 
     void erase()
     {
-        this->tipo = -1;
+        this->tipo = btNONE;
         this->value = -1;
     }
 };
@@ -85,12 +112,13 @@ class DNA_Class
 
 extern var sysvar[1000]; //all possible sysvars
 extern int maxsysvar;
+extern vector<pair<string,__int16> > vSysvars;
 
-const block DNA_END  (10,1 );
-const block DNA_START(9 ,2 );
-const block DNA_ELSE (9 ,3 );
-const block DNA_STOP (9 ,4 );
-const int   DNA_STORES_TYPE = 7;
+const block DNA_END  (btMasterFlow,1 );
+const block DNA_START(btFlow ,2 );
+const block DNA_ELSE (btFlow ,3 );
+const block DNA_STOP (btFlow ,4 );
+//const int   DNA_STORES_TYPE = 7;
 
 #endif
 
