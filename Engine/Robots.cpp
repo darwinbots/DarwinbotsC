@@ -14,6 +14,7 @@ Class containing all the info for robots
 #include "RobotSysvars.h"
 #include "SimOptions.h"
 #include "Robot.h"
+#include "Engine.h"
 
 using namespace std;
 using namespace Math3D;
@@ -71,8 +72,12 @@ void Robot::BasicRobotSetup(datispecie *myspecies)
 	this->color = myspecies->color;
 
     this->DNA = new DNA_Class;
+    
+    string truePath(myspecies->path);
+    if (truePath.substr(0,2)=="&#") //apparently, vB uses "&#" to represent app's directory
+      truePath.replace(0,2,Engine.MainDir(),0,(Engine.MainDir()).length());
 
-    this->DNA->LoadDNA(myspecies->path + "\\" + myspecies->Name);
+    this->DNA->LoadDNA(truePath + "\\" + myspecies->Name);
     this->DNA->Mutables = myspecies->Mutables;
 }
 
