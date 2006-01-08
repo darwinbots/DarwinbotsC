@@ -4,6 +4,7 @@
 #include <iostream>
 #include <vector>
 #include <cmath>
+#include <list>
 #include "../Common/Math3D.h"
 #include "../Common/Random.h"
 #include "ObjectPrimitive.h"
@@ -23,6 +24,9 @@ const int RobSize          = 120;
 
 ///////GLOBALS/////////////////
 extern unsigned int MaxRobs; //how far into the robot array to go
+
+class Tie;
+typedef std::list<Tie*> TieList; //we may have to change this later
 
 class Robot : public ObjectPrimitive
 {
@@ -46,8 +50,7 @@ private:
 	float aim;								// aim angle
 	Vector4 aimvector;                      // the unit vector for aim
 
-	Tie HeadTie;                            // linked list of ties (this is the head, head is never addressed except as through Headtie->next)
-	int numties;
+	TieList tieList;                       //linked list of ties
 	
 	//Physics
 	Vector4 ImpulseInd;                     // independant forces vector

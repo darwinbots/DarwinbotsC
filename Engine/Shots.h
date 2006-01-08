@@ -4,6 +4,8 @@
 #include "ObjectPrimitive.h"
 #include "Robot.h"
 
+class Robot;
+
 class Shot : ObjectPrimitive
 {
     #ifdef _MSC_VER
@@ -11,7 +13,7 @@ class Shot : ObjectPrimitive
     #endif
 
     private:
-    Robot *parent; //pointer to parent
+    Robot* parent; //pointer to parent
 
     float range;        // max age the shot can exist
     

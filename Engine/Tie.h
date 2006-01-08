@@ -1,14 +1,21 @@
 #ifndef TIE_H
 #define TIE_H
+#include "../Common/Math3D.h"
+#include "Robot.h"
 
 class Robot;
+
+/*Creating and deleting ties can be tricky because we have to make sure that
+both bots are simultaneously made aware of the tie's creation. Also, since only
+bots at the end of a tie know of its existence, we must make sure that no tie is
+left hanging around, unaccessible and wasting precious memory.*/
 
 //remember to have ties being updated check for if port = 0 and age >= 100 (then we need to cut the tie, it's a birth tie)
 class Tie
 {
 	int Port;  //the phase number the tie can be accessed with.  1 to 200
-	Robot *sender; //robot that fired the tie
-	Robot *reciever; //robot that recieved the tie
+	Robot* sender; //robot that fired the tie
+	Robot* receiver; //robot that received the tie
 	
 	long age;  //used for birth ties dissolving and regular ties hardening
 	
@@ -30,10 +37,15 @@ class Tie
     //'3 = anti-rope - only applies force if shorter than
     //  '"natural length", not if too long) b and k values high
 
-	class Tie *next; //for linked list use with robots
+	//class Tie *next; //for linked list use with robots
 
 	//Functions
-	public:
-	bool Tie::MakeTie(Robot *sender, Robot *reciever, int port);
+public:
+	static bool Tie::MakeTie(Robot* _sender, Robot* _receiver, int _port);
+	~Tie();
+private:
+    Tie(Robot* _sender, Robot* _receiver, int _port,
+                float _k = 0.005f, float _b = 0.01f, int _type=0);
+
 };
 #endif

@@ -631,7 +631,6 @@ void Robot::Reproduction()
 
 bool Robot::FireTie()
 {
-	Tie *temp;
 	int tieport;
 
 	tieport = (*this)[mtie];
@@ -639,9 +638,7 @@ bool Robot::FireTie()
 	(*this)[mtie] = 0;	
 	if (tieport > 0 && this->lastopp != NULL && SimOpts.DisableTies == false)
 	{
-		temp = new Tie;
-
-		return temp->MakeTie(this, lastopp, tieport);
+		return Tie::MakeTie(this, lastopp, tieport);
 	}
 	return false;
 }
@@ -784,10 +781,9 @@ void Robot::ShotManagement()
 //  a.  Mutate the DNA
 
 //returns pointer to baby, or NULL if error
-Robot *Robot::Split(float percentage)
+Robot* Robot::Split(float percentage)
 {
 	long sondist;
-	static Robot *baby;
 	float babyradius;
 	float thisradius;
 	float Length;
@@ -831,7 +827,7 @@ Robot *Robot::Split(float percentage)
 	//if there is a collision,
 	//return false;	
 		
-	baby = new Robot();
+	Robot *baby = new Robot();
 	
 	baby->obody = baby->Body = this->Body * percentage;
 	this->obody = this->Body *= (1.0f - percentage);
@@ -907,10 +903,11 @@ Robot *Robot::Split(float percentage)
 	(*baby)[timersys] = (*this)[timersys];//epigenetic timer
 
 	//make the birth tie
-	Tie *temp;
-	temp = new Tie;
-
-	temp->MakeTie(this, baby, 0);
+	if (!Tie::MakeTie(this, baby, 0))
+    {
+        delete baby;
+        return NULL;
+    }
 
     baby->fname = this->fname;
 
