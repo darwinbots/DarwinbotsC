@@ -45,3 +45,8 @@ DNA_Class::DNA_Class(const DNA_Class &other)
 {
     (*this) = other;
 }
+
+bool DNA_Class::Delete(int start, int end)
+{
+    Code.erase(Code.begin()+start, Code.begin()+end);
+};

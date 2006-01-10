@@ -37,7 +37,7 @@ enum tBlockType {
 struct block
 {
 	tBlockType tipo;
-  __int16 value;
+    __int16 value;
 
   public:
 
@@ -74,7 +74,7 @@ class DNA_Class
 	long DNAgenenum; //number of genes in the genome
 	long DNAlength;
 
-    public:
+  public:
     //Mutation related
 	mutationprobs Mutables;
 
@@ -87,19 +87,20 @@ class DNA_Class
     unsigned int Mutations;       			// total mutations
 	unsigned int LastMut;         			// last mutations
 
-    private:
+  private:
     //functions
     string &SysvarDetok(__int16 number);
     __int16 SysvarTok(const string &in);
     block ParseCommand(const string &Command);
     string &UnparseCommand(const block &Command, bool converttosysvar = false);
     void LoadDNA(ifstream &in);
+    bool Delete(int start, int end); //deletes blocks from start (inclusive) to end (exclusive)
     
 	public:
     DNA_Class(); //constructor
     DNA_Class(const DNA_Class &other);
 	long length();
-	long genenum();
+    long genenum();
     bool Mutate(bool reproducing);
 
     string &text(); //parse into a string

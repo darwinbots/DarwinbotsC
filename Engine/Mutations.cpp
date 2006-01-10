@@ -78,45 +78,6 @@ string &MutationType(MUTATIONS_UP mode)
 //NEVER allow anything after end, which must be = DNALen
 //ALWAYS assume that DNA is sized right
 //ALWAYS size DNA correctly when mutating
-
-/*Public Function MakeSpace(ByRef DNA() As block, ByVal beginning As Long, ByVal length As Long, Optional DNALength As Integer = -1) As Boolean
-  'add length elements after beginning.  Beginning doesn't move places
-  'returns true if the space was created,
-  'false otherwise
-
-  Dim t As Integer
-  If DNALength < 0 Then DNALength = DnaLen(DNA)
-  If length < 1 Or beginning < 0 Or beginning > DNALength - 1 Then
-    MakeSpace = False
-    Exit Function
-  End If
-  
-  MakeSpace = True
-
-  ReDim Preserve DNA(DNALength + length)
-
-  For t = DNALength To beginning + 1 Step -1
-    DNA(t + length) = DNA(t)
-    EraseUnit DNA(t)
-  Next t
-End Function
-
-Public Sub Delete(ByRef DNA() As block, ByRef beginning As Long, ByRef elements As Long, Optional DNALength As Integer = -1)
-  'delete elements starting at beginning
-  Dim t As Integer
-  If DNALength < 0 Then DNALength = DnaLen(DNA)
-  If elements < 1 Or beginning < 1 Or beginning > DNALength - 1 Then Exit Sub
-  If elements + beginning > DNALength - 1 Then elements = DNALength - 1 - beginning
-
-  For t = beginning + elements To DNALength
-    DNA(t - elements) = DNA(t)
-  Next t
-
-  DNALength = DnaLen(DNA)
-  ReDim Preserve DNA(DNALength)
-End Sub
-*/
-
 //'''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 //'''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 //'''''''''''''''''''''''''''''''''''''''''''''''''''''''''
