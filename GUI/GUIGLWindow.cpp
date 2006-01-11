@@ -58,7 +58,7 @@ long MainWindow::onUpdGfx(FXObject *, FXSelector, void *)
     //update world if we're tying the world update to a specific speed    
     
     //Draw World    
-    Engine.UpdateSim();
+    //Engine.UpdateSim();
     this->DrawScene();
 
     getApp()->addTimeout(this, ID_UpdGfx, 1);

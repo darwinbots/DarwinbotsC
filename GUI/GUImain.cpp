@@ -2,6 +2,7 @@
 #include <signal.h>
 #include "../Engine/SimOptions.h"
 #include "../Engine/Engine.h"
+#include "../Engine/EngineThread.h"
 
 FXIMPLEMENT(MainWindow, FXMainWindow, MainWindowMap, ARRAYNUMBER(MainWindowMap))
 
@@ -77,23 +78,19 @@ MainWindow *MainWindowHandle;
 
 int main(int argc, char **argv)
 {
-        FXApp app(PROJECT_NAME, "yo");
-        app.init(argc, argv);
+    FXApp app(PROJECT_NAME, "yo");
+    app.init(argc, argv);
 
-        MainWindowHandle = new MainWindow(&app);
+    MainWindowHandle = new MainWindow(&app);
         
-        app.create();
+    app.create();
 
-        MainWindowHandle->show(PLACEMENT_CURSOR);
-        MainWindowHandle->maximize();
-        MainWindowHandle->setFocus();
+    MainWindowHandle->show(PLACEMENT_CURSOR);
+    MainWindowHandle->maximize();
+    MainWindowHandle->setFocus();
 
-        app.addTimeout(MainWindowHandle, MainWindow::ID_UpdGfx);
+    app.addTimeout(MainWindowHandle, MainWindow::ID_UpdGfx);
                 
-        Engine.SetupSim();
-
-        //syntax:
-        //_beginthread( (void (_cdecl *)(void*)) Update_World_Func, 0, NULL);
-        
-        return app.run();
+    EngineThread.start(0);
+    return app.run();
 }

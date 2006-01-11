@@ -141,7 +141,7 @@ void DNA_Class::Execute()
         if (DEBUGMODE && currbot == tempBot.thatbot)
         {
             //send signal to the GUI that this is the current command to execute
-            tempBot.DNA_pos = pointer;
+            //MainWindowHandle->BotDebug->
 
             //wait on the user till he continues or continues to a specific place, etc.
 
