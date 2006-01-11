@@ -4,7 +4,9 @@
 #include <fx.h>
 #include <fx3d.h>
 
-#define PROJECT_NAME "DarwinBots"
+#include "GUIBotDebug.h"
+
+#define PROJECT_NAME "DarwinBots 2.5"
 #define PROJECT_VERSION "0.0.1"
 
 class MainWindow : public FXMainWindow
@@ -29,13 +31,15 @@ protected:
     FXGLVisual     *glvisual;
     FXGLCanvas     *canvas;
 
-    FXHorizontalFrame *frame;
-    FXVerticalFrame *box;
     FXMDIClient *mdiclient;
+
+    FXMDIChild *mainview;
     
     void ConnectVar();
         
 public:
+    BotDebug_Window *BotDebug;
+
     MainWindow(FXApp *app);
     ~MainWindow();
     
@@ -100,7 +104,7 @@ public:
 
     long onBotDebug             ();
     
-};
+}extern *MainWindowHandle;
 
 FXDEFMAP(MainWindow) MainWindowMap[] = {
   FXMAPFUNC(SEL_CONFIGURE, MainWindow::ID_MainView,         MainWindow::DrawScene),

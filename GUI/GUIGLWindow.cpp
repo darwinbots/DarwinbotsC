@@ -22,6 +22,9 @@ const unsigned char winapp[]={
 
 long MainWindow::GLWindow()
 {
+    FXHorizontalFrame *frame;
+    FXVerticalFrame *box;
+    
     frame=new FXHorizontalFrame(this,LAYOUT_SIDE_TOP|LAYOUT_FILL_X|LAYOUT_FILL_Y,
         100,100,100,100, 0,0,0,0, 4,4);
 
@@ -32,16 +35,20 @@ long MainWindow::GLWindow()
     
     FXMDIMenu *mdimenu=new FXMDIMenu(this,mdiclient);
      
-    FXMDIChild* mdichild=new FXMDIChild(mdiclient,"Darwinbots Main View",NULL,mdimenu,
-        MDI_TRACKING,30,30,300,200);
+    mainview=new FXMDIChild(mdiclient,"Darwinbots Main View",NULL,mdimenu,
+        MDI_TRACKING | ID_MDI_MAXIMIZE,30,30,300,200);
 
     glvisual = new FXGLVisual(getApp(),VISUAL_DOUBLEBUFFER | VISUAL_STEREO);
 
-    this->canvas = new FXGLCanvas(mdichild, glvisual, this, ID_MainView, LAYOUT_FILL_X|LAYOUT_FILL_Y|LAYOUT_TOP|LAYOUT_LEFT);
+    this->canvas = new FXGLCanvas(mainview, glvisual, this, ID_MainView,
+        LAYOUT_FILL_X|LAYOUT_FILL_Y|LAYOUT_TOP|LAYOUT_LEFT);
 
-    mdiclient->setActiveChild(mdichild);
+    mdiclient->setActiveChild(mainview);
+    mainview->maximize();
 
-    getApp()->addTimeout(this, ID_UpdGfx, 25);
+    //this->onBotDebug();
+
+    getApp()->addTimeout(this, ID_UpdGfx, 0);
 
     return 1;
 }
@@ -84,7 +91,7 @@ long MainWindow::DrawScene(FXObject *, FXSelector, void *)
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
   gluPerspective(45.,aspect,.1,1000000);
-
+    
   //camera (?)
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();

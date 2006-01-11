@@ -1,38 +1,27 @@
 #include "DNAClass.h"
 #include "Robot.h"
 
+#include "DNA_Execution.h"
+#include "../GUI/GUIBotDebug.h"
+
 /*****************************************
 TODO: be sure DNA costs are being exacted
 ******************************************/
 
 //the conditions stack
-struct boolstack_type
-{
-    bool val[21];
-    int pos;
-}Condst;
+boolstack_type Condst;
 
 //the integer stack
-struct intstack_type
-{
-    __int32 val[21];
-    int pos;
-}IntStack;
+intstack_type IntStack;
 
-enum
-{
-    CLEAR,
-    COND,
-    BODY,
-    ELSEBODY
-}CurrentFlow;
+FlowType CurrentFlow;
 
 bool CurrentCondFlag;
-const bool NEXTBODY = true;
-const bool NEXTELSE = false;
 
 Robot *currbot;
 unsigned long currgene;
+
+bool DEBUGMODE = true;
 
 /*********************************************
 FUNCTION PROTOTYPES
@@ -75,6 +64,10 @@ void PushIntStack(__int32 value)
 
     IntStack.val[IntStack.pos] = value;
     IntStack.pos++;
+
+    if (DEBUGMODE && currbot == tempBot.thatbot)
+        for (int x = 0; x < 20; x++)
+            tempBot.stack[x] = IntStack.val[x];
 }
 
 __int32 PopIntStack(void)
@@ -87,6 +80,10 @@ __int32 PopIntStack(void)
         IntStack.val[0] = 0;
     }
 
+    if (DEBUGMODE && currbot == tempBot.thatbot)
+        for (int x = 0; x < 20; x++)
+            tempBot.stack[x] = 10;//IntStack.val[x];    
+    
     return IntStack.val[IntStack.pos];
 }
 
@@ -141,6 +138,16 @@ void DNA_Class::Execute()
 
     while(this->Code[pointer] != DNA_END)
     {
+        if (DEBUGMODE && currbot == tempBot.thatbot)
+        {
+            //send signal to the GUI that this is the current command to execute
+            tempBot.DNA_pos = pointer;
+
+            //wait on the user till he continues or continues to a specific place, etc.
+
+        }
+        
+        
         switch (this->Code[pointer].tipo)
         {
             case 0: //number            

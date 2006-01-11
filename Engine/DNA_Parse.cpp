@@ -1,3 +1,7 @@
+#ifdef _MSC_VER
+#pragma warning(disable : 4786)
+#endif
+
 #include <iostream>
 #include <vector>
 #include <string>
@@ -502,18 +506,12 @@ string &DNA_Class::UnparseCommand(const block &Command, bool converttosysvar)
     switch(Command.tipo)
     {
         case btValue: //number
-            if (converttosysvar) {
-              returnme = this->SysvarDetok(Command.value); }
-            else {
-              returnme = itoa(Command.value, buffer, 10);
-            }
+            if (converttosysvar) returnme = this->SysvarDetok(Command.value);
+            else returnme = itoa(Command.value, buffer, 10);
             break;
+        
         case btPointer: //*.number
-            if (converttosysvar) {
-              returnme = "*" + this->SysvarDetok(Command.value); }
-            else {
-              returnme = string("*") + itoa(Command.value, buffer, 10);
-            }
+            returnme = "*" + this->SysvarDetok(Command.value);
             break;
 
         case btBasicCommand: //basic command

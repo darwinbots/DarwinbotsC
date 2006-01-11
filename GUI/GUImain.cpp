@@ -59,6 +59,8 @@ MainWindow::MainWindow(FXApp *app)
     
     GLWindow();
     ConnectVar();
+
+    BotDebug = NULL;
 }
 
 MainWindow::~MainWindow()
@@ -71,25 +73,27 @@ void MainWindow::create()
     FXMainWindow::create();
 }
 
+MainWindow *MainWindowHandle;
+
 int main(int argc, char **argv)
 {
         FXApp app(PROJECT_NAME, "yo");
         app.init(argc, argv);
 
-        MainWindow *w = new MainWindow(&app);
+        MainWindowHandle = new MainWindow(&app);
         
-        app.addSignal(SIGINT, w, MainWindow::ID_Quit);
         app.create();
 
-        app.addTimeout(w, MainWindow::ID_UpdGfx);
+        MainWindowHandle->show(PLACEMENT_CURSOR);
+        MainWindowHandle->maximize();
+        MainWindowHandle->setFocus();
+
+        app.addTimeout(MainWindowHandle, MainWindow::ID_UpdGfx);
                 
         Engine.SetupSim();
-        //app.addChore(w, MainWindow::ID_Engine);
 
-        w->show(PLACEMENT_CURSOR);
-        w->setFocus();
-
-        //this is where I'm thinking we should implement the engine thread(s)
-
+        //syntax:
+        //_beginthread( (void (_cdecl *)(void*)) Update_World_Func, 0, NULL);
+        
         return app.run();
 }

@@ -1,6 +1,10 @@
 #ifndef ROBOT_H
 #define ROBOT_H
 
+#ifdef _MSC_VER
+#pragma warning(disable : 4786)
+#endif
+
 #include <iostream>
 #include <vector>
 #include <cmath>

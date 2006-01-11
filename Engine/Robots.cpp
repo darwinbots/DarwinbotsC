@@ -1,6 +1,12 @@
 /*****************************************
 Class containing all the info for robots
 ******************************************/
+
+#ifdef _MSC_VER
+#pragma warning(disable : 4786)
+#endif
+
+
 #include <iostream>
 #include <vector>
 #include <string>
@@ -35,6 +41,12 @@ Does not even set up color, nrg, etc.
 ****************************************/
 void Robot::BasicRobotSetup(datispecie *myspecies)
 {
+    //I find mixed answers as to how valid memsetting a new structure to 0 is.
+    //barring any problems, or an easier, more correct way to do the below that's not setting each
+    //field manually, I'd like continue to do it this way.
+    
+    memset(this, 0, sizeof(*this)); //clear out the Robot structure
+
 	SimOpts.TotBorn++;
 	this->AbsNum = SimOpts.TotBorn;
 	

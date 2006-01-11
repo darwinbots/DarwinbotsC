@@ -1,4 +1,3 @@
-#include "HardDriveRoutines.h"
 #ifdef _MSC_VER
 #include <iostream.h>  //must be iostream.h and not iostream, otherwise ios::nocreate doesn't exist
 #else
@@ -13,6 +12,7 @@
 #include "SimOptions.h"
 #include "DNAClass.h"
 #include "Engine.h"
+#include "HardDriveRoutines.h"
 
 ofstream settingsout;
 
@@ -357,6 +357,8 @@ bool DNA_Class::LoadDNA(string path)
     return true;
 }
 
+//none below is used yet
+
 // This is an all purpose tokenizer respecting Darwinbots' conventions
 // Spaces and linebreaks count as delimiters and everything after "'" is
 // ignored till end of line.
@@ -426,11 +428,14 @@ bool LoadSysvars(std::string path) {
   }
   
   int i=0;
-  for(vector<pair<string,__int16> >::iterator tIter = vSysvars.begin(); tIter!=vSysvars.end(); tIter++){
+  
+  //the below gives me errors.  Probably has to do with iostream.h instead of
+  //iostream  Moving this to a seperate file may cure this issue. - Numsgil
+  /*for(vector<pair<string,__int16> >::iterator tIter = vSysvars.begin(); tIter!=vSysvars.end(); tIter++){
     sysvar[i].name=tIter->first;
     sysvar[i].value=tIter->second;
     i++;
-  }
+  }*/
   
   maxsysvar=vSysvars.size();
   return true;

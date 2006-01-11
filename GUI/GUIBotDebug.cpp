@@ -1,5 +1,21 @@
+#ifdef _MSC_VER
+#pragma warning(disable : 4786)
+#endif
+
+//STILL UNDER DEVELOPMENT
+
+#include <iostream>
+#include <vector>
 #include "GUIMain.h"
+#include "../Engine/Robot.h"
+#include "../Engine/DNA_Execution.h"
 #include <FXToolBarShell.h>
+
+#include "GUIBotDebug.h"
+
+bool GUIWINDOW = false;
+
+using namespace std;
 
 char *BotDetails[] = {
 "Age",
@@ -12,103 +28,211 @@ char *BotDetails[] = {
 "Slime",
 "DNA Length",
 "Poison",
-"Number of Genes",
+"# of Genes",
 "Venom",
 "Waste",
 "PWaste",
 ""};
 
-const unsigned char winapp[]={
-  0x47,0x49,0x46,0x38,0x37,0x61,0x10,0x00,0x10,0x00,0xf2,0x00,0x00,0xb2,0xc0,0xdc,
-  0x80,0x80,0x80,0xc0,0xc0,0xc0,0x00,0x00,0x00,0x00,0x00,0x80,0xff,0xff,0xff,0x00,
-  0x00,0x00,0x00,0x00,0x00,0x2c,0x00,0x00,0x00,0x00,0x10,0x00,0x10,0x00,0x00,0x03,
-  0x38,0x08,0xba,0xdc,0x10,0x30,0xca,0x09,0x85,0xbd,0xf8,0x86,0x11,0x04,0xf9,0x60,
-  0xf8,0x6d,0x9d,0x48,0x14,0x03,0x8a,0x92,0x02,0xe5,0x72,0x42,0x21,0xcf,0xb4,0xcc,
-  0xd6,0x78,0x71,0xe7,0xf4,0xce,0xdb,0xb0,0xdf,0xcc,0xf7,0x23,0xf2,0x48,0xae,0xd7,
-  0x60,0xc9,0x6c,0x3a,0x07,0x8e,0xe8,0x22,0x01,0x00,0x3b
-  };
+tempBot_typ tempBot;
 
-///////////////////
-long MainWindow::onBotDebug()
+
+FXDEFMAP(BotDebug_Window) BotDebug_WindowMap[] = {
+  FXMAPFUNC(SEL_COMMAND, BotDebug_Window::ID_STEP, BotDebug_Window::onCmdStep),
+
+  FXMAPFUNC(SEL_COMMAND, BotDebug_Window::ID_SHOWINTSTACK, BotDebug_Window::onCmdShowIntStack),
+  FXMAPFUNC(SEL_COMMAND, BotDebug_Window::ID_SHOWDNA,      BotDebug_Window::onCmdShowDNA), 
+  FXMAPFUNC(SEL_COMMAND, BotDebug_Window::ID_SHOWSYSVARS,  BotDebug_Window::onCmdShowSysvars),
+  FXMAPFUNC(SEL_COMMAND, BotDebug_Window::ID_SHOWDETAILS,  BotDebug_Window::onCmdShowDetails)
+};
+
+// Object implementation
+FXIMPLEMENT(BotDebug_Window,FXDialogBox,BotDebug_WindowMap,ARRAYNUMBER(BotDebug_WindowMap))
+
+BotDebug_Window::BotDebug_Window(Robot *bot, FXComposite *parent) : 
+    FXDialogBox(parent, "Bot Debug Controls", DECOR_TITLE | DECOR_BORDER | LAYOUT_FILL)
 {
-    int x;
+    if (bot == NULL)
+    {
+        this->detach();
+        this->destroy();
+        return;
+    }
 
-    //FXToolBarShell *dragshell= new FXToolBarShell(this,FRAME_RAISED);
+    point = bot;
+
+    SetupToolbar();
+    SetupLayout();
+    SetupSideBar();
+    SetupIntStackFrame();
+    SetupDNAFrame();
+    SetupSysvarsFrame();
+    SetupDetailsFrame();
+
+    this->create();
+    this->show();
+
+    GUIWINDOW = true;
+}
+
+void BotDebug_Window::SetupToolbar()
+{
+    // Site where to dock
+    FXDockSite *topdock = new FXDockSite(this);
+
+    FXToolBarShell *dragshell = new FXToolBarShell(this, FRAME_RAISED);
+    FXToolBar *toolbar = new FXToolBar(topdock, dragshell, FRAME_RAISED);
     
-    //FXMDIChild BotDebug(mdiclient, "Bot Debug");
-    //FXDialogBox BotDebug(this, "Bot Debug Controls", DECOR_TITLE|DECOR_BORDER);
-    //FXToolBarShell BotDebug(this, FRAME_RAISED|FRAME_THICK, 0, 100);
+    FXButton *button1 = new FXButton(toolbar, "Toggle Breakpoints", 0, this,
+        	     ID_BREAKPOINT, LAYOUT_FIX_WIDTH | BUTTON_TOOLBAR | FRAME_RAISED | FRAME_THICK,
+                        0,0,100,0,10,10,0,0);
     
-    FXDockSite *topdock=new FXDockSite(this,LAYOUT_SIDE_TOP|LAYOUT_FILL_X);
-    FXToolBarShell *dragshell = new FXToolBarShell(this,FRAME_RAISED);
+    FXButton *button2 = new FXButton(toolbar, "Run to Breakpoint", 0, this,
+        	     ID_CONTINUE, LAYOUT_FIX_WIDTH | BUTTON_TOOLBAR | FRAME_RAISED | FRAME_THICK,
+                        0,0,100,0,10,10,0,0);
     
-    FXToolBar *BotDebug = new FXToolBar(topdock, dragshell, LAYOUT_DOCK_NEXT|LAYOUT_SIDE_TOP|FRAME_RAISED);
-    new FXToolBarGrip(BotDebug,BotDebug,FXToolBar::ID_TOOLBARGRIP,TOOLBARGRIP_DOUBLE);    
+    FXButton *button3 = new FXButton(toolbar, "Step", 0, this,
+        	     ID_STEP, LAYOUT_FIX_WIDTH | BUTTON_TOOLBAR | FRAME_RAISED | FRAME_THICK,
+                        0,0,100,0,10,10,0,0);
     
-    FXMatrix *LayoutMatrix1=new FXMatrix(BotDebug,1,MATRIX_BY_ROWS|LAYOUT_SIDE_LEFT|LAYOUT_FILL_X|LAYOUT_FILL_Y);
-            
-    //THE STACK
-    
+    FXButton *button4 = new FXButton(toolbar, "Run to Cursor", 0, this,
+        	     ID_TOCURSOR, LAYOUT_FIX_WIDTH | BUTTON_TOOLBAR | FRAME_RAISED | FRAME_THICK,
+                        0,0,100,0,10,10,0,0);
+}
+
+void BotDebug_Window::SetupLayout()
+{
+    LayoutMatrix = new FXMatrix(this, 1, MATRIX_BY_ROWS | LAYOUT_SIDE_TOP | LAYOUT_FILL);
+    SideCheck = new FXMatrix(LayoutMatrix, 1, MATRIX_BY_COLUMNS | LAYOUT_FILL | LAYOUT_FILL_COLUMN);
+}
+
+void BotDebug_Window::SetupSideBar()
+{
+    new FXCheckButton(SideCheck, "Integer Stack", this,
+        ID_SHOWINTSTACK, BUTTON_NORMAL | LAYOUT_CENTER_X | LAYOUT_FIX_WIDTH, 0, 0, 100);
+
+    new FXCheckButton(SideCheck, "DNA", this,
+        ID_SHOWDNA, BUTTON_NORMAL | LAYOUT_CENTER_X | LAYOUT_FIX_WIDTH, 0, 0, 100);
+
+    new FXCheckButton(SideCheck, "Sysvars", this,
+        ID_SHOWSYSVARS, BUTTON_NORMAL | LAYOUT_CENTER_X | LAYOUT_FIX_WIDTH, 0, 0, 100);
+
+    new FXCheckButton(SideCheck, "Bot Details", this,
+        ID_SHOWDETAILS, BUTTON_NORMAL | LAYOUT_CENTER_X | LAYOUT_FIX_WIDTH, 0, 0, 100);
+}
+
+void BotDebug_Window::SetupIntStackFrame()
+{
     //the frame
-    FXGroupBox *group1=new FXGroupBox(LayoutMatrix1,
-        "Bot Stack",GROUPBOX_TITLE_LEFT|FRAME_RIDGE|LAYOUT_FILL_X|LAYOUT_FILL_Y);
+    IntStackFrame = new FXGroupBox(LayoutMatrix,
+        "Bot Stack",GROUPBOX_TITLE_LEFT|FRAME_RIDGE|LAYOUT_FILL_X|LAYOUT_FILL_Y | LAYOUT_FILL_COLUMN);
 
-    FXMatrix *StackMatrix=new FXMatrix(group1,4,MATRIX_BY_COLUMNS|LAYOUT_SIDE_LEFT|LAYOUT_FILL_X|LAYOUT_FILL_Y);
+    FXMatrix *StackMatrix=new FXMatrix(IntStackFrame,4,MATRIX_BY_COLUMNS|LAYOUT_SIDE_LEFT|LAYOUT_FILL_X|LAYOUT_FILL_Y);
+
+    int x = 5;
 
     char buffer[256];
-    
+
     for(x = 20; x > 10; x--)
     {
+        tempBot.target.stack[x-1].connect(tempBot.stack[x-1]);
+        tempBot.target.stack[x-11].connect(tempBot.stack[x-11]);
+
         new FXLabel(StackMatrix,strcat(itoa(x, buffer, 10), "th"),NULL,LAYOUT_RIGHT|JUSTIFY_RIGHT);
-        new FXTextField(StackMatrix,10,NULL,0,
+        new FXTextField(StackMatrix,10,&tempBot.target.stack[x-1],FXDataTarget::ID_VALUE,
             TEXTFIELD_REAL|JUSTIFY_RIGHT|LAYOUT_CENTER_Y|FRAME_SUNKEN|LAYOUT_CENTER_X|FRAME_THICK|LAYOUT_FILL_ROW);
 
         new FXLabel(StackMatrix,strcat(itoa(x-10, buffer, 10), "th"),NULL,LAYOUT_RIGHT|JUSTIFY_RIGHT);
-        new FXTextField(StackMatrix,10,NULL,0,
+        new FXTextField(StackMatrix,10,&tempBot.target.stack[x-11],FXDataTarget::ID_VALUE,
             TEXTFIELD_REAL|JUSTIFY_RIGHT|LAYOUT_CENTER_Y|FRAME_SUNKEN|LAYOUT_CENTER_X|FRAME_THICK|LAYOUT_FILL_ROW);
     }
+}
 
-    //THE DNA WINDOW
-    FXGroupBox *DNAFrame=new FXGroupBox(LayoutMatrix1,
-        "Bot DNA",GROUPBOX_TITLE_LEFT|FRAME_RIDGE|LAYOUT_FILL_X|LAYOUT_FILL_Y);
+void BotDebug_Window::SetupDNAFrame()
+{
+    DNAFrame=new FXGroupBox(LayoutMatrix,
+        "Bot DNA",GROUPBOX_TITLE_LEFT|FRAME_RIDGE|LAYOUT_FILL_X|LAYOUT_FILL_Y | LAYOUT_FILL_COLUMN);
 
-    FXMatrix *DNAStack=new FXMatrix(DNAFrame,1,MATRIX_BY_COLUMNS|LAYOUT_SIDE_TOP|LAYOUT_FILL_X|LAYOUT_FILL_Y);
-    
-    FXText *DNATextBox = new FXText(DNAStack, DNAFrame, 0, 
+    FXText *DNATextBox = new FXText(DNAFrame, DNAFrame, 0, 
         TEXTFIELD_REAL|JUSTIFY_LEFT|LAYOUT_CENTER_Y|FRAME_SUNKEN|LAYOUT_CENTER_X|FRAME_THICK|
         LAYOUT_FIX_WIDTH | LAYOUT_FIX_HEIGHT, 0,0,
-        400,//width
+        200,//width
         250);
-
-    strcpy(buffer, "I am the very model of the modern major general");;
-    DNATextBox->setText(buffer, strlen(buffer));
+    
+    DNATextBox->setText(point->DNA_Text().c_str(),
+                        strlen(point->DNA_Text().c_str()));
 
     DNATextBox->disable();
+}
 
+void BotDebug_Window::SetupSysvarsFrame()
+{
     //INTERESTING SYSVARS LIST:
-    FXGroupBox *SysvarsFrame=new FXGroupBox(LayoutMatrix1,
-        "Bot Memory",GROUPBOX_TITLE_LEFT|FRAME_RIDGE|LAYOUT_FILL_X|LAYOUT_FILL_Y);
+    SysvarsFrame = new FXGroupBox(LayoutMatrix,
+        "Bot Memory",GROUPBOX_TITLE_LEFT|FRAME_RIDGE|LAYOUT_FILL_X|LAYOUT_FILL_Y | LAYOUT_FILL_COLUMN);
+}
 
-    //first we'll need a list of interesting sysvars :P
-
-    //BOT DETAILS:
-    FXGroupBox *DetailsFrame=new FXGroupBox(LayoutMatrix1,
-        "Bot Details",GROUPBOX_TITLE_LEFT|FRAME_RIDGE|LAYOUT_FILL_X|LAYOUT_FILL_Y);
+void BotDebug_Window::SetupDetailsFrame()
+{
+    DetailsFrame=new FXGroupBox(LayoutMatrix,
+        "Bot Details",GROUPBOX_TITLE_LEFT|FRAME_RIDGE|LAYOUT_FILL_X|LAYOUT_FILL_Y | LAYOUT_FILL_COLUMN);
 
     FXMatrix *DetailsMatrix=new FXMatrix(DetailsFrame,4,MATRIX_BY_COLUMNS|LAYOUT_SIDE_LEFT|LAYOUT_FILL_X|LAYOUT_FILL_Y);
 
-    x = 0;
+    int x = 0;
     while( strcmp(BotDetails[x++], "") != 0)
     {
         new FXLabel(DetailsMatrix,BotDetails[x-1],NULL,LAYOUT_RIGHT|JUSTIFY_RIGHT);
         new FXTextField(DetailsMatrix,10,NULL,0,
             TEXTFIELD_REAL|JUSTIFY_RIGHT|LAYOUT_CENTER_Y|FRAME_SUNKEN|LAYOUT_CENTER_X|FRAME_THICK|LAYOUT_FILL_ROW);   
     }
-    
-    dragshell->create();
-    //BotDebug->create();
-    //BotDebug->show();
+}
 
-    return getApp()->runModalFor(this);
+long BotDebug_Window::onCmdShowIntStack(FXObject*,FXSelector,void *ptr)
+{
+    if (ptr)
+        IntStackFrame->show();
+    else
+        IntStackFrame->hide();
+    
+    return 1;
+}
+long BotDebug_Window::onCmdShowDNA(FXObject*,FXSelector,void *ptr)
+{
+    if (ptr)
+        DNAFrame->show();
+    else
+        DNAFrame->hide();
+
+    return 1;
+}
+long BotDebug_Window::onCmdShowSysvars(FXObject*,FXSelector,void *ptr)
+{
+    if (ptr)
+        SysvarsFrame->show();
+    else
+        SysvarsFrame->hide();
+
+    return 1;
+}
+long BotDebug_Window::onCmdShowDetails(FXObject*,FXSelector,void *ptr)
+{
+    if (ptr)
+        DetailsFrame->show();
+    else
+        DetailsFrame->hide();    
+
+    return 1;
+}
+
+long MainWindow::onBotDebug()
+{
+    //set to bot 0
+
+    if (!GUIWINDOW)
+        BotDebug = new BotDebug_Window(rob[8], mainview);        
+    else
+        BotDebug->show();
+
     return 1;
 }
