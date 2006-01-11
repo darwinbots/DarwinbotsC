@@ -293,24 +293,21 @@ field's default value is 12 from the VB days
 ********************************************/
 void Robot::CompareRobots(Robot *other, unsigned int field)
 {
-	Vector4 ab, ac, ad;
-	float magsquare, mag;
-	float discheck;
-	unsigned int eyecellD, eyecellC;
+    if (other == NULL) return; //must be first to avoid unnecessary inits
 
-    if (other == NULL) return;
+    Vector4 ab = VectorSub2D(other->pos, this->pos);
+	float magsquare = LengthSquared3(ab);
 
-
-	ab = VectorSub2D(other->pos, this->pos);
-	magsquare = LengthSquared3(ab);
-
-	discheck = field * RobSize + other->radius;
+	float discheck = field * RobSize + other->radius;
 	discheck = discheck * discheck;
 
 	if (magsquare >= discheck)
 		return; //too far away to see
-
-	mag = 1.0f / sqrtf(magsquare);
+		
+    unsigned int eyecellD, eyecellC;
+    Vector4 ac, ad;
+    
+    float mag = 1.0f / sqrtf(magsquare);
 
 	//ac and ad are to either end of the bot, while ab is to the center
 	//|ac| = |ad| = |ab|
