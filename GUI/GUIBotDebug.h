@@ -3,62 +3,12 @@
 
 #include <fx.h>
 #include "../Engine/Robot.h"
+#include "../Engine/DNA_Execution.h"
 
-class BotDebug_Window : public FXDialogBox
+struct PairOInts
 {
-    FXDECLARE(BotDebug_Window)
-
-    private:
-    Robot *point;
-    FXMatrix *LayoutMatrix, *SideCheck;
-    FXGroupBox *IntStackFrame;
-    FXGroupBox *DNAFrame;
-    FXGroupBox *SysvarsFrame;
-    FXGroupBox *DetailsFrame;
-
-    void SetupToolbar();
-    void SetupLayout();
-    void SetupSideBar();
-    void SetupIntStackFrame();
-    void SetupDNAFrame();
-    void SetupSysvarsFrame();
-    void SetupDetailsFrame();
-    
-    public:
-    const Robot *ThatBot() const
-    {
-        return point;
-    }
-
-    void SetThatBot(Robot *bot)
-    {
-        point = bot;
-    }
-    
-    
-    long onCmdStep(FXObject*,FXSelector,void*) {return 0;}
-    
-    long onCmdShowIntStack(FXObject*,FXSelector,void *ptr);
-    long onCmdShowDNA(FXObject*,FXSelector,void *ptr)     ;
-    long onCmdShowSysvars(FXObject*,FXSelector,void *ptr) ;
-    long onCmdShowDetails(FXObject*,FXSelector,void *ptr) ;
-    
-
-    BotDebug_Window(Robot *bot = NULL, FXComposite *parent = NULL);
-    
-    enum
-    {
-        ID_ME = FXDialogBox::ID_LAST,
-        ID_BREAKPOINT,
-        ID_CONTINUE,
-        ID_STEP,
-        ID_TOCURSOR,
-        
-        ID_SHOWINTSTACK,
-        ID_SHOWDNA,
-        ID_SHOWSYSVARS,
-        ID_SHOWDETAILS
-    };
+    int value;
+    int location;
 };
 
 struct Bottarget_typ
@@ -85,8 +35,8 @@ struct Bottarget_typ
 
     FXDataTarget stack[20];
 
-    vector<FXDataTarget> memory;
-};//tempBot;
+    FXDataTarget memory[20];
+};
 
 struct tempBot_typ
 {
@@ -112,12 +62,98 @@ struct tempBot_typ
 
     FXint stack[20];
 
-    vector<FXint> memory;
+    int memory[20];
+    int lastmem;
 
-    Bottarget_typ target;
-    Robot *thatbot;
+    Bottarget_typ datatargets;
 
     unsigned int DNA_pos;
-}extern tempBot;
+    unsigned int IntStack_pos;
+
+    void Update(Robot *bot);
+    void Linkup();
+    void Initialize(Robot *bot);
+};
+
+class BotDebug_Window : public FXDialogBox
+{
+    FXDECLARE(BotDebug_Window)
+
+    friend tempBot_typ;
+
+    private:
+    bool DEBUGMODE;
+    Robot *point;
+    FXMatrix *LayoutMatrix, *SideCheck;
+    FXGroupBox *IntStackFrame;
+    FXGroupBox *DNAFrame;
+    FXText     *DNATextBox;
+    FXGroupBox *SysvarsFrame;
+    FXMatrix *SysvarsMatrix;
+    FXLabel  *SysvarsLabel[20];
+    FXGroupBox *DetailsFrame;
+    FXTextField *SysvarsTextField[20];
+    FXTextField *IntStackTextField[20];
+
+    public:
+    tempBot_typ BotTargetInfo;
+
+    private:
+    void SetupToolbar();
+    void SetupLayout();
+    void SetupSideBar();
+    void SetupIntStackFrame();
+    void SetupDNAFrame();
+    void SetupSysvarsFrame();
+    void SetupDetailsFrame();
+
+    void LinkBotTarget();
+    
+    public:
+    void AddInterestingSysvars(int number);
+    const Robot *ThatBot() const
+    {
+        return point;
+    }
+
+    void SetThatBot(Robot *bot)
+    {
+        point = bot;
+    }
+
+    bool DebugMode()
+    {
+        return DEBUGMODE;
+    }
+    
+    
+    long onCmdStep(FXObject*,FXSelector,void*) {return 0;}
+    
+    long onCmdShowIntStack(FXObject*,FXSelector,void *ptr);
+    long onCmdShowDNA(FXObject*,FXSelector,void *ptr)     ;
+    long onCmdShowSysvars(FXObject*,FXSelector,void *ptr) ;
+    long onCmdShowDetails(FXObject*,FXSelector,void *ptr) ;
+
+    void hide();
+    void show(FXuint placement = 0);
+
+    void Update();    
+
+    BotDebug_Window(Robot *bot = NULL, FXComposite *parent = NULL);
+    
+    enum
+    {
+        ID_ME = FXDialogBox::ID_LAST,
+        ID_BREAKPOINT,
+        ID_CONTINUE,
+        ID_STEP,
+        ID_TOCURSOR,
+        
+        ID_SHOWINTSTACK,
+        ID_SHOWDNA,
+        ID_SHOWSYSVARS,
+        ID_SHOWDETAILS
+    };
+};
 
 #endif

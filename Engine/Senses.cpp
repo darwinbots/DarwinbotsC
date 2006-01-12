@@ -21,7 +21,7 @@ void Robot::FacingSun()
 
 	lightfrompond = SimOpts.LightIntensity / pow(depth, SimOpts.Gradient) * SimOpts.Daytime;
 
-	this->mem[SUNsys] = iceil((SimOpts.LightIntensity + SimOpts.NrgCyc) * sin(aim));
+	(*this)[SUNsys] = iceil((SimOpts.LightIntensity + SimOpts.NrgCyc) * sin(aim));
 
 	//we don't see negative brightness if we look downwards, we see 0.
 	if (this->mem[SUNsys] < 0)
@@ -165,7 +165,7 @@ void Robot::WriteSenses()
 	if (BasicProximity() != NULL)
 		WriteRefVars(this->lastopp);
 
-	mem[energy] = iceil(nrg);
+	mem[energy] = iceil(this->nrg);
 	mem[pain] = iceil(onrg - nrg);
     mem[pleas] = iceil(nrg - onrg);
     mem[bodloss] = iceil(obody - Body);

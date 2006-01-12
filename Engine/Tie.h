@@ -1,9 +1,15 @@
 #ifndef TIE_H
 #define TIE_H
+
+//we stick these up here or else we create a semi-infinite loop fo including between this and robot.h
+#include <iostream>
+#include <list>
+
+class Tie;
+typedef std::list<Tie*> TieList; //we may have to change this later
+
 #include "../Common/Math3D.h"
 #include "Robot.h"
-
-class Robot;
 
 /*Creating and deleting ties can be tricky because we have to make sure that
 both bots are simultaneously made aware of the tie's creation. Also, since only
@@ -14,8 +20,8 @@ left hanging around, unaccessible and wasting precious memory.*/
 class Tie
 {
 	int Port;  //the phase number the tie can be accessed with.  1 to 200
-	Robot* sender; //robot that fired the tie
-	Robot* receiver; //robot that received the tie
+	Robot *sender; //robot that fired the tie
+	Robot *receiver; //robot that received the tie
 	
 	long age;  //used for birth ties dissolving and regular ties hardening
 	
@@ -48,4 +54,6 @@ private:
                 float _k = 0.005f, float _b = 0.01f, int _type=0);
 
 };
+
+typedef std::list<Tie*> TieList; //we may have to change this later
 #endif

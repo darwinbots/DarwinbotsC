@@ -1,8 +1,11 @@
 #include "DNAClass.h"
 #include "Robot.h"
+#include "../GUI/GUIMain.h"
 
 #include "DNA_Execution.h"
 #include "../GUI/GUIBotDebug.h"
+
+#include "EngineThread.h"
 
 /*****************************************
 TODO: be sure DNA costs are being exacted
@@ -20,8 +23,6 @@ bool CurrentCondFlag;
 
 Robot *currbot;
 unsigned long currgene;
-
-bool DEBUGMODE = true;
 
 /*********************************************
 FUNCTION PROTOTYPES
@@ -64,10 +65,6 @@ void PushIntStack(__int32 value)
 
     IntStack.val[IntStack.pos] = value;
     IntStack.pos++;
-
-    if (DEBUGMODE && currbot == tempBot.thatbot)
-        for (int x = 0; x < 20; x++)
-            tempBot.stack[x] = IntStack.val[x];
 }
 
 __int32 PopIntStack(void)
@@ -79,10 +76,15 @@ __int32 PopIntStack(void)
         IntStack.pos = 0;
         IntStack.val[0] = 0;
     }
-
-    if (DEBUGMODE && currbot == tempBot.thatbot)
-        for (int x = 0; x < 20; x++)
-            tempBot.stack[x] = 10;//IntStack.val[x];    
+    
+    if (MainWindowHandle->BotDebug &&
+        MainWindowHandle->BotDebug->DebugMode() &&
+        currbot == MainWindowHandle->BotDebug->ThatBot())
+    {
+        __int32 temp = IntStack.val[IntStack.pos];
+        IntStack.val[IntStack.pos] = 0;
+        return temp;
+    }
     
     return IntStack.val[IntStack.pos];
 }
@@ -138,15 +140,37 @@ void DNA_Class::Execute()
 
     while(this->Code[pointer] != DNA_END)
     {
-        if (DEBUGMODE && currbot == tempBot.thatbot)
+        if (MainWindowHandle->BotDebug &&
+            MainWindowHandle->BotDebug->DebugMode() &&
+            currbot == MainWindowHandle->BotDebug->ThatBot() &&
+            (CurrentFlow != CLEAR || this->Code[pointer].tipo == btFlow))
         {
-            //send signal to the GUI that this is the current command to execute
-            //MainWindowHandle->BotDebug->
+            //the below isn't thread safe, so there can be occassional display problems
+            
+            //1.  Tell the window where in the DNA we're executing
+            MainWindowHandle->BotDebug->BotTargetInfo.DNA_pos = pointer;
+            
+            //2.  Update any information the Bot Debug window
+            //      has about this bot
 
-            //wait on the user till he continues or continues to a specific place, etc.
+            MainWindowHandle->BotDebug->BotTargetInfo.Initialize(currbot);
+            MainWindowHandle->BotDebug->BotTargetInfo.Update(currbot);
+            MainWindowHandle->BotDebug->Update();
 
+            //if this->Code[pointer].tipo == 0 || 1, we need to add that entry
+            //to the interesting sysvars list
+            if(this->Code[pointer].tipo == btPointer || 
+               (this->Code[pointer].tipo == btValue &&
+               this->Code[pointer+1].tipo == btStores))
+            {
+                MainWindowHandle->BotDebug->AddInterestingSysvars(
+                    this->Code[pointer].value);
+            }
+
+            //3.  Wait for user info on wether to continue or wait
+            puts("\a");
+            EngineThread.sleep(0, 1000000000);
         }
-        
         
         switch (this->Code[pointer].tipo)
         {
@@ -243,6 +267,9 @@ void DNA_Class::Execute()
         
         pointer++;
     }
+
+    for(int x = 0; x < 20; x++)
+        IntStack.val[x] = 0;
     
 }
 

@@ -4,7 +4,8 @@
 #include <fx.h>
 #include <fx3d.h>
 
-#include "GUIBotDebug.h"
+//#include "GUIBotDebug.h"
+class BotDebug_Window;
 
 #define PROJECT_NAME "DarwinBots 2.5"
 #define PROJECT_VERSION "0.0.1"

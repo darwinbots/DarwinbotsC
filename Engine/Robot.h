@@ -5,10 +5,12 @@
 #pragma warning(disable : 4786)
 #endif
 
+//we stick this up here or else we get a semi-infinite loop of including between this and tie.h
+class Robot;
+
 #include <iostream>
 #include <vector>
 #include <cmath>
-#include <list>
 #include "../Common/Math3D.h"
 #include "../Common/Random.h"
 #include "ObjectPrimitive.h"
@@ -20,6 +22,9 @@
 #include "SimOptions.h"
 #include "Shots.h"
 
+//#include "../GUI/GUIBotDebug.h"
+class BotDebug_Window;
+
 using namespace std;
 
 //////////CONSTANTS////////////
@@ -29,13 +34,14 @@ const int RobSize          = 120;
 ///////GLOBALS/////////////////
 extern unsigned int MaxRobs; //how far into the robot array to go
 
-class Tie;
-typedef std::list<Tie*> TieList; //we may have to change this later
+
+
 
 class Robot : public ObjectPrimitive
 {
     friend class Tie; //tie class has access to bot memory among other things
     friend class Shot;
+    friend struct tempBot_typ;
 
     #ifdef _MSC_VER
     friend class Robot; //instances of the Robot class can access each other

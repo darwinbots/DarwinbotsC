@@ -10,7 +10,7 @@ int EngineThread_Class::run()
     while(true)
     {
         Engine.UpdateSim();
-        this->sleep(0, 4000000);
+        //this->sleep(0, 4000000);
     }
 
     return 1;

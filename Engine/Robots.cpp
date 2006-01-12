@@ -149,7 +149,7 @@ void Robot::UpdateAim()
 {
 	float Aim;
 
-	if ((*this)[SetAim] == int(this->aim*200))
+	if ((*this)[SetAim] == (*this)[Aimsys])
 	{
 		Aim = this->aim * 200.0 + (*this)[aimsx] - (*this)[aimdx];
 	}
@@ -944,9 +944,9 @@ void Robot::SetMems()
 
 	(*this)[velscalar] = iceil(Length3(this->vel));
 	(*this)[velup] = iceil(this->vel * this->aimvector); //dot product of direction
-	(*this)[veldn] = iceil(-this->mem[velup]);
+	(*this)[veldn] = -(*this)[velup];
 	(*this)[veldx] = iceil((this->vel % this->aimvector)); //the magnitude for a 2D vector crossed in 3D is the Z element
-	(*this)[velsx] = iceil(-this->mem[veldx]);
+	(*this)[velsx] = -(*this)[veldx];
 
 	(*this)[wastesys] = iceil(this->Waste);
 	(*this)[pwastesys] = iceil(this->Pwaste);
@@ -958,7 +958,7 @@ void Robot::SetMems()
 	(*this)[bodysys] = iceil(this->Body);
 	(*this)[energy] = iceil(this->nrg);
 	(*this)[SetAim] = iceil(this->aim * 200.0f);
-	(*this)[Aimsys] = iceil(this->mem[SetAim]);
+	(*this)[Aimsys] = (*this)[SetAim];
 	(*this)[fixedsys] = iceil(this->Fixed);
 	(*this)[shellsys] = iceil(this->Shell);
 	(*this)[slimesys] = iceil(this->Slime);
