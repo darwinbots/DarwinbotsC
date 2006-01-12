@@ -1,9 +1,9 @@
-#include <windows.h>
+//#include <windows.h>
 #include "SimOptions.h"
-#include "Robot.h"
-#include "Engine.h"
 #include "HardDriveRoutines.h"
 #include "Shots.h"
+
+#include "Engine.h"
 
 Engine_Class Engine;
 
@@ -152,4 +152,25 @@ void Engine_Class::ExecuteShots()
 	for(unsigned long counter = 0; counter <= MaxShots; counter++)
         if(shots[counter] != NULL)
             shots[counter]->UpdateShot();
+}
+
+void FindOpenSpace(Robot *me) //finds spot for robot in array, returns pointer to said robot
+{
+	int firstopenspot=0;
+
+	while(rob[firstopenspot] != NULL && firstopenspot <= MaxRobs)
+	{
+		firstopenspot++;
+	}
+
+	//push back MaxRobs if we need to
+	if (firstopenspot > MaxRobs)
+		MaxRobs = firstopenspot;
+
+	//expand dynamic array if we need to
+	//we go by 1000s
+	//if (firstopenspot >= rob.capacity())
+	//	//rob.resize(rob.capacity() + 1000, NULL);
+
+	rob[firstopenspot] = me;
 }

@@ -6,19 +6,7 @@ Class containing all the info for robots
 #pragma warning(disable : 4786)
 #endif
 
-
-#include <iostream>
-#include <vector>
-#include <string>
-#include <cmath>
-#include "../Common/Math3D.h"
-#include "ObjectPrimitive.h"
-#include "Tie.h"
-#include "Globals.h"
 #include "../Common/Random.h"
-#include "Specie.h"
-#include "RobotSysvars.h"
-#include "SimOptions.h"
 #include "Robot.h"
 #include "Engine.h"
 
@@ -28,7 +16,7 @@ using namespace Math3D;
 Robot *rob[5000]; // (1000, NULL);  //an array of pointers to Robots.  Default: let's create room for 1000 pointers
 unsigned int MaxRobs; //how far into the robot array to go
 
-void FindOpenSpace(Robot *me); //finds spot for robot in array, returns pointer to said robot
+
 
 inline Robot::~Robot()
 {
@@ -962,27 +950,6 @@ void Robot::SetMems()
 	(*this)[fixedsys] = iceil(this->Fixed);
 	(*this)[shellsys] = iceil(this->Shell);
 	(*this)[slimesys] = iceil(this->Slime);
-}
-
-void FindOpenSpace(Robot *me) //finds spot for robot in array, returns pointer to said robot
-{
-	int firstopenspot=0;
-
-	while(rob[firstopenspot] != NULL && firstopenspot <= MaxRobs)
-	{
-		firstopenspot++;
-	}
-
-	//push back MaxRobs if we need to
-	if (firstopenspot > MaxRobs)
-		MaxRobs = firstopenspot;
-	
-	//expand dynamic array if we need to
-	//we go by 1000s
-	//if (firstopenspot >= rob.capacity())
-	//	//rob.resize(rob.capacity() + 1000, NULL);
-	
-	rob[firstopenspot] = me;
 }
 
 //sexreproduce

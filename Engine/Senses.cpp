@@ -294,6 +294,8 @@ field's default value is 12 from the VB days
 ********************************************/
 void Robot::CompareRobots(Robot *other, unsigned int field)
 {
+//the few lines below are the most performance-critical in the whole code
+
     if (other == NULL) return; //must be first to avoid unnecessary inits
 
     Vector4 ab = VectorSub2D(other->pos, this->pos);
@@ -304,7 +306,8 @@ void Robot::CompareRobots(Robot *other, unsigned int field)
 
 	if (magsquare >= discheck)
 		return; //too far away to see
-		
+//END extremely critical section
+
     unsigned int eyecellD, eyecellC;
     Vector4 ac, ad;
     

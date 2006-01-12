@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <string>
+#include "Robot.h"
 
 using namespace std;
 
@@ -24,6 +25,8 @@ class Engine_Class
     void ExecuteShots();
     string maindir;
 };
+
+void FindOpenSpace(Robot *me); //finds spot for robot in array, returns pointer to said robot
 
 extern Engine_Class Engine;
 #endif
