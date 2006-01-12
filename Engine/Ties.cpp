@@ -33,7 +33,8 @@ bool Tie::MakeTie(Robot* _sender, Robot* _receiver, int _port)
 	//Place pointers in the robots' respective lists//
 	//////////////////////////////////////////////////
 	
-	_sender->tieList.push_back(temp);
+	//this causes the illegal operation - Numsgil
+    _sender->tieList.push_back(temp);
 	_receiver->tieList.push_back(temp);
 
 	return true;

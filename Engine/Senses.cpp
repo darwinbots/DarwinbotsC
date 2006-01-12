@@ -24,8 +24,8 @@ void Robot::FacingSun()
 	(*this)[SUNsys] = iceil((SimOpts.LightIntensity + SimOpts.NrgCyc) * sin(aim));
 
 	//we don't see negative brightness if we look downwards, we see 0.
-	if (this->mem[SUNsys] < 0)
-		this->mem[SUNsys] = 0;
+	if ((*this)[SUNsys] < 0)
+		(*this)[SUNsys] = 0;
 }
 
 //call this function when you flag a collision
@@ -52,7 +52,7 @@ void Robot::Touch(Robot *other, float distance)
 	if (angle < 0)
 		angle = angle + 2*PI;
 
-	this->mem[HitAngsys] = iceil(angle * 200);
+	(*this)[HitAngsys] = iceil(angle * 200);
 
 	////////////////////////////////
 
@@ -66,14 +66,14 @@ void Robot::Touch(Robot *other, float distance)
 	if (angle < 0)
 		angle = angle + 2*PI;
 
-	other->mem[HitAngsys] = iceil(angle * 200);
+	(*other)[HitAngsys] = iceil(angle * 200);
 	
 	///////////////////////////////
 
 	hitstrength = Length3((other->vel - this->vel));
 
-	this->mem[hit] = iceil(hitstrength * other->mass);
-	other->mem[hit] = iceil(hitstrength * this->mass);
+	(*this)[hit] = iceil(hitstrength * other->mass);
+	(*other)[hit] = iceil(hitstrength * this->mass);
 }
 
 /*void Robot::Taste()
@@ -128,21 +128,21 @@ End Sub
 void Robot::EraseSenses()
 {
     int x;
-	mem[HitAngsys] = 0;
-	mem[shangsys] = 0;
-	mem[shflav] = 0;
+	(*this)[HitAngsys] = 0;
+	(*this)[shangsys] = 0;
+	(*this)[shflav] = 0;
 
-	mem[edgesys] = 0;
+	(*this)[edgesys] = 0;
 	for (x = 0; x < 10; x++)
 	{
-		mem[456 + x] = 0;
-		mem[trefxpos + x] = 0;
+		(*this)[456 + x] = 0;
+		(*this)[trefxpos + x] = 0;
 	}
-	mem[trefxpos] = 0;
-    mem[trefbody] = 0;
+	(*this)[trefxpos] = 0;
+    (*this)[trefbody] = 0;
 
 	for (x = EyeStart; x <= EyeEnd; x++)
-		this->mem[x] = 0;
+		(*this)[x] = 0;
 	
 	this->lastopp = NULL;
 }
@@ -165,16 +165,16 @@ void Robot::WriteSenses()
 	if (BasicProximity() != NULL)
 		WriteRefVars(this->lastopp);
 
-	mem[energy] = iceil(this->nrg);
-	mem[pain] = iceil(onrg - nrg);
-    mem[pleas] = iceil(nrg - onrg);
-    mem[bodloss] = iceil(obody - Body);
-    mem[bodgain] = iceil(Body - obody);
+	(*this)[energy] = iceil(this->nrg);
+	(*this)[pain] = iceil(onrg - nrg);
+    (*this)[pleas] = iceil(nrg - onrg);
+    (*this)[bodloss] = iceil(obody - Body);
+    (*this)[bodgain] = iceil(Body - obody);
     onrg = nrg;
     obody = Body;
 
-	if (SimOpts.Daytime == true) mem[daytime] = 1;
-	else mem[daytime] = 0;
+	if (SimOpts.Daytime == true) (*this)[daytime] = 1;
+	else (*this)[daytime] = 0;
 
 }
 
@@ -185,49 +185,50 @@ void Robot::WriteRefVars(Robot *lastopp)
 	unsigned int t = 0;
 
 	for(t = 1; t<=8; t++)
-		this->mem[occurrstart + t] = lastopp->occurr[t];
+		(*this)[occurrstart + t] = lastopp->occurr[t];
 
-	this->mem[occurrstart + 9] = iceil(lastopp->nrg);
-	this->mem[occurrstart + 10]= iceil(lastopp->age);
+	(*this)[occurrstart + 9] = iceil(lastopp->nrg);
+	(*this)[occurrstart + 10]= iceil(lastopp->age);
 
-	this->mem[in1] = lastopp->mem[out1];
-	this->mem[in2] = lastopp->mem[out2];
-	this->mem[in3] = lastopp->mem[out3];
-	this->mem[in4] = lastopp->mem[out4];
-	this->mem[in5] = lastopp->mem[out5];
-	this->mem[refaim] = lastopp->mem[Aimsys];
-	this->mem[reftie] = lastopp->occurr[9];
-	this->mem[refshell] = iceil(lastopp->Shell);
-	this->mem[refbody] = iceil(lastopp->Body);
-	this->mem[refxpos] = lastopp->mem[xpos];
-	this->mem[refypos] = lastopp->mem[ypos];
+	(*this)[in1] = (*lastopp)[out1];
+	(*this)[in2] = (*lastopp)[out2];
+	(*this)[in3] = (*lastopp)[out3];
+	(*this)[in4] = (*lastopp)[out4];
+	(*this)[in5] = (*lastopp)[out5];
+	(*this)[refaim] = (*lastopp)[Aimsys];
+	(*this)[reftie] = lastopp->occurr[9];
+	(*this)[refshell] = iceil(lastopp->Shell);
+	(*this)[refbody] = iceil(lastopp->Body);
+	(*this)[refxpos] = (*lastopp)[xpos];
+	(*this)[refypos] = (*lastopp)[ypos];
 
-	this->mem[refpoison] = lastopp->mem[poison];
-	this->mem[refvenom] = lastopp->mem[venomsys];
-	this->mem[refkills] = iceil(lastopp->Kills);
+	(*this)[refpoison] = (*lastopp)[poison];
+	(*this)[refvenom] = (*lastopp)[venomsys];
+	(*this)[refkills] = iceil(lastopp->Kills);
 
 	if (lastopp->Multibot == true)
-		this->mem[refmulti] = 1;
+		(*this)[refmulti] = 1;
 	else
-		this->mem[refmulti] = 0;
+		(*this)[refmulti] = 0;
 
-	if (this->mem[memloc] >= 1 && this->mem[memloc] <= 1000)
-		this->mem[memval] = lastopp->mem[this->mem[memloc]];
+	if ((*this)[memloc] >= 1 && (*this)[memloc] <= 1000)
+		(*this)[memval] = (*lastopp)[(*this)[memloc]];
 
 	if (lastopp->Fixed == true)
-		this->mem[reffixed] = 1;
+		(*this)[reffixed] = 1;
 	else
-		this->mem[reffixed] = 0;
+		(*this)[reffixed] = 0;
 
 	//these should be double checked
-	this->mem[refvelup] = iceil((lastopp->vel - this->vel) * this->aimvector);
-	this->mem[refveldn] = iceil(this->mem[refvelup] * -1);
+	(*this)[refvelup] = iceil((lastopp->vel - this->vel) * this->aimvector);
+	(*this)[refveldn] = iceil((*this)[refvelup] * -1);
 	
 	//these should be double checked
-	this->mem[refveldx] = iceil((this->aimvector % (lastopp->vel - this->vel)));
-	this->mem[refvelsx] = iceil(this->mem[refveldx] * -1);
+	(*this)[refveldx] = iceil((this->aimvector % (lastopp->vel - this->vel)));
+	(*this)[refvelsx] = iceil((*this)[refveldx] * -1);
 
-	this->mem[refvelscalar] = iceil(sqrt(mem[refvelup] * mem[refvelup] + mem[refveldx]*mem[refveldx]));
+	(*this)[refvelscalar] = iceil(sqrt((*this)[refvelup] * (*this)[refvelup] +
+                                       (*this)[refveldx] * (*this)[refveldx]));
 }
 
 void Robot::occurrList()
@@ -243,7 +244,7 @@ void Robot::occurrList()
 
 	
 	for(x = mystart; x<= myend; x++)
-		mem[x] = occurr[x - mystart + 1];
+		(*this)[x] = occurr[x - mystart + 1];
 }
 
 /*
@@ -338,12 +339,12 @@ void Robot::CompareRobots(Robot *other, unsigned int field)
 	for (int x = eyecellD; x <= eyecellC; x++)
 	{
 		discheck = RobSize * 100 * mag;
-		if (this->mem[x] < discheck)
+		if ((*this)[x] < discheck)
 		{
 			if (x == EyeStart + 5)
 				this->lastopp = other;
 
-			this->mem[x] = iceil(discheck);
+			(*this)[x] = iceil(discheck);
 		}
 	}
 }
