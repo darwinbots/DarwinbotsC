@@ -33,7 +33,7 @@ void Robot::BasicRobotSetup(datispecie *myspecies)
     //barring any problems, or an easier, more correct way to do the below that's not setting each
     //field manually, I'd like continue to do it this way.
     
-    memset(this, 0, sizeof(*this)); //clear out the Robot structure
+    //memset(this, 0, sizeof(*this)); //clear out the Robot structure
 
 	SimOpts.TotBorn++;
 	this->AbsNum = SimOpts.TotBorn;
@@ -513,7 +513,7 @@ void Robot::DeathManagement()
 		{
 			Corpse = true;
 			fname = "Corpse";
-			//delallties
+			removeAllTies();
 			//color = WHITE;
 			//delete DNA
 			//reset all occurr arrays			
@@ -573,16 +573,12 @@ bool Robot::KillRobot()
     }
     rob[counter] = NULL;
     
-	//delete all ties
+	removeAllTies();
 	
     //remember that shots may still exist that think of us as the parents
 	//make poff
     
-    //is this the appropriate way to delete the bot, or is this like releasing
-    //a variable then trying to release one of its members?
-    delete this;
-
-	return true;
+    return true;
 }
 
 //call this very last along with the death management above
@@ -631,9 +627,7 @@ void Robot::Reproduction()
 
 bool Robot::FireTie()
 {
-	int tieport;
-
-	tieport = (*this)[mtie];
+	int tieport = (*this)[mtie];
 
 	(*this)[mtie] = 0;	
 	if (tieport > 0 && this->lastopp != NULL && SimOpts.DisableTies == false)
@@ -642,6 +636,33 @@ bool Robot::FireTie()
 	}
 	return false;
 }
+
+bool Robot::canTie()
+{
+    return (tieList.size() < 10) && !Corpse;
+};
+
+void Robot::addTie(Tie* tie)
+{
+    tieList.push_back(tie);
+}
+    
+void Robot::removeTie(Tie* tie)
+{
+    delete tie; //the Tie's destructor takes care of the tieLists
+}
+
+void Robot::removeAllTies()
+{
+    if (!tieList.empty())
+    {
+        TieList::iterator iter;
+        for(iter=tieList.begin(); iter!=tieList.end(); ++iter)
+            {removeTie(*iter);}
+    }
+}
+    
+
 /********************************
 /////////////////////////////////
 ********************************/

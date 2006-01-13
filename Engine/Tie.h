@@ -6,7 +6,6 @@
 #include <list>
 
 class Tie;
-typedef std::list<Tie*> TieList; //we may have to change this later
 
 #include "../Common/Math3D.h"
 #include "Robot.h"
@@ -55,5 +54,4 @@ private:
 
 };
 
-typedef std::list<Tie*> TieList; //we may have to change this later
 #endif

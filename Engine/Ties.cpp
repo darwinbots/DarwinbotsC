@@ -13,29 +13,24 @@ Tie::Tie(Robot* _sender, Robot* _receiver, int _port,
 //This function performs the necessary checks before creating a tie
 //Note that it only inserts a ref to the created tie in sender's and receiver's TieList
 //If it needs to be accessed immediately, use --TieList.end() just after the call to Tie::MakeTie
-bool Tie::MakeTie(Robot* _sender, Robot* _receiver, int _port)
+bool Tie::MakeTie(Robot* shooter, Robot* target, int _port)
 {
-	//can't tie to dead bots
-	if (_sender->Corpse == true || _receiver->Corpse == true)
-		return false;
-
-	//no room in the tie arrays of the bots
-	if (_sender->tieList.size() > 10 || _receiver->tieList.size() > 10)
+	if (!shooter->canTie()||!target->canTie())
 		return false;
 
 	//insert slime defense check
 	//insert deletion of old tie
 	
 	//create tie
-	Tie* temp = new Tie(_sender, _receiver, _port);
+	Tie* temp = new Tie(shooter, target, _port);
 	
 	//////////////////////////////////////////////////
 	//Place pointers in the robots' respective lists//
 	//////////////////////////////////////////////////
 	
 	//this causes the illegal operation - Numsgil
-    _sender->tieList.push_back(temp);
-	_receiver->tieList.push_back(temp);
+    shooter->addTie(temp);
+	target->addTie(temp);
 
 	return true;
 }/*

@@ -24,6 +24,7 @@ class Robot;
 
 //#include "../GUI/GUIBotDebug.h"
 class BotDebug_Window;
+typedef std::list<Tie*> TieList; //we may have to change this later
 
 using namespace std;
 
@@ -151,6 +152,7 @@ private:
 	bool KillRobot();
 	void Reproduction();
 	bool FireTie();
+	void removeAllTies();
 	void ShotManagement();
 	void SetMems();
 
@@ -228,6 +230,10 @@ public:
     }
 
     void Robot::DrawRobotEye();
+    
+    bool canTie();
+    void addTie(Tie* tie);
+    void removeTie(Tie* tie);
 };
 
 extern Robot *rob[5000];  //an array of pointers to Robots.
