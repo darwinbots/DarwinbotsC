@@ -176,7 +176,7 @@ void Robot::UpdatePosition()
 	if (Fixed==false)
 	{
 		//Euler Approximation of velocity and position
-		vel = vel + (ImpulseInd * 1/(mass + AddedMass));  //delta velocity = Impulse / mass
+		vel = vel + (ImpulseInd / (mass + AddedMass));  //delta velocity = Impulse / mass
 
 		vt = LengthSquared3(vel);
         SimOpts.MaxSpeed = 60;
@@ -187,6 +187,7 @@ void Robot::UpdatePosition()
 			vt = SimOpts.MaxSpeed * SimOpts.MaxSpeed;
 		}
 		
+        opos = pos;
 		pos = pos + vel;
 	}
 
@@ -816,7 +817,8 @@ Robot* Robot::Split(float percentage)
 		return NULL;
 	
 	if (Body <= 2)
-		return NULL; //too small to repro
+		return NULL; //too small to repro (this prevents effects of cancer from being so totally
+                     //debilitating to game speed
 
 	//insert check for too many vegs
 
@@ -840,8 +842,8 @@ Robot* Robot::Split(float percentage)
 	thisradius = this->radius * pow((1.0f - percentage), (1/3));
 	Length = babyradius + thisradius;
 
-	thispos = this->pos - percentage * Length * this->aimvector;
-	babypos = thispos + Length * this->aimvector;
+	thispos = this->pos - (percentage * Length * this->aimvector);
+	babypos = thispos + (Length * this->aimvector);
 
 	//now we check for collision with other bots:
 	//with both the new babypos, radius and the new thispos, radius
@@ -851,10 +853,10 @@ Robot* Robot::Split(float percentage)
 	Robot *baby = new Robot();
 	
 	baby->obody = baby->Body = this->Body * percentage;
-	this->obody = this->Body *= (1.0f - percentage);
+	this->obody = this->Body = this->Body * (1.0f - percentage);
 	
 	baby->onrg = baby->nrg = this->nrg * percentage;
-	this->onrg = this->nrg *= (1.0f - percentage);
+	this->onrg = this->nrg = this->nrg * (1.0f - percentage);
 	
 	baby->aim = this->aim - PI;
 	if (baby->aim < 0)

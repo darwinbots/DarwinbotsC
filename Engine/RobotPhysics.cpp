@@ -10,7 +10,6 @@ void Robot::NetForces()
         this->BouyancyForces();
         this->BrownianForces();
 
-        
         //tie springs for elastic ties
         //tie angles
         //drag from tie
@@ -22,23 +21,41 @@ void Robot::NetForces()
         //edge spring forces if edge springs enabled
 
     //RESTRAINTS (done after movement)
-        //collisions with bots
-        this->EdgeCollisions();
-        //collisions with edges (if rigid edges are selected)
+        this->BotCollisions();
+        this->EdgeCollisions();  //collisions with edges (if rigid edges are selected)
         //max tie length and rigid ties (if ties are hardened)
 
         this->ImpulseInd = this->ImpulseInd - this->ImpulseRes;
         this->ImpulseRes.set(0,0,0);
 }
 
-//collisions with bots:
+void Robot::BotCollisions()
+{
+    for(int x = 0; x < MaxRobs; x++)
+    {
+        if(rob[x] != NULL && rob[x] != this &&
+            rob[x]->AbsNum < this->AbsNum)
+        {
+            Vector4 ab = rob[x]->pos - this->pos;
+            float mindist = this->radius + rob[x]->radius;
+            mindist *= mindist;
+            
+            if(float currdist = LengthSquared3(ab) < mindist)
+            {
+                //relaxation collision technique
+                //from http://www.gamasutra.com/resource_guide/20030121/jacobson_03.shtml
+                //velocity changes should be handled wherever position is changed
+                //(that is, it's autohandled by verlet integration)
 
-//delta = x2-x1
-//delta *= restlength^2 / (delta^2 + restlength^2) - botsmass/(our combined mass)
-//x1 -= delta;
-//x2 += delta;
-
-//above also works for rigid ties
+                //I don't know how to incorporate relative masses into this
+                ab = ab * ((mindist / (mindist + currdist)) - .9);//this->mass/(this->mass + rob[x]->mass));
+                
+                //this->pos = this->pos - ab - this->pos;
+                //rob[x]->pos = rob[x]->pos + ab;
+            }
+        }
+    }
+}
 
 //calculates new acceleration and energy values from robot's
 //.up/.dn/.sx/.dx vars

@@ -180,6 +180,7 @@ private:
     void BrownianForces();
     void BouyancyForces();
     void EdgeCollisions();
+    void BotCollisions();
 
     //veg controls
     void FeedVegSun();
