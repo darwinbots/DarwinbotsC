@@ -170,8 +170,7 @@ void DNA_Class::Execute()
             }
 
             //3.  Wait for user info on wether to continue or wait
-            puts("\a");
-            EngineThread.sleep(0, 1000000000);
+            EngineThread.sleep(0, 100000000);
         }
 #endif
         switch (this->Code[pointer].tipo)

@@ -45,6 +45,8 @@ public:
     ~MainWindow();
     
     virtual void create();
+
+    unsigned int MainWindow::Selection(unsigned int MouseX, unsigned int MouseY);
     
     enum
     {

@@ -31,10 +31,16 @@ class Shot : ObjectPrimitive
     Shot();
     Shot(Robot *parent);
     ~Shot();
+    const Vector4 &findpos() const
+    {
+        return pos;
+    }
 
     void UpdateShot();
 
     private:
+    void CreateShotBasic();
+
     void UpdatePos();
     Robot *ShotColl();
 

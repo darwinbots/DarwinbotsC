@@ -9,6 +9,7 @@ Class containing all the info for robots
 #include "../Common/Random.h"
 #include "Robot.h"
 #include "Engine.h"
+#include "Shots.h"
 
 using namespace std;
 using namespace Math3D;
@@ -178,20 +179,21 @@ void Robot::UpdatePosition()
 	
 	if (Fixed==false)
 	{
-		//Euler Approximation of velocity and position
-		vel = vel + (ImpulseInd / (mass + AddedMass));  //delta velocity = Impulse / mass
+		//verlet scheme:
 
-		vt = LengthSquared3(vel);
+        Vector4 temp = pos;
+        pos = pos * 2 - opos + ImpulseInd / (mass + AddedMass);
+        opos = temp;
+
+        /*Vector4 vel = opos - pos;
+        vt = LengthSquared3(vel);
         SimOpts.MaxSpeed = 60;
 		if (vt > SimOpts.MaxSpeed * SimOpts.MaxSpeed)
 		{
 			vel = vel / sqrt(vt);
 			vel = vel * SimOpts.MaxSpeed;
 			vt = SimOpts.MaxSpeed * SimOpts.MaxSpeed;
-		}
-		
-        opos = pos;
-		pos = pos + vel;
+		}*/
 	}
 
 	if (Fixed == true || SimOpts.ZeroMomentum == true)
@@ -786,6 +788,7 @@ void Robot::ShotManagement()
 	{
 		//basic feeding shot
 		case -1:
+            new Shot(this);
 		break;
 		//give nrg shot
 		case -2:

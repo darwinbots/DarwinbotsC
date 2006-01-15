@@ -26,11 +26,11 @@ void FindOpenSpace(Shot *me) //finds spot for robot in array, returns pointer to
 	shots[firstopenspot] = me;
 }
 
-Shot::Shot()
+void Shot::CreateShotBasic()
 {
     parent = NULL;
 
-    range = 100;
+    range = 20;
     age = 0;
     pos.set(0,0);
     opos.set(0,0);
@@ -41,15 +41,23 @@ Shot::Shot()
     FindOpenSpace(this);
 }
 
+Shot::Shot()
+{
+    this->CreateShotBasic();    
+}
+
 Shot::Shot(Robot *parent)
 {
-    Shot();
+    this->CreateShotBasic();
     this->parent = parent;
     this->color  = parent->color;
     
     //we don't need velocity.  Verlet integration handles all that
-    this->pos = parent->pos + parent->radius * parent->aimvector;
-    this->opos = parent->opos + parent->radius * parent->aimvector;
+    this->pos = parent->pos + parent->rad() * parent->aimvector;
+    this->opos = parent->opos + parent->rad() * parent->aimvector;
+    
+    float angle = (parent->aim * 200 + frnd(-20, 20)) / 200;
+    this->opos = this->opos - Vector4(cos(angle), sin(angle)) * 40;
 }
 
 Shot::~Shot()
@@ -58,6 +66,8 @@ Shot::~Shot()
     while(shots[counter] != this && counter <= MaxShots)
 	    counter++;
 
+    shots[counter] = NULL;
+    
     if (counter > MaxShots)
         return;
 
@@ -73,8 +83,6 @@ Shot::~Shot()
 			}
 		}
 	}
-
-    shots[counter] = NULL;
 }
 
 //create nrg stealing shot
@@ -84,32 +92,16 @@ Shot::~Shot()
 //create waste shot
 //create "body" shot
 
-void Shot::CreatePoisonShot(Robot *inherit)
-{
-    Vector4 temp;
-
-    //reverse motion
-    temp = this->opos;
-    this->opos = this->pos;
-    this->pos = temp;
-
-    //power = age left * 10
-}
-
 void Shot::UpdatePos()
 {
+    //If you're unaware of what's going on here, it's called
+    //verlet integration, as opposed to Euler integration.    
+    
     Vector4 temp;
 
     temp = this->pos;
 
     this->pos = 2 * this->pos - this->opos;
-    
-    if (this->age == 0)
-    {
-        //accelerate the shot a bit
-        this->pos += 40 * Normalize3(temp - this->opos);
-    }
-
     this->opos = temp;
 }
 
@@ -131,6 +123,8 @@ void Shot::UpdateShot()
     if((collide = this->ShotColl()) != NULL)
     {
         //baby bots are immune to preexisting shots of its parent
+
+        //this code looks suspicious to me as I look at it again -Numsgil
         if (this->parent == collide && collide->age <= 1) return;
 
         //taste shot

@@ -115,3 +115,63 @@ long MainWindow::DrawScene(FXObject *, FXSelector, void *)
 
   return 1;
 }
+
+
+
+/*int Selection(void)											// This Is Where Selection Is Done
+{
+	GLuint	buffer[512];										// Set Up A Selection Buffer
+	GLint	hits;												// The Number Of Objects That We Selected
+
+	// The Size Of The Viewport. [0] Is <x>, [1] Is <y>, [2] Is <length>, [3] Is <width>
+	GLint	viewport[4];
+
+	glGetIntegerv(GL_VIEWPORT, viewport);
+	glSelectBuffer(512, buffer);								// Tell OpenGL To Use Our Array For Selection
+
+	glRenderMode(GL_SELECT);
+
+	glInitNames();												// Initializes The Name Stack
+	glPushName(-1);												// Push 0 (At Least One Entry) Onto The Stack
+
+	glMatrixMode(GL_PROJECTION);								// Selects The Projection Matrix
+	glPushMatrix();												// Push The Projection Matrix
+	glLoadIdentity();											// Resets The Matrix
+
+	//// This Creates A Matrix That Will Zoom Up To A Small Portion Of The Screen, Where The Mouse Is.
+	gluPickMatrix((GLdouble) MouseX, (GLdouble) viewport[3]-MouseY-MenuHeight, 5.0f, 5.0f, viewport);
+
+	// Apply The Perspective Matrix
+	gluPerspective(45.0f,
+		(GLfloat) (viewport[2]-viewport[0])/(GLfloat) (viewport[3]-viewport[1]),
+		ViewMin, ViewDepth);
+	
+	glMatrixMode(GL_MODELVIEW);									// Select The Modelview Matrix
+	DrawGLScene();
+	glMatrixMode(GL_PROJECTION);								// Select The Projection Matrix
+	glPopMatrix();												// Pop The Projection Matrix
+	glMatrixMode(GL_MODELVIEW);									// Select The Modelview Matrix
+	hits=glRenderMode(GL_RENDER);								// Switch To Render Mode, Find Out How Many
+																// Objects Were Drawn Where The Mouse Was
+	if (hits)
+	{
+		int	choose = buffer[3];									// Make Our Selection The First Object
+		int depth = buffer[1];									// Store How Far Away It Is 
+
+		for (int loop = 1; loop < hits; loop++)					// Loop Through All The Detected Hits
+		{
+			// If This Object Is Closer To Us Than The One We Have Selected
+			if (buffer[loop*4+1] < GLuint(depth))
+			{
+				choose = buffer[loop*4+3];						// Select The Closer Object
+				depth = buffer[loop*4+1];						// Store How Far Away It Is
+			}       
+		}
+
+		//if (!object[choose].hit)								// If The Object Hasn't Already Been Hit
+		//	;
+
+		return choose;		
+    }
+	return -1;
+}*/

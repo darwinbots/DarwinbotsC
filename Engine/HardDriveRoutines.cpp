@@ -156,6 +156,7 @@ void ReadSettPre2_4(ifstream &in, SimOptions &Options)
 	line =										GrabString(in);  //obsolete
 	Options.FieldSize =							GrabNumber(in);
 	Options.FieldDimensions.set(				GrabNumber(in), GrabNumber(in), 0.0f);
+    Options.FieldDimensions.set(Options.FieldDimensions.y(), Options.FieldDimensions.x(), 0);
 	Options.MaxPopulation =						GrabNumber(in);
 	line =										GrabString(in);  //obsolete
 	Options.DisableTies =						GrabBool(in);
