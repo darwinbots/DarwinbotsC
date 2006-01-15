@@ -91,6 +91,8 @@ int main(int argc, char **argv)
 
     app.addTimeout(MainWindowHandle, MainWindow::ID_UpdGfx);
                 
+    //later we will move this into Engine.SetupSim()
     EngineThread.start(0);
+    
     return app.run();
 }

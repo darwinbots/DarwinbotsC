@@ -35,9 +35,6 @@ const int RobSize          = 120;
 ///////GLOBALS/////////////////
 extern unsigned int MaxRobs; //how far into the robot array to go
 
-
-
-
 class Robot : public ObjectPrimitive
 {
     friend class Tie; //tie class has access to bot memory among other things
@@ -61,7 +58,7 @@ private:
 	float aim;								// aim angle
 	Vector4 aimvector;                      // the unit vector for aim
 
-	TieList tieList;                       //linked list of ties
+	TieList *Ties;                           //linked list of ties
 	
 	//Physics
 	Vector4 ImpulseInd;                     // independant forces vector

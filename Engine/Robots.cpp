@@ -13,10 +13,8 @@ Class containing all the info for robots
 using namespace std;
 using namespace Math3D;
 
-Robot *rob[5000]; // (1000, NULL);  //an array of pointers to Robots.  Default: let's create room for 1000 pointers
+Robot *rob[5000];     // (1000, NULL);  //an array of pointers to Robots.  Default: let's create room for 1000 pointers
 unsigned int MaxRobs; //how far into the robot array to go
-
-
 
 inline Robot::~Robot()
 {
@@ -33,7 +31,12 @@ void Robot::BasicRobotSetup(datispecie *myspecies)
     //barring any problems, or an easier, more correct way to do the below that's not setting each
     //field manually, I'd like continue to do it this way.
     
-    //memset(this, 0, sizeof(*this)); //clear out the Robot structure
+    //DO NOT NOT NOT NOT NOT NOT NOT NOT NOT NOT NOT NOT NOT NOT NOT NOT NOT!
+    //get rid of this memset UNLESS you find some other way to initialize all the variables to
+    //all 0 bits.  DO NOT!  DON'T EVEN THINK IT!
+    //I'M WARNING YOU!
+    
+    memset(this, 0, sizeof(*this)); //clear out the Robot structure
 
 	SimOpts.TotBorn++;
 	this->AbsNum = SimOpts.TotBorn;
@@ -608,14 +611,16 @@ void Robot::Reproduction()
                 baby->DNA->Mutables = this->DNA->Mutables;
                 baby->DNA->Mutations = this->DNA->Mutations;
                 baby->DNA->LastMutDetail = this->DNA->LastMutDetail;
-            
+
                 //mutate DNA
 		        //mutate DNA in child bot
 		        //update sysvars etc. for new DNA
 		        //makeoccurrlist
             }
-        }
-	}
+            (*this)[Repro] = 0;
+            (*this)[mrepro] = 0;
+        }    
+    }
 
 	//If .mem(sexrepro) > 0 Then
     //If .lastopp > 0 And rob(.lastopp).mem(sexrepro) > 0 Then
@@ -640,12 +645,15 @@ bool Robot::FireTie()
 
 bool Robot::canTie()
 {
-    return (tieList.size() < 10) && !Corpse;
+    return !Corpse && this != NULL;
 };
 
-void Robot::addTie(Tie* tie)
+void Robot::addTie(Tie *tie)
 {
-    tieList.push_back(tie);
+    if(!this->Ties)
+        Ties = new TieList;
+
+    this->Ties->push_back(tie);
 }
     
 void Robot::removeTie(Tie* tie)
@@ -655,10 +663,14 @@ void Robot::removeTie(Tie* tie)
 
 void Robot::removeAllTies()
 {
-    if (!tieList.empty())
+    //while(!this->tieList.empty())
+    //    removeTie(tieList.begin());
+    
+    
+    if (Ties != NULL && !Ties->empty())
     {
         TieList::iterator iter;
-        for(iter=tieList.begin(); iter!=tieList.end(); ++iter)
+        for(iter=Ties->begin(); iter!=Ties->end(); ++iter)
             {removeTie(*iter);}
     }
 }
@@ -695,7 +707,7 @@ void Robot::DuringTurn()
 {
 	this->UpdateAim();
     this->UpdatePosition();
-	//Update_Ties t ' Carries out all tie routines
+	//Update_Ties t ' Carries out all tie routines (but not physics)
 }
 
 void Robot::PostTurn()
@@ -720,7 +732,7 @@ void Robot::TurnCleanup()
 
 void Robot::TurnEnd()
 {
-	this->WriteSenses();
+    this->WriteSenses();
 }
 
 /********************************
@@ -805,7 +817,10 @@ void Robot::ShotManagement()
 //returns pointer to baby, or NULL if error
 Robot* Robot::Split(float percentage)
 {
-	long sondist;
+	if(this->generation > 0)
+        return NULL;
+    
+    long sondist;
 	float babyradius;
 	float thisradius;
 	float Length;

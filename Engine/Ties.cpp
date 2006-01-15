@@ -72,6 +72,6 @@ bool Tie::MakeTie(Robot* shooter, Robot* target, int _port)
 //Before a tie can be deleted, it has to be removed from its sender's and receiver's tieList
 Tie::~Tie()
 {
-    sender->tieList.remove(this);
-    receiver->tieList.remove(this);
+    sender->Ties->remove(this);
+    receiver->Ties->remove(this);
 }
