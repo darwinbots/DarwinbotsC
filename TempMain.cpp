@@ -1,4 +1,3 @@
-#include <windows.h>
 #include <iostream>
 #include <cstdio>
 #include <ctime>
@@ -10,47 +9,23 @@
 
 using namespace std;
 
-/*int main(void)
+/* This is a rudimentary benchmark of the core engine. To use it,
+define DB_NOGUI in your compiler and do not compile anything in folders GUI or
+GFX, nor EngineThread.cpp. */
+
+int main()
 {
-	Engine.SetupSim();	
-    vector<bool> beta;
-	
-    /*string alpha("Hello");
-
-    cout << alpha.at(0) << endl;
-
-    cout << alpha.substr(0, 500).c_str() << endl;
-
-    cout << alpha.size() << endl;
-
-    cout << alpha.find_first_of("l", 0) << endl;
-
-    cout << alpha.substr(0, alpha.find_first_of("l", 0)) << endl;
-
-    beta.push_back(0);
-    beta.push_back(5);
-    beta.push_back(4);
-    beta.push_back(5);
-    beta.push_back(2);
-    beta.push_back(1);
-
-    beta.resize(100);
-    
-    cout << beta[0] << endl;
-    cout << beta[1] << endl;
-    cout << beta[2] << endl;
-    cout << beta[3] << endl;
-    cout << beta[4] << endl;
-    cout << beta[5] << endl;*/
-
-    /*cout << endl;
-    cout << sizeof(beta);
-    cout << endl;
-
-    beta.resize(50);
-
-    cout << sizeof(beta);
-    cout << endl;
+	Engine.SetupSim();
+    	
+    clock_t startTime, endTime;
+    startTime=clock();
+	for(int i =0;i<100;i++){
+        Engine.UpdateSim();
+        cout<<"+";
+    }
+    cout<<endl;
+    cout<<"100 turns in "<<difftime(clock(),startTime)/CLOCKS_PER_SEC<<" seconds.";
+	cout<<system("PAUSE");
 	
     return 0;    
-}*/
+}

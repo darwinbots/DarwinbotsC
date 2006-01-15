@@ -1,12 +1,13 @@
 #include "DNAClass.h"
 #include "Robot.h"
+
+#ifndef DB_NOGUI
 #include "../GUI/GUIMain.h"
+#include "../GUI/GUIBotDebug.h"
+#include "EngineThread.h"
+#endif
 
 #include "DNA_Execution.h"
-#include "../GUI/GUIBotDebug.h"
-
-#include "EngineThread.h"
-
 /*****************************************
 TODO: be sure DNA costs are being exacted
 ******************************************/
@@ -76,7 +77,7 @@ __int32 PopIntStack(void)
         IntStack.pos = 0;
         IntStack.val[0] = 0;
     }
-    
+#ifndef DB_NOGUI
     if (MainWindowHandle->BotDebug &&
         MainWindowHandle->BotDebug->DebugMode() &&
         currbot == MainWindowHandle->BotDebug->ThatBot())
@@ -85,7 +86,7 @@ __int32 PopIntStack(void)
         IntStack.val[IntStack.pos] = 0;
         return temp;
     }
-    
+#endif
     return IntStack.val[IntStack.pos];
 }
 
@@ -140,6 +141,7 @@ void DNA_Class::Execute()
 
     while(this->Code[pointer] != DNA_END)
     {
+#ifndef DB_NOGUI
         if (MainWindowHandle->BotDebug &&
             MainWindowHandle->BotDebug->DebugMode() &&
             currbot == MainWindowHandle->BotDebug->ThatBot() &&
@@ -171,7 +173,7 @@ void DNA_Class::Execute()
             puts("\a");
             EngineThread.sleep(0, 1000000000);
         }
-        
+#endif
         switch (this->Code[pointer].tipo)
         {
             case 0: //number            

@@ -298,33 +298,37 @@ void Robot::CompareRobots(Robot *other, unsigned int field)
 
     if (other == NULL) return; //must be first to avoid unnecessary inits
 
-    Vector4 ab = VectorSub2D(other->pos, this->pos);
-	float magsquare = LengthSquared3(ab);
-
+    Vector4 RelativePosition = VectorSub2D(other->pos, this->pos);
 	float discheck = field * RobSize + other->radius;
-	discheck = discheck * discheck;
+	if (fabs(RelativePosition.x())>discheck || fabs(RelativePosition.y())>discheck)
+        return;
+	
+//END extremely critical section
+
+    
+    
+    float magsquare = LengthSquared3(RelativePosition);
+    discheck = discheck * discheck;
 
 	if (magsquare >= discheck)
 		return; //too far away to see
-//END extremely critical section
+		
+    float mag = 1.0f / sqrtf(magsquare);
 
     unsigned int eyecellD, eyecellC;
     Vector4 ac, ad;
-    
-    float mag = 1.0f / sqrtf(magsquare);
-
 	//ac and ad are to either end of the bot, while ab is to the center
 	//|ac| = |ad| = |ab|
 
 	
 	//this vector fun below needs to be double checked for geometrical accuracy
-	ac = ab * mag;
+	ac = RelativePosition * mag;
 	
 	ad.set(ac.y(), -ac.x());
-	ad = ab + ad * other->radius;
+	ad = RelativePosition + ad * other->radius;
 
 	ac.set(-ac.y(), ac.x());
-	ac = ab + ac * other->radius;
+	ac = RelativePosition + ac * other->radius;
 
 	eyecellD = EyeCells(ad);
 	eyecellC = EyeCells(ac);
@@ -363,11 +367,11 @@ unsigned int Robot::EyeCells(const Vector4 &ab)
 	//check for visibility
 	if (tantheta <= 0)
 		return 0;
-	if (fabs(tantheta) > 1.0f)
-		return 0;
-
+	
 	tantheta = (ab % this->aimvector) / tantheta;
-
+    if (fabs(tantheta) > 1.0f)
+		return 0;
+		
 	if (tantheta > 0.0f)
 	{
 		sign = 1;
