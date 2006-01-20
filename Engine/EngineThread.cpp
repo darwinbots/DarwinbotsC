@@ -9,8 +9,13 @@ int EngineThread_Class::run()
     
     while(true)
     {
-        Engine.UpdateSim();
-        this->sleep(0, 8000000);
+        if(this->Flow.Counter() >= 0)
+        {
+            Engine.UpdateSim();
+            Flow.Add_Cycles(-1);
+        }
+
+        this->sleep(0, 10000000);
     }
 
     return 1;

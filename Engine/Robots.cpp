@@ -751,9 +751,16 @@ void Robot::ShotManagement()
 	
 	(*this)[shoot] = 0;
 	(*this)[shootval] = 0;
+
+    //mod values to be in the right range
+    if (type > 1000)
+        type = (type - 1) % 1000 + 1;
+
+    if (type < -10)
+        type = (type + 1) % 10 - 1;
 	
 	//range is invalid for creating a shot
-	if (type == 0 || type > 1000 || type < -6 || type == -5)
+	if (type == 0 || type < -6 || type == -5)
 		return;
 
 	//set the multiplier given the expense
@@ -784,26 +791,33 @@ void Robot::ShotManagement()
 	}
 	//////////////////////////////////////////////////////
 
-	switch(type)
+	
+    Shot *temp = new Shot(this);
+    switch(type)
 	{
 		//basic feeding shot
 		case -1:
-            new Shot(this);
+            temp->CreateNRGStealingShot(this);
 		break;
 		//give nrg shot
 		case -2:
+            temp->CreateNRGGivingShot(this);
 		break;
 		//Venom shot
 		case -3:
+            temp->CreateVenomShot(this);
 		break;
 		//Waste Shot
 		case -4:
+            temp->CreateWasteShot(this);
 		break;
 		//Body Shot
 		case -6:
+            temp->CreateBodyShot(this);
 		break;
 		//"Info" shots
 		default:
+            temp->CreateInfoShot(this);
 		break;
 	}
 }

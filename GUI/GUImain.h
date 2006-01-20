@@ -65,7 +65,12 @@ public:
         ID_NewViewer,
         ID_Viewer,
         ID_UpdGfx,
-        ID_Engine
+
+        ID_PauseEngine,
+        ID_StepEngine,
+        ID_PlayEngine,
+
+        ID_LAST
     };
     
     long onCmdQuit              (FXObject *, FXSelector, void *);
@@ -102,6 +107,10 @@ public:
     
     long onUpdSim               (FXObject *, FXSelector, void *);
 
+    long onCycle                (FXObject *, FXSelector, void *);
+    long onPlay                 (FXObject *, FXSelector, void *);
+    long onPause                (FXObject *, FXSelector, void *);
+
     long GLWindow               ();
 
 
@@ -126,8 +135,7 @@ FXDEFMAP(MainWindow) MainWindowMap[] = {
   FXMAPFUNC(SEL_COMMAND,   MainWindow::ID_NewViewer,        MainWindow::onCmdNewViewer),
   FXMAPFUNC(SEL_KEYPRESS,  0,			                    MainWindow::onKeyPress),
   FXMAPFUNC(SEL_TIMEOUT,   MainWindow::ID_UpdGfx,           MainWindow::onUpdGfx),
-  FXMAPFUNC(SEL_CHORE,     MainWindow::ID_Engine,           MainWindow::onUpdSim),
-
+  
   FXMAPFUNC(SEL_MOUSEWHEEL,MainWindow::ID_MainView,         MainWindow::onMouseWheel),
   FXMAPFUNC(SEL_MOTION    ,MainWindow::ID_MainView,         MainWindow::onMotion),
   
@@ -135,7 +143,11 @@ FXDEFMAP(MainWindow) MainWindowMap[] = {
   FXMAPFUNC(SEL_LEFTBUTTONRELEASE, MainWindow::ID_MainView, MainWindow::onLeftBtnRelease),
 
   FXMAPFUNC(SEL_RIGHTBUTTONPRESS, MainWindow::ID_MainView,   MainWindow::onRightBtnPress),
-  FXMAPFUNC(SEL_RIGHTBUTTONRELEASE, MainWindow::ID_MainView, MainWindow::onRightBtnRelease)
+  FXMAPFUNC(SEL_RIGHTBUTTONRELEASE, MainWindow::ID_MainView, MainWindow::onRightBtnRelease),
+  
+  FXMAPFUNC(SEL_COMMAND, MainWindow::ID_StepEngine, MainWindow::onCycle),
+  FXMAPFUNC(SEL_COMMAND, MainWindow::ID_PlayEngine, MainWindow::onPlay),
+  FXMAPFUNC(SEL_COMMAND, MainWindow::ID_PauseEngine, MainWindow::onPause)
 };
 
 #endif

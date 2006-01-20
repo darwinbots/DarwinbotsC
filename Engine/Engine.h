@@ -27,6 +27,7 @@ class Engine_Class
 };
 
 void FindOpenSpace(Robot *me); //finds spot for robot in array, returns pointer to said robot
+Robot *FindSerialNumber(unsigned long serial);  //find a robot with this serial number or return NULL
 
 extern Engine_Class Engine;
 #endif

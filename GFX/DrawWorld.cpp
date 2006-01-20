@@ -62,7 +62,7 @@ void DrawShots()
             //load texture
             //glColor3f(rob[x]->color.x(), rob[x]->color.y(), rob[x]->color.z());
             
-            glColor3f(0,1.0f,0);
+            glColor3f(shots[x]->color[0], shots[x]->color[1], shots[x]->color[2]);
             glLoadName(x + 10000);
             CreatePoint(shots[x]->findpos(), 2);
         }

@@ -174,3 +174,11 @@ void FindOpenSpace(Robot *me) //finds spot for robot in array, returns pointer t
 
 	rob[firstopenspot] = me;
 }
+
+Robot *FindSerialNumber(unsigned long serial)
+{
+    for(unsigned int x = 0; x < MaxRobs; x++)
+        if(rob[x] != NULL && rob[x]->findAbsNum() == serial)
+            return rob[x];
+    return NULL;
+}

@@ -28,14 +28,14 @@ void FindOpenSpace(Shot *me) //finds spot for robot in array, returns pointer to
 
 void Shot::CreateShotBasic()
 {
-    parent = NULL;
+    parent = 0;
 
     range = 20;
     age = 0;
     pos.set(0,0);
     opos.set(0,0);
     vel.set(0,0);
-    color = Vector4(0,0,0);
+    color = Vector4(0,0,1.0f);
     Memloc = Memval = 0;
     value = shottype = 0;
     FindOpenSpace(this);
@@ -49,8 +49,8 @@ Shot::Shot()
 Shot::Shot(Robot *parent)
 {
     this->CreateShotBasic();
-    this->parent = parent;
-    this->color  = parent->color;
+    this->parent = parent->AbsNum;
+    //this->color  = parent->color;
     
     //we don't need velocity.  Verlet integration handles all that
     this->pos = parent->pos + parent->rad() * parent->aimvector;
@@ -63,18 +63,19 @@ Shot::Shot(Robot *parent)
 Shot::~Shot()
 {
     unsigned int counter = 0;
+    
     while(shots[counter] != this && counter <= MaxShots)
 	    counter++;
 
-    shots[counter] = NULL;
-    
     if (counter > MaxShots)
-        return;
+        return; //this is bad, it means we couldn't find this shot in the shot array
+
+    shots[counter] = NULL;
 
 	if (MaxShots == counter)
 	{
 		MaxShots = 0;
-		for(unsigned int x = counter-1; x >= 0; x--)
+		for(long x = counter; x >= 0; x--)
 		{
 			if (shots[x] != NULL)
 			{
@@ -85,12 +86,41 @@ Shot::~Shot()
 	}
 }
 
-//create nrg stealing shot
-//create nrg giving shot
-//create poison shot
-//create venom shot
-//create waste shot
-//create "body" shot
+void Shot::CreateNRGStealingShot(Robot *parent)
+{
+    this->shottype = -1;
+}
+
+void Shot::CreateNRGGivingShot(Robot *parent)
+{
+    this->shottype = -2;
+}
+
+void Shot::CreateVenomShot(Robot *parent)
+{
+    this->shottype = -3;
+}
+
+void Shot::CreateWasteShot(Robot *parent)
+{
+    this->shottype = -4;
+}
+
+void Shot::CreatePoisonShot(Robot *parent)
+{
+    this->shottype = -5;
+}
+
+void Shot::CreateBodyShot(Robot *parent)
+{
+    this->shottype = -6;
+}
+
+void Shot::CreateInfoShot(Robot *parent)
+{
+    this->shottype = (*parent)[shoot];
+    this->value = (*parent)[shootval];
+}
 
 void Shot::UpdatePos()
 {
@@ -122,19 +152,18 @@ void Shot::UpdateShot()
     //check for and handle collisions
     if((collide = this->ShotColl()) != NULL)
     {
-        //baby bots are immune to preexisting shots of its parent
-
-        //this code looks suspicious to me as I look at it again -Numsgil
-        if (this->parent == collide && collide->age <= 1) return;
+        if (collide->parent == this->parent && collide->age <= 1)
+            return; //baby bots immune to parents' shots at first
 
         //taste shot
 
-        //mod values to be in the right range
-        if (this->shottype > 1000)
-            this->shottype = (this->shottype - 1) % 1000 + 1;
-
-        if (this->shottype < -10)
-            this->shottype = (this->shottype + 1) % 10 - 1;
+        //bounce shot
+        Vector4 temp = opos;
+        opos = pos;
+        pos = temp;
+        this->parent = collide->AbsNum;
+        this->age = 0;
+        this->color.set(0,1.0f, 0);
 
         //Infoshots
         if (this->shottype > 0 && this->shottype != DelgeneSys)
@@ -181,16 +210,21 @@ Robot *Shot::ShotColl()
             ac = rob[x]->pos - this->opos;
             bc = rob[x]->pos - this->pos;
 
-            //'The below looks simple and like it makes no sense.  Trust me, it's accurate,
+            //The below looks simple and like it makes no sense.
+            //It's from an algorithm I only understood when I coded it.
+            //It should be error free, but I've had problems with it
+            //twice already (once in the VB source, and once when I ported it over)
+            //that stemed from me forgetting exactly what it is it's doing.
+            //-Numsgil
             if (ab * ac > 0)
             {
                 //if AB * AC > 0 then nearest point is point B
-                dist = Length3(bc);
+                dist = LengthSquared3(bc);
             }
             else if(ab * bc <= 0)
             {
                 //'if AB dot BC < 0 then nearest point is point A
-                dist = Length3(ac);
+                dist = LengthSquared3(ac);
             }
             else if(MagAB > 0)
             {
@@ -198,11 +232,11 @@ Robot *Shot::ShotColl()
             }
             else
             {
-                dist = Length3(bc);
+                dist = LengthSquared3(bc);
             }
 
             if (dist <= rob[x]->radius * rob[x]->radius)
-                if (this->parent != rob[x])
+                if (this->parent != rob[x]->AbsNum)
                     return rob[x];
         }
     }
@@ -224,7 +258,7 @@ void Shot::CollideInfoShot(Robot *collide)
 
     if (nrg < collide->Poison * 2)
     {
-        //poison is too strong
+        //poison is too strong to resist
         //create poison shot
     }
     else
@@ -235,30 +269,239 @@ void Shot::CollideInfoShot(Robot *collide)
 
 void Shot::CollideFeedingShot(Robot *collide)
 {
-    
+    Vector4 temp = this->opos;
+
+    //this->opos = this->pos;
+    //this->pos = temp;
+  
+  /*vel = VectorScalar(VectorSub(rob(n).vel, Shots(t).velocity), 0.5) 'half the relative velocity of
+                                                                     'the shot to the hit bot
+  vel = VectorAdd(vel, rob(n).vel) 'then add in the velocity of hit robot
+  
+  If SimOpts.EnergyExType Then
+    power = Shots(t).value * Shots(t).nrg / (Shots(t).range * (RobSize / 3)) * SimOpts.EnergyProp
+    If Shots(t).nrg < 0 Then Exit Sub
+  Else
+    power = SimOpts.EnergyFix
+  End If
+  
+  If rob(n).nrg < 0 Then Exit Sub
+  
+  If power > (rob(n).nrg / 0.9 + rob(n).poison) Then
+    power = rob(n).nrg / 0.9 + rob(n).poison
+  End If
+  
+  If rob(n).Corpse Then power = power * 0.5 'half power against corpses.  Most of your shot is wasted
+  
+  range = Shots(t).range     'returned energy shots have the same range as the shot that it came from
+  
+  If rob(n).poison > power Then 'create poison shot
+    createshot Shots(t).pos.x, Shots(t).pos.y, vel.x, vel.y, -5, n, power, range * (RobSize / 3), vbYellow
+    rob(n).Waste = rob(n).Waste + (power * 0.1)
+    rob(n).poison = rob(n).poison - (power * 0.9)
+    If rob(n).poison < 0 Then rob(n).poison = 0
+    rob(n).mem(poison) = rob(n).poison
+  Else ' create energy shot
+    createshot Shots(t).pos.x, Shots(t).pos.y, vel.x, vel.y, -2, n, power, range * (RobSize / 3), vbWhite
+    rob(n).nrg = rob(n).nrg - power * 0.9  'some of shot comes from nrg
+    rob(n).BODY = rob(n).BODY - power * 0.01 'some of shot comes from body
+    rob(n).radius = FindRadius(rob(n).BODY)
+  End If
+  
+  If rob(n).BODY < 0 Or rob(n).nrg < 0 Then
+    rob(Shots(t).parent).Kills = rob(Shots(t).parent).Kills + 1
+    rob(Shots(t).parent).mem(220) = rob(Shots(t).parent).Kills
+  End If
+  */   
 }
 
 void Shot::CollideNrgShot(Robot *collide)
 {
-    
+    /*
+    Dim partial As Long
+  
+  If rob(n).Corpse Then Exit Sub
+  
+  partial = Shots(t).nrg / (Shots(t).range * (RobSize / 3)) * Shots(t).value
+   
+  rob(n).nrg = rob(n).nrg + partial * 0.8       'most of energy goes to nrg
+  rob(n).BODY = rob(n).BODY + (partial * 0.019) 'a bit goes to body
+  rob(n).Waste = rob(n).Waste + partial * 0.01  'tiny amount goes to waste
+  If rob(n).nrg > 32000 Then rob(n).nrg = 32000
+  If rob(n).BODY > 32000 Then rob(n).BODY = 32000
+  Shots(t).Exist = False
+  rob(n).radius = FindRadius(rob(n).BODY)
+  */   
 }
 
 void Shot::CollideVenomShot(Robot *collide)
 {
+    /*Dim power As Long
+  
+  power = Shots(t).nrg / (Shots(t).range * (RobSize / 3)) * Shots(t).value
+  
+  If Shots(t).Memloc = 340 Or power < 1 Then Exit Sub 'protection from delgene attacks
+  
+  If Shots(t).FromSpecie = rob(n).fname Then   'Robot is imune to venom from his own species
+    rob(n).venom = rob(n).venom + power   'Robot absorbs venom fired by conspec
+    rob(n).mem(825) = rob(n).venom
+  Else
+    If power < rob(n).Shell * ShellEffectiveness Then
+      rob(n).Shell = rob(n).Shell - power / ShellEffectiveness
+    Else
+      Dim temp As Long
+      temp = power
+      power = power - rob(n).Shell * ShellEffectiveness
+      rob(n).Shell = rob(n).Shell - temp / ShellEffectiveness
+      If rob(n).Shell < 0 Then rob(n).Shell = 0
+    End If
+    
+    If power < 0 Then Exit Sub
+    
+    rob(n).Paralyzed = True
+    rob(n).Paracount = rob(n).Paracount + power
+    
+    If Shots(t).Memloc > 0 Then
+      If Shots(t).Memloc > 1000 Then Shots(t).Memloc = (Shots(t).Memloc - 1) Mod 1000 + 1
+      rob(n).Vloc = Shots(t).Memloc
+    Else
+      rob(n).Vloc = fRnd(1, 1000)
+    End If
+    
+    rob(n).Vval = Shots(t).Memval
+  End If
+  Shots(t).Exist = False
+  */
     
 }
 
 void Shot::CollideWasteShot(Robot *collide)
 {
-    
+    /*Dim power As Long
+  
+  power = Shots(t).nrg / (Shots(t).range * (RobSize / 3)) * Shots(t).value
+  If power < 0 Then Exit Sub
+  rob(n).Waste = rob(n).Waste + power
+  Shots(t).Exist = False*/
 }
 
 void Shot::CollidePoisonShot(Robot *collide)
 {
-    
+    /*
+    Dim power As Single
+  
+  power = Shots(t).nrg / (Shots(t).range * (RobSize / 3)) * Shots(t).value
+  
+  If Shots(t).FromSpecie = rob(n).fname Then    'Robot is imune to poison from his own species
+    rob(n).poison = rob(n).poison + power 'Robot absorbs poison fired by conspecs
+    If rob(n).poison > 32000 Then rob(n).poison = 32000
+    rob(n).mem(827) = rob(n).poison
+  Else
+    rob(n).Poisoned = True
+    rob(n).Poisoncount = rob(n).Poisoncount + power
+    If rob(n).Poisoncount > 32000 Then rob(n).Poisoncount = 32000
+    If Shots(t).Memloc > 0 Then
+      rob(n).Ploc = (Shots(t).Memloc - 1 Mod 1000) + 1
+    Else
+      rob(n).Ploc = fRnd(1, 1000)
+    End If
+  End If
+  Shots(t).Exist = False
+  */    
 }
 
 void Shot::CollideBodyShot(Robot *collide)
 {
+    /*
+    'much more effective against a corpse
+  Dim vel As vector
+  Dim range As Single
+  Dim power As Long
+  Dim Shell As Long
+  
+  vel = VectorScalar(VectorSub(rob(n).vel, Shots(t).velocity), 0.5) 'half the relative velocity of
+                                                                     'the shot to the hit bot
+  vel = VectorAdd(vel, rob(n).vel) 'then add in the velocity of hit robot
+  
+  If SimOpts.EnergyExType Then
+    power = Shots(t).value * Shots(t).nrg / (Shots(t).range * (RobSize / 3)) * SimOpts.EnergyProp
+  Else
+    power = SimOpts.EnergyFix
+  End If
+  
+  If rob(n).nrg <= 0 Then Exit Sub
+  Shell = rob(n).Shell * ShellEffectiveness
+  
+  If power > ((rob(n).BODY * 10) / 0.8 + Shell) Then
+    power = (rob(n).BODY * 10) / 0.8 + Shell
+  End If
+  
+  If power < Shell Then
+    rob(n).Shell = rob(n).Shell - power / ShellEffectiveness
+    If rob(n).Shell < 0 Then rob(n).Shell = 0
+    Exit Sub
+  Else
+    rob(n).Shell = rob(n).Shell - power / ShellEffectiveness
+    If rob(n).Shell < 0 Then rob(n).Shell = 0
+    power = power - Shell
+  End If
+  
+  If power <= 0 Then Exit Sub
+  
+  range = Shots(t).range      'new range formula based on range of incoming shot
+  
+  ' create energy shot
+  If rob(n).Corpse = True Then
+    power = power * 4 'So effective against corpses it makes me siiiiiinnnnnggg
+    If power > rob(n).BODY * 10 Then power = rob(n).BODY * 10
+    rob(n).BODY = rob(n).BODY - power / 10      'all energy comes from body
+    rob(n).radius = FindRadius(rob(n).BODY)
+  Else
+    Dim leftover As Long
+    
+    rob(n).nrg = rob(n).nrg - power * 0.2       'some of shot comes from nrg
+    rob(n).BODY = rob(n).BODY - (power * 0.08)  'some of shot comes from body
+
+    leftover = 0
+    If rob(n).nrg < 0 Then
+      leftover = leftover + (-rob(n).nrg)
+      rob(n).nrg = 0
+    End If
+    If rob(n).BODY < 0 Then
+      leftover = leftover + (-rob(n).BODY * 10)
+      rob(n).BODY = 0
+    End If
+
+    With rob(n)
+    If leftover > 0 Then
+      If .nrg > 0 And .nrg > leftover Then
+        .nrg = .nrg - leftover
+        leftover = 0
+      ElseIf .nrg > 0 And .nrg < leftover Then
+        leftover = leftover - .nrg
+        .nrg = 0
+      End If
+
+      If .BODY > 0 And .BODY * 10 > leftover Then
+        .BODY = .BODY - leftover
+        leftover = 0
+      ElseIf rob(n).BODY > 0 And rob(n).BODY * 10 < leftover Then
+        leftover = leftover - .BODY
+        .BODY = 0
+      End If
+    End If
+    End With
+    rob(n).radius = FindRadius(rob(n).BODY)
+  End If
+  
+  If rob(n).BODY < 0 Or rob(n).nrg < 0 Then
+    rob(n).Dead = True
+    rob(Shots(t).parent).Kills = rob(Shots(t).parent).Kills + 1
+    rob(Shots(t).parent).mem(220) = rob(Shots(t).parent).Kills
+  End If
+  
+  createshot Shots(t).pos.x, Shots(t).pos.y, vel.x, vel.y, -2, n, power, range * (RobSize / 3), vbWhite
+  */
+    
     
 }

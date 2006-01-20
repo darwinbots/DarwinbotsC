@@ -6,14 +6,16 @@
 
 class Robot;
 
-class Shot : ObjectPrimitive
+class Shot : public ObjectPrimitive
 {
     #ifdef _MSC_VER
     friend class Shot;
     #endif
 
     private:
-    Robot* parent; //pointer to parent
+    //I would do a pointer for this, except Robots come and go, but their serial numbers
+    //are unique to a robot over the entire life of a sim.
+    unsigned long parent;   // parent absolute number
 
     float range;        // max age the shot can exist
     
@@ -44,8 +46,16 @@ class Shot : ObjectPrimitive
     void UpdatePos();
     Robot *ShotColl();
 
-    void CreatePoisonShot(Robot *inherit);
+    public:
+    void CreatePoisonShot(Robot *parent);
+    void CreateNRGStealingShot(Robot *parent);
+    void CreateNRGGivingShot(Robot *parent);
+    void CreateVenomShot(Robot *parent);
+    void CreateWasteShot(Robot *parent);
+    void CreateBodyShot(Robot *parent);
+    void Shot::CreateInfoShot(Robot *parent);
     
+    private:
     void CollideInfoShot(Robot *collide);
     void CollideFeedingShot(Robot *collide);
     void CollideNrgShot(Robot *collide);

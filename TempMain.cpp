@@ -12,7 +12,7 @@ using namespace std;
 /* This is a rudimentary benchmark of the core engine. To use it,
 define DB_NOGUI in your compiler and do not compile anything in folders GUI or
 GFX, nor EngineThread.cpp. */
-
+#ifdef DB_NOGUI
 int main()
 {
 	Engine.SetupSim();
@@ -29,3 +29,4 @@ int main()
 	
     return 0;    
 }
+#endif

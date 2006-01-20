@@ -227,6 +227,11 @@ public:
         return this->pos;
     }
 
+    unsigned long findAbsNum()
+    {
+        return AbsNum;
+    }
+
     void Robot::DrawRobotEye();
     
     bool canTie();

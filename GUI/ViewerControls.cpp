@@ -102,7 +102,7 @@ unsigned int MainWindow::Selection(unsigned int MouseX, unsigned int MouseY)
     GLdouble height = canvas->getHeight();
     GLdouble aspect = height>0 ? width/height : 1.0;
 
-    glViewport(0,0,width,height);
+    glViewport(0,0,(int)width,(int)height);
 
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();

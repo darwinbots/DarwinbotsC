@@ -9,7 +9,7 @@ class ObjectPrimitive
 {
 	protected:
 	Vector4 pos, opos, vel;
-	//bool Exist;
+    //bool Exist;
 	unsigned long age;
 	
     public:

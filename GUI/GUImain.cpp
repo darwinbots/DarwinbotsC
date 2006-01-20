@@ -3,6 +3,8 @@
 #include "../Engine/SimOptions.h"
 #include "../Engine/Engine.h"
 #include "../Engine/EngineThread.h"
+#include "../GFX/Icons/icons.cpp" //I know this is unorthodox, but I get odd linker errors unless I
+                                  //include the cpp file itself.
 
 FXIMPLEMENT(MainWindow, FXMainWindow, MainWindowMap, ARRAYNUMBER(MainWindowMap))
 
@@ -13,6 +15,16 @@ MainWindow::MainWindow(FXApp *app)
     
     FXToolBarShell *dragshell1 = new FXToolBarShell(this, FRAME_RAISED);
     menubar = new FXMenuBar(this, dragshell1, FRAME_RAISED|LAYOUT_SIDE_TOP|LAYOUT_FILL_X);
+    FXToolBar *toolbar = new FXToolBar(this, dragshell1);
+
+    new FXButton(toolbar,"\tPlay",new FXGIFIcon(getApp(),PlayButtonGIF, 128, 128, 255),
+    //  tgt, 'selector', opts,  x, y, w,  h,  padl, padr
+        this, MainWindow::ID_PlayEngine, BUTTON_NORMAL | LAYOUT_FIX_WIDTH | LAYOUT_FIX_HEIGHT, 0, 0, 22, 20);
+    new FXButton(toolbar,"\tCycle",new FXGIFIcon(getApp(),CycleButtonGIF, 192, 192, 192),
+        this, MainWindow::ID_StepEngine, BUTTON_NORMAL | LAYOUT_FIX_WIDTH | LAYOUT_FIX_HEIGHT, 0, 0, 22, 20);
+    new FXButton(toolbar,"\tPause",new FXGIFIcon(getApp(),PauseButtonGIF),
+        this, MainWindow::ID_PauseEngine, BUTTON_NORMAL | LAYOUT_FIX_WIDTH | LAYOUT_FIX_HEIGHT, 0, 0, 22, 20);
+
     //new FXToolBarGrip(menubar, menubar, FXMenuBar::ID_TOOLBARGRIP);
     
     FXStatusBar *statusbar;
@@ -76,6 +88,7 @@ void MainWindow::create()
 
 MainWindow *MainWindowHandle;
 
+#ifndef DB_NOGUI
 int main(int argc, char **argv)
 {
     FXApp app(PROJECT_NAME, "yo");
@@ -92,7 +105,8 @@ int main(int argc, char **argv)
     app.addTimeout(MainWindowHandle, MainWindow::ID_UpdGfx);
                 
     //later we will move this into Engine.SetupSim()
-    EngineThread.start(0);
+    EngineThread.start();
     
     return app.run();
 }
+#endif

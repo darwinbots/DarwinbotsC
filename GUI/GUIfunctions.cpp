@@ -1,5 +1,6 @@
 #include "GUImain.h"
 #include "../Engine/Engine.h"
+#include "../Engine/EngineThread.h"
 //#include "../Engine/SimOptions.h"
 
 long MainWindow::onCmdQuit(FXObject *, FXSelector, void *)
@@ -108,9 +109,16 @@ void MainWindow::ConnectVar()
      PlanetEatersG_Tar.Connect(TmpOpts.PlanetEatersG);*/
 }
 
-long MainWindow::onUpdSim(FXObject*,FXSelector,void*)
+//these three fxns aren't thread safe, which is a problem
+long MainWindow::onCycle(FXObject *, FXSelector, void *)
 {
-    Engine.UpdateSim();
-    getApp()->addChore(this, MainWindow::ID_Engine);
-    return 1;
+    return EngineThread.Flow.Add_Cycles(1);
+}
+long MainWindow::onPlay(FXObject *, FXSelector, void *)
+{
+    return EngineThread.Flow.Play();
+}
+long MainWindow::onPause(FXObject *, FXSelector, void *)
+{
+    return EngineThread.Flow.Pause();
 }
