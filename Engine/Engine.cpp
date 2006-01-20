@@ -35,6 +35,10 @@ void Engine_Class::UpdateSim(void)
 
 	for(counter = 0; counter<=MaxRobs; counter++)
 		if (rob[counter] != NULL)
+			rob[counter]->Constraints();
+    
+    for(counter = 0; counter<=MaxRobs; counter++)
+		if (rob[counter] != NULL)
 			rob[counter]->DuringTurn();
 
 	for(counter = 0; counter<=MaxRobs; counter++)
@@ -136,8 +140,7 @@ void Engine_Class::LoadRobots(void)
 	{
 		for (unsigned int x = 0; x < SimOpts.Specie[y].qty; x++)
 		{
-			temp = new Robot;
-			temp->init(&(SimOpts.Specie[y]));
+			temp = new Robot(&SimOpts.Specie[y]);
 		}
 	}
 }

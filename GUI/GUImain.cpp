@@ -27,8 +27,14 @@ MainWindow::MainWindow(FXApp *app)
 
     //new FXToolBarGrip(menubar, menubar, FXMenuBar::ID_TOOLBARGRIP);
     
-    FXStatusBar *statusbar;
-    statusbar = new FXStatusBar(this, LAYOUT_SIDE_BOTTOM|LAYOUT_FILL_X|/*STATUSBAR_WITH_DRAGCORNER|*/FRAME_RAISED);
+    FXHorizontalFrame *statusbar;
+    statusbar = new FXHorizontalFrame(this, LAYOUT_SIDE_BOTTOM | FRAME_RAISED);
+    
+    new FXLabel(statusbar, "Cyc/Sec: ", NULL, FRAME_SUNKEN | JUSTIFY_LEFT);
+
+    new FXTextField(statusbar,4,new FXDataTarget(FXfloat(SimOpts.CycSec)),
+            FXDataTarget::ID_VALUE,
+            TEXTFIELD_REAL|JUSTIFY_LEFT|LAYOUT_CENTER_Y|FRAME_SUNKEN|LAYOUT_CENTER_X|FRAME_THICK|LAYOUT_FILL_ROW);
     
     fileMenu = new FXMenuPane(this);
     new FXMenuCommand(fileMenu, "&New Simulation\tF1\tStart a new Simulation.", 0, this, ID_NewSimulation);

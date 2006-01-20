@@ -54,7 +54,7 @@ void DrawRobots()
 
 void DrawShots()
 {
-    for (unsigned int x = 0; x < MaxShots; x++)
+    for (unsigned int x = 0; x <= MaxShots; x++)
     {
         if (shots[x] != NULL)
         {
@@ -62,7 +62,6 @@ void DrawShots()
             //glColor3f(rob[x]->color.x(), rob[x]->color.y(), rob[x]->color.z());
             
             glColor3f(shots[x]->color[0], shots[x]->color[1], shots[x]->color[2]);
-            glLoadName(x + 10000);
             CreatePoint(shots[x]->findpos(), 2);
         }
     }

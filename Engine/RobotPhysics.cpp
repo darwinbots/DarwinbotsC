@@ -3,7 +3,7 @@
 #include "..\Common\Random.h"
 
 void Robot::NetForces()
-{    
+{        
     //INDEPENDANT FORCES
         this->VoluntaryForces();
         this->GravityForces();
@@ -20,14 +20,38 @@ void Robot::NetForces()
         //gate forces
         //edge spring forces if edge springs enabled
 
-    //RESTRAINTS (done after movement)
-        this->BotCollisions();
-        this->EdgeCollisions();  //collisions with edges (if rigid edges are selected)
-        //max tie length and rigid ties (if ties are hardened)
-
         this->ImpulseInd = this->ImpulseInd - this->ImpulseRes;
+                       
+        if (mass + AddedMass == 0)  // a catch to be sure that we don't have 0 mass
+		    mass = 0.1 - AddedMass;
+        
+        //we update to a temporary vector instead of the position vector
+        //so robots which update after us aren't updating against
+        //inivalid information on our position.
+        temppos = pos * 2 - opos + ImpulseInd / (mass + AddedMass);
+
+        this->ImpulseInd.set(0,0,0);
         this->ImpulseRes.set(0,0,0);
 }
+
+void Robot::Constraints()
+{
+    //RESTRAINTS (done after movement)
+    this->BotCollisions();
+    this->EdgeCollisions();  //collisions with edges (if rigid edges are selected)
+    //max tie length and rigid ties (if ties are hardened)
+    //max velocity restraint
+}
+
+/*/*Vector4 vel = opos - pos;
+        vt = LengthSquared3(vel);
+        SimOpts.MaxSpeed = 60;
+		if (vt > SimOpts.MaxSpeed * SimOpts.MaxSpeed)
+		{
+			vel = vel / sqrt(vt);
+			vel = vel * SimOpts.MaxSpeed;
+			vt = SimOpts.MaxSpeed * SimOpts.MaxSpeed;
+		}*/
 
 void Robot::BotCollisions()
 {
@@ -36,7 +60,7 @@ void Robot::BotCollisions()
         if(rob[x] != NULL && rob[x] != this &&
             rob[x]->AbsNum < this->AbsNum)
         {
-            Vector4 ab = rob[x]->pos - this->pos;
+            Vector4 ab = rob[x]->temppos - this->temppos;
             float mindist = this->radius + rob[x]->radius;
             mindist *= mindist;
             
@@ -44,14 +68,13 @@ void Robot::BotCollisions()
             {
                 //relaxation collision technique
                 //from http://www.gamasutra.com/resource_guide/20030121/jacobson_03.shtml
-                //velocity changes should be handled wherever position is changed
-                //(that is, it's autohandled by verlet integration)
-
-                //I don't know how to incorporate relative masses into this
-                ab = ab * ((mindist / (mindist + currdist)) - .9);//this->mass/(this->mass + rob[x]->mass));
                 
-                //this->pos = this->pos - ab - this->pos;
-                //rob[x]->pos = rob[x]->pos + ab;
+                ab = ab * (mindist / (mindist + currdist));
+
+                //ab is the distance vector that is being overlapped
+                
+                this->temppos = this->temppos - ab * .5;
+                rob[x]->temppos = rob[x]->temppos + ab * .5;
             }
         }
     }
@@ -116,16 +139,16 @@ void Robot::BouyancyForces()
 
 void Robot::EdgeCollisions()
 {
-    //'treat the borders as spongy ground
-    //'that makes you bounce off.
-    
+    //The Edges are perfectly damped springs that repel bots
+        
     Vector4 dist;
+    Vector4 radvec(this->radius, this->radius, this->radius);
     
-    dist = this->pos - 
+    dist = 
     VectorMin(
-    VectorMax(this->pos, Vector4(0,0,0)),
-    SimOpts.FieldDimensions); 
+    VectorMax(this->temppos, radvec),
+    SimOpts.FieldDimensions - radvec); 
     
     if (LengthSquared3(dist) > 0)
-        this->ImpulseRes -= dist * -.1f;
+        this->temppos = dist;
 }

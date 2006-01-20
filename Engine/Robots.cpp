@@ -85,18 +85,12 @@ void Robot::Setup(datispecie *myspecies)
     this->DNA->Mutables = myspecies->Mutables;
 }
 
-void Robot::init()
-{
-	FindOpenSpace(this);
-	this->BasicRobotSetup();
-	this->SetMems();
-}
-
 void Robot::init(datispecie *myspecies)
 {
 	FindOpenSpace(this);
 	this->BasicRobotSetup();
-	this->Setup(myspecies);
+	if(myspecies != NULL)
+        this->Setup(myspecies);
 	this->SetMems();
 }
 
@@ -169,40 +163,16 @@ void Robot::UpdateAim()
 
 void Robot::UpdatePosition()
 {
-	float vt;
 	Vector4 temp;
   
 	if ((*this)[fixpos] > 0) Fixed = true;
 	else Fixed = false;
-
-	if (mass + AddedMass < 0.1) // a fudge since Euler approximation can't handle it when mass -> 0.
-		mass = 0.1 - AddedMass; // verlet(sp?) approximation might be better, if more complicated.		 
 	
 	if (Fixed==false)
 	{
-		//verlet scheme:
-
-        Vector4 temp = pos;
-        pos = pos * 2 - opos + ImpulseInd / (mass + AddedMass);
-        opos = temp;
-
-        /*Vector4 vel = opos - pos;
-        vt = LengthSquared3(vel);
-        SimOpts.MaxSpeed = 60;
-		if (vt > SimOpts.MaxSpeed * SimOpts.MaxSpeed)
-		{
-			vel = vel / sqrt(vt);
-			vel = vel * SimOpts.MaxSpeed;
-			vt = SimOpts.MaxSpeed * SimOpts.MaxSpeed;
-		}*/
+		opos = pos;
+        pos = temppos;
 	}
-
-	if (Fixed == true || SimOpts.ZeroMomentum == true)
-		vel.set(0.0f, 0.0f, 0.0f);
-
-	ImpulseInd.set(0.0, 0.0, 0.0);
-	//ForceRes
-	//ForceStatic
 
 	//clear bang commands
 	(*this)[dirup] = 0;
@@ -212,7 +182,9 @@ void Robot::UpdatePosition()
 	
 	//update velocity refvars
 	//these might be reversed of what they need to be, I'll need to expirement later
-	(*this)[velscalar] = iceil(sqrt(vt));
+	Vector4 vel = pos - opos;
+    
+    (*this)[velscalar] = iceil(Length3(vel));
 	(*this)[velup] = iceil(vel * aimvector); //dot product of direction
 	(*this)[veldn] = -(*this)[velup];
 	(*this)[veldx] = iceil((vel % aimvector)); //the magnitude for a 2D vector crossed in 3D is the Z element
@@ -873,7 +845,6 @@ Robot* Robot::Split(float percentage)
 	//return false;	
 		
 	Robot *baby = new Robot();
-    baby->init();
 	
 	baby->obody = baby->Body = this->Body * percentage;
 	this->obody = this->Body = this->Body * (1.0f - percentage);
@@ -929,8 +900,6 @@ Robot* Robot::Split(float percentage)
 	baby->LastOwner = this->LastOwner;
 	baby->fname = this->fname;
 	
-	baby->vel = this->vel;
-
 	baby->UpdateMass();
 	this->UpdateMass();
 
@@ -938,11 +907,13 @@ Robot* Robot::Split(float percentage)
 	baby->UpdateRadius();
 
 	sondist = long(this->radius + baby->radius);
-	this->pos = this->pos - percentage * sondist * this->aimvector;
+	Vector4 vel = this->pos - this->opos;
+    
+    this->pos = this->pos - percentage * sondist * this->aimvector;
 	baby->pos = this->pos + Length * this->aimvector;
 
-	this->opos = this->pos - this->vel;
-	baby->opos = baby->pos - baby->vel;
+	this->opos = this->pos - vel;
+	baby->opos = baby->pos - vel;
 
 	baby->color = this->color;
 
@@ -976,10 +947,11 @@ void Robot::SetMems()
 
 	(*this)[masssys] = iceil(this->mass * 100);
 
-	(*this)[velscalar] = iceil(Length3(this->vel));
-	(*this)[velup] = iceil(this->vel * this->aimvector); //dot product of direction
+	Vector4 vel = this->pos - this->opos;
+    (*this)[velscalar] = iceil(Length3(vel));
+	(*this)[velup] = iceil(vel * this->aimvector); //dot product of direction
 	(*this)[veldn] = -(*this)[velup];
-	(*this)[veldx] = iceil((this->vel % this->aimvector)); //the magnitude for a 2D vector crossed in 3D is the Z element
+	(*this)[veldx] = iceil(vel % this->aimvector); //the magnitude for a 2D vector crossed in 3D is the Z element
 	(*this)[velsx] = -(*this)[veldx];
 
 	(*this)[wastesys] = iceil(this->Waste);

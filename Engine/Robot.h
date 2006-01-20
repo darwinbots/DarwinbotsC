@@ -49,7 +49,8 @@ class Robot : public ObjectPrimitive
 private:
 
 	//Physical Attributes
-	float radius; 
+	float radius;
+    Vector4 temppos;                        // a temporary position used for verlet integration
 	//int Shape;                            // shape of the robot, how many sides
 
 	//int Skin[13];        					// skin definition
@@ -186,7 +187,7 @@ private:
 public:
     bool View;
 
-    Robot::Robot():radius(60.),
+    Robot::Robot(datispecie *myspecies = NULL):radius(60.),
                 aim(0),aimvector(cos(aim),sin(aim)),
                 Ties(),
                 ImpulseInd(), ImpulseRes(), ImpulseStatic(),
@@ -199,22 +200,26 @@ public:
                 Paralyzed(false),ParaCount(0.),Vloc(0),Vval(0),
                 Poisoned(false),PoisonCount(0),Ploc(0),
                 DecayTimer(0),Kills(0),
-                DNA(0),
+                DNA(NULL),
                 lastopp(0),AbsNum(0),
                 SonNumber(0),parent(0),BirthCycle(0),genenum(0),generation(0),
                 LastOwner(""),fname(""),DnaLen(0),
                 virusshot(0),Vtimer(0),
                 View(false)
-                {memset(&mem[0], 0, sizeof(mem));
-                memset(&occurr[0], 0, sizeof(occurr));}
-    void init();                           //One of these init functions MUST
-	void init(datispecie *myspecies);      //be called whenever a bot is created
+    {
+        memset(&mem[0], 0, sizeof(mem));
+        memset(&occurr[0], 0, sizeof(occurr));
+        init(myspecies);
+    }
+
+    void init(datispecie *myspecies = NULL);      //be called whenever a bot is created
 	
 	
 	~Robot();
 	void TurnGenesis();
 	void PreTurn();
-	void DuringTurn();
+	void Constraints();
+    void DuringTurn();
 	void PostTurn();
 	void TurnCleanup();
 	void TurnEnd();

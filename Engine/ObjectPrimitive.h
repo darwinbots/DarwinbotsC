@@ -8,7 +8,7 @@ using Math3D::Vector4;
 class ObjectPrimitive
 {
 	protected:
-	Vector4 pos, opos, vel;
+	Vector4 pos, opos;
     //bool Exist;
 	unsigned long age;
 	

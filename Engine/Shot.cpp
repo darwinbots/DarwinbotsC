@@ -43,7 +43,6 @@ void Shot::CreateShotBasic()
     age = 0;
     pos.set(0,0);
     opos.set(0,0);
-    vel.set(0,0);
     color = Vector4(0,0,1.0f);
     Memloc = Memval = 0;
     value = shottype = 0;

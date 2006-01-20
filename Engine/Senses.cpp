@@ -70,7 +70,7 @@ void Robot::Touch(Robot *other, float distance)
 	
 	///////////////////////////////
 
-	hitstrength = Length3((other->vel - this->vel));
+	hitstrength = Length3((other->pos - other->opos) - (this->pos - this->opos));
 
 	(*this)[hit] = iceil(hitstrength * other->mass);
 	(*other)[hit] = iceil(hitstrength * this->mass);
@@ -218,11 +218,12 @@ void Robot::WriteRefVars(const Robot *lastopp)
 		(*this)[reffixed] = 0;
 
 	//these should be double checked
-	(*this)[refvelup] = iceil((lastopp->vel - this->vel) * this->aimvector);
+    Vector4 vel = (lastopp->pos - lastopp->opos) - (this->pos - this->opos);
+	(*this)[refvelup] = iceil(vel * this->aimvector);
 	(*this)[refveldn] = iceil((*this)[refvelup] * -1);
 	
 	//these should be double checked
-	(*this)[refveldx] = iceil((this->aimvector % (lastopp->vel - this->vel)));
+	(*this)[refveldx] = iceil(this->aimvector % vel);
 	(*this)[refvelsx] = iceil((*this)[refveldx] * -1);
 
 	(*this)[refvelscalar] = iceil(sqrt((*this)[refvelup] * (*this)[refvelup] +
