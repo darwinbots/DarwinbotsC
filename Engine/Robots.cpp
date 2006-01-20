@@ -26,7 +26,7 @@ inline Robot::~Robot()
 Sets up a truly BASIC robot
 Does not even set up color, nrg, etc.
 ****************************************/
-void Robot::BasicRobotSetup(datispecie *myspecies)
+void Robot::BasicRobotSetup()
 {
     //I find mixed answers as to how valid memsetting a new structure to 0 is.
     //barring any problems, or an easier, more correct way to do the below that's not setting each
@@ -37,23 +37,23 @@ void Robot::BasicRobotSetup(datispecie *myspecies)
     //all 0 bits.  DO NOT!  DON'T EVEN THINK IT!
     //I'M WARNING YOU!
     
-    memset(this, 0, sizeof(*this)); //clear out the Robot structure
+    //memset(this, 0, sizeof(*this)); //clear out the Robot structure
 
 	SimOpts.TotBorn++;
 	this->AbsNum = SimOpts.TotBorn;
 	
 	//set random aim
-	aim = DBrand() * PI * 200;
+	aim = DBrand() * PI * 2;
 	aimvector.set(cos(aim), sin(aim));
 
 	this->BirthCycle = SimOpts.TotRunCycle;
 	(*this)[timersys] = frnd(-32000, 32000);
 
     this->View = false;
+}
 
-	if (myspecies == NULL)
-		return;
-
+void Robot::Setup(datispecie *myspecies)
+{
 	this->Veg = myspecies->Veg;
 	this->Fixed = myspecies->Fixed;
 
@@ -85,17 +85,18 @@ void Robot::BasicRobotSetup(datispecie *myspecies)
     this->DNA->Mutables = myspecies->Mutables;
 }
 
-Robot::Robot()
+void Robot::init()
 {
 	FindOpenSpace(this);
-	this->BasicRobotSetup(NULL);
+	this->BasicRobotSetup();
 	this->SetMems();
 }
 
-Robot::Robot(datispecie *myspecies)
+void Robot::init(datispecie *myspecies)
 {
 	FindOpenSpace(this);
-	this->BasicRobotSetup(myspecies);
+	this->BasicRobotSetup();
+	this->Setup(myspecies);
 	this->SetMems();
 }
 
@@ -497,7 +498,7 @@ void Robot::Shock()
 	long temp;
 
 	temp = long(this->onrg - this->nrg);
-	if (temp > (onrg / 2))
+	if (temp > (onrg / 2) )
 	{
 		Body = Body + nrg / 10;
 		Body = iceil(Body);
@@ -652,10 +653,7 @@ bool Robot::canTie()
 
 void Robot::addTie(Tie *tie)
 {
-    if(!this->Ties)
-        Ties = new TieList;
-
-    this->Ties->push_back(tie);
+    this->Ties.push_back(tie);
 }
     
 void Robot::removeTie(Tie* tie)
@@ -665,16 +663,8 @@ void Robot::removeTie(Tie* tie)
 
 void Robot::removeAllTies()
 {
-    //while(!this->tieList.empty())
-    //    removeTie(tieList.begin());
-    
-    
-    if (Ties != NULL && !Ties->empty())
-    {
-        TieList::iterator iter;
-        for(iter=Ties->begin(); iter!=Ties->end(); ++iter)
-            {removeTie(*iter);}
-    }
+    while(!this->Ties.empty())
+        removeTie( *( Ties.begin()) );
 }
     
 
@@ -883,6 +873,7 @@ Robot* Robot::Split(float percentage)
 	//return false;	
 		
 	Robot *baby = new Robot();
+    baby->init();
 	
 	baby->obody = baby->Body = this->Body * percentage;
 	this->obody = this->Body = this->Body * (1.0f - percentage);

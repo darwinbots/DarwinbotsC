@@ -180,11 +180,9 @@ void Robot::WriteSenses()
 
 //' copies the occurr array of a viewed robot
 //' in the ref* vars of the viewing one
-void Robot::WriteRefVars(Robot *lastopp)
+void Robot::WriteRefVars(const Robot *lastopp)
 {
-	unsigned int t = 0;
-
-	for(t = 1; t<=8; t++)
+ 	for(unsigned int t = 1; t<=8; t++)
 		(*this)[occurrstart + t] = lastopp->occurr[t];
 
 	(*this)[occurrstart + 9] = iceil(lastopp->nrg);
@@ -292,7 +290,7 @@ End Sub
 /********************************************
 field's default value is 12 from the VB days
 ********************************************/
-void Robot::CompareRobots(Robot *other, unsigned int field)
+void Robot::CompareRobots(Robot *const other, const unsigned int field)
 {
 //the few lines below are the most performance-critical in the whole code
 

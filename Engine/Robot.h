@@ -58,7 +58,7 @@ private:
 	float aim;								// aim angle
 	Vector4 aimvector;                      // the unit vector for aim
 
-	TieList *Ties;                           //linked list of ties
+	TieList Ties;                           //linked list of ties
 	
 	//Physics
 	Vector4 ImpulseInd;                     // independant forces vector
@@ -109,7 +109,7 @@ private:
 	__int16 mem[1000];       				// memory array
 	DNA_Class *DNA;        					// the DNA
 
-	class Robot *lastopp;         			// last robot in eye5
+	class Robot *lastopp;         	// pointer to const (last robot in eye5)
 	long AbsNum;             				// absolute robot number
 
 	//console; Consoleform    				// console object;sociated to the robot
@@ -154,7 +154,8 @@ private:
 	void SetMems();
 
 	Robot *Robot::Split(float percentage);
-	void BasicRobotSetup(datispecie *myspecies);
+	void BasicRobotSetup();
+	void Setup(datispecie *myspecies);
 
 	//SENSES
 	void FacingSun();
@@ -163,9 +164,9 @@ private:
 	void EraseSenses();
 	Robot *BasicProximity();
 	void WriteSenses();
-	void WriteRefVars(Robot *lastopp);
+	void WriteRefVars(const Robot *lastopp);
 	void occurrList();
-	inline void CompareRobots(Robot *other, unsigned int field);
+	inline void CompareRobots(Robot *const other, const unsigned int field);
 	unsigned int EyeCells(const Vector4 &ab);
 
     //physics
@@ -185,9 +186,31 @@ private:
 public:
     bool View;
 
-
-    Robot();
-	Robot(datispecie *myspecies);
+    Robot::Robot():radius(60.),
+                aim(0),aimvector(cos(aim),sin(aim)),
+                Ties(),
+                ImpulseInd(), ImpulseRes(), ImpulseStatic(),
+                Veg(false),Wall(false),Corpse(false),Fixed(false),
+                Dead(false),Multibot(false),NewMove(false),
+                nrg(1000),onrg(nrg),
+                Body(1000),obody(Body),
+                AddedMass(0.),mass(1.),
+                Shell(0.),Slime(0.),Waste(0.),Pwaste(0.),Poison(0.),Venom(0.),
+                Paralyzed(false),ParaCount(0.),Vloc(0),Vval(0),
+                Poisoned(false),PoisonCount(0),Ploc(0),
+                DecayTimer(0),Kills(0),
+                DNA(0),
+                lastopp(0),AbsNum(0),
+                SonNumber(0),parent(0),BirthCycle(0),genenum(0),generation(0),
+                LastOwner(""),fname(""),DnaLen(0),
+                virusshot(0),Vtimer(0),
+                View(false)
+                {memset(&mem[0], 0, sizeof(mem));
+                memset(&occurr[0], 0, sizeof(occurr));}
+    void init();                           //One of these init functions MUST
+	void init(datispecie *myspecies);      //be called whenever a bot is created
+	
+	
 	~Robot();
 	void TurnGenesis();
 	void PreTurn();
@@ -195,11 +218,15 @@ public:
 	void PostTurn();
 	void TurnCleanup();
 	void TurnEnd();
-	inline __int16 &operator[](const unsigned int i)
+	__int16 &operator[](const unsigned int i)
 	{
 		return mem[i-1];
 	}
-
+    const __int16 &operator[](const unsigned int i) const
+	{
+		return mem[i-1];
+	}
+	
     string &DNA_Text()
     {
         return this->DNA->text();

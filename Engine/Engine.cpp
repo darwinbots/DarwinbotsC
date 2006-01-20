@@ -64,6 +64,7 @@ void Engine_Class::SetupSim(void)
     BuildSysvars();
 	
 	//seed the random number generator
+	DBsrand(800741);
 	//Load script Lists
 
 	//setup graphics engine
@@ -135,7 +136,8 @@ void Engine_Class::LoadRobots(void)
 	{
 		for (unsigned int x = 0; x < SimOpts.Specie[y].qty; x++)
 		{
-			temp = new Robot(&SimOpts.Specie[y]);
+			temp = new Robot;
+			temp->init(&(SimOpts.Specie[y]));
 		}
 	}
 }
