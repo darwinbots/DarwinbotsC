@@ -38,7 +38,7 @@ void DrawWorld(void)
 
 void DrawRobots()
 {
-    for (unsigned int x = 0; x < MaxRobs; x++)
+    for (unsigned int x = 0; x <= MaxRobs; x++)
     {
         if (rob[x] != NULL)
         {
@@ -46,7 +46,6 @@ void DrawRobots()
             //glColor3f(rob[x]->color.x(), rob[x]->color.y(), rob[x]->color.z());
             
             glColor3f(1.0f,0,0);
-            glLoadName(x);
             CreateCircle(rob[x]->findpos(), rob[x]->rad(), 4);
             rob[x]->DrawRobotEye();
         }

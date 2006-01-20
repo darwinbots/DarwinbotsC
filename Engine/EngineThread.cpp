@@ -15,7 +15,7 @@ int EngineThread_Class::run()
             Flow.Add_Cycles(-1);
         }
 
-        this->sleep(0, 10000000);
+        this->sleep(0, 4000000);
     }
 
     return 1;

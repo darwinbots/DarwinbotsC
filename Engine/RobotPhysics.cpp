@@ -31,7 +31,7 @@ void Robot::NetForces()
 
 void Robot::BotCollisions()
 {
-    for(int x = 0; x < MaxRobs; x++)
+    for(int x = 0; x <= MaxRobs; x++)
     {
         if(rob[x] != NULL && rob[x] != this &&
             rob[x]->AbsNum < this->AbsNum)

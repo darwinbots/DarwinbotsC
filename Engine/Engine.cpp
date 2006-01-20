@@ -142,7 +142,7 @@ void Engine_Class::LoadRobots(void)
 
 void Engine_Class::ExecuteDNA()
 {
-    for (unsigned long x = 0; x < MaxRobs; x++)
+    for (unsigned long x = 0; x <= MaxRobs; x++)
         if (rob[x] != NULL)
             rob[x]->ExecuteDNA();
 }
@@ -177,7 +177,7 @@ void FindOpenSpace(Robot *me) //finds spot for robot in array, returns pointer t
 
 Robot *FindSerialNumber(unsigned long serial)
 {
-    for(unsigned int x = 0; x < MaxRobs; x++)
+    for(unsigned int x = 0; x <= MaxRobs; x++)
         if(rob[x] != NULL && rob[x]->findAbsNum() == serial)
             return rob[x];
     return NULL;

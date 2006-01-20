@@ -1,4 +1,13 @@
 #include "Shots.h"
+#include "SimOptions.h"
+
+/****************************************
+Presently, shots have the following physical characteristics:
+
+1.  Massless.  Shots have 0 mass
+2.  Volumeless.  Shots exist purely as single points
+
+*/////////////////////////////////////////////////////////
 
 #define SHOTCONST 40 //defines how fast shots decay
 
@@ -126,12 +135,12 @@ void Shot::UpdatePos()
 {
     //If you're unaware of what's going on here, it's called
     //verlet integration, as opposed to Euler integration.    
-    
+
     Vector4 temp;
 
     temp = this->pos;
 
-    this->pos = 2 * this->pos - this->opos;
+    this->pos = 2 * this->pos - this->opos - Vector4(0, SimOpts.YGravity);
     this->opos = temp;
 }
 
@@ -215,27 +224,36 @@ Robot *Shot::ShotColl()
             //It should be error free, but I've had problems with it
             //twice already (once in the VB source, and once when I ported it over)
             //that stemed from me forgetting exactly what it is it's doing.
+            //the algorithm is sound, but suspect my implementation if problems
+            //are evident.
             //-Numsgil
             if (ab * ac > 0)
             {
-                //if AB * AC > 0 then nearest point is point B
+                //if AB * AC > 0 then nearest point is point B (present position)
                 dist = LengthSquared3(bc);
             }
             else if(ab * bc <= 0)
             {
-                //'if AB dot BC < 0 then nearest point is point A
+                //'if AB dot BC < 0 then nearest point is point A (older position)
                 dist = LengthSquared3(ac);
             }
             else if(MagAB > 0)
             {
+                //this is only called when a shot was closest to a bot
+                //during _transit_ from opos to pos.  As such, it is rarely
+                //called
                 dist = (ab % ac) * (ab % ac) / MagAB;
             }
             else
             {
+                //this is rarely, if ever called.  Primarily
+                //a error catching routine
+                //the absolute velocity of the shot would have to
+                //be 0
                 dist = LengthSquared3(bc);
             }
 
-            if (dist <= rob[x]->radius * rob[x]->radius)
+            if (dist < rob[x]->radius * rob[x]->radius)
                 if (this->parent != rob[x]->AbsNum)
                     return rob[x];
         }
