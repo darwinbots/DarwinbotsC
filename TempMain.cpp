@@ -15,16 +15,27 @@ GFX, nor EngineThread.cpp. */
 #ifdef DB_NOGUI
 int main()
 {
-	Engine.SetupSim();
-    	
-    clock_t startTime, endTime;
+    Engine.SetupSim();
+    for(int j =0;j<50;j++){
+        cout<<RandomBlock().text()<<" ";
+    }
+    cout<<endl;
+    clock_t startTime;
     startTime=clock();
 	for(int i =0;i<100;i++){
         Engine.UpdateSim();
         cout<<"+";
     }
     cout<<endl;
-    cout<<"100 turns in "<<difftime(clock(),startTime)/CLOCKS_PER_SEC<<" seconds.";
+    int id;
+    do {
+        id=frnd(0,MaxRobs);
+    } while (rob[id]==NULL || rob[id]->Veg==true);
+    cout<<rob[id]->DNA_Text();
+    
+    cout<<"1000 turns in "<<difftime(clock(),startTime)/CLOCKS_PER_SEC<<" seconds.";
+    
+    
 	cout<<system("PAUSE");
 	
     return 0;    

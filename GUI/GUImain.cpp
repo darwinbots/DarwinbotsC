@@ -32,7 +32,8 @@ MainWindow::MainWindow(FXApp *app)
     
     new FXLabel(statusbar, "Cyc/Sec: ", NULL, FRAME_SUNKEN | JUSTIFY_LEFT);
 
-    new FXTextField(statusbar,4,new FXDataTarget(FXfloat(SimOpts.CycSec)),
+    FXfloat* pCycSec = &SimOpts.CycSec;
+    new FXTextField(statusbar,4,new FXDataTarget(*pCycSec),
             FXDataTarget::ID_VALUE,
             TEXTFIELD_REAL|JUSTIFY_LEFT|LAYOUT_CENTER_Y|FRAME_SUNKEN|LAYOUT_CENTER_X|FRAME_THICK|LAYOUT_FILL_ROW);
     

@@ -1,5 +1,4 @@
-#include "DNAClass.h"
-#include "Robot.h"
+#include "DNA_Execution.h"
 
 #ifndef DB_NOGUI
 #include "../GUI/GUIMain.h"
@@ -7,7 +6,7 @@
 #include "EngineThread.h"
 #endif
 
-#include "DNA_Execution.h"
+
 /*****************************************
 TODO: be sure DNA costs are being exacted
 ******************************************/
@@ -127,7 +126,7 @@ void Robot::ExecuteDNA()
     currbot = this;
     currgene = 0;
     CurrentCondFlag = NEXTBODY;
-    
+
     IntStack.pos = 0;
     IntStack.val[0] = 0;
 
@@ -175,13 +174,13 @@ void DNA_Class::Execute()
 #endif
         switch (this->Code[pointer].tipo)
         {
-            case 0: //number            
+            case btValue: //number
             {
                 if (CurrentFlow != CLEAR)
                     PushIntStack (this->Code[pointer].value);
                 break;
             }
-            case 1:
+            case btPointer:
             {
                 if (CurrentFlow != CLEAR && this->Code[pointer].value > 0 &&
                                             this->Code[pointer].value <= 1000)
@@ -194,55 +193,55 @@ void DNA_Class::Execute()
                 break;
             }
             
-            case 2:
+            case btBasicCommand:
             {
                 if (CurrentFlow != CLEAR)
                     ExecuteBasicCommand(this->Code[pointer].value);
                 break;
             }
             
-            case 3:
+            case btAdvancedCommand:
             {
                 if (CurrentFlow != CLEAR)
                     ExecuteAdvancedCommand(this->Code[pointer].value);
                 break;
             }
             
-            case 4:
+            case btBitwiseCommand:
             {
                 if (CurrentFlow != CLEAR)
                     ExecuteBitwiseCommand(this->Code[pointer].value);
                 break;
             }
 
-            case 5:
+            case btCondition:
             {
                 if (CurrentFlow == COND)
                     ExecuteConditions(this->Code[pointer].value);
                 break;
             }
 
-            case 6:
+            case btLogic:
             {
                 if (CurrentFlow == COND)
                     ExecuteLogic(this->Code[pointer].value);
                 break;
             }
 
-            case 7:
+            case btStores:
             {
                 if (CurrentFlow == BODY || CurrentFlow == ELSEBODY)
                     ExecuteStores(this->Code[pointer].value);
                 break;
             }
 
-            case 8:
+            case btReserved:
             {
                 //reserved for later type
                 break;
             }
 
-            case 9:
+            case btFlow:
             {
                 //execute flow command seeks forward until it finds executable DNA
                 ExecuteFlowCommands(this->Code[pointer].value);
@@ -256,7 +255,7 @@ void DNA_Class::Execute()
                 break;
             }
 
-            case 10:
+            case btMasterFlow:
             {
                 //ONLY end exists at this point, so this is sort of pointless
                 //ExecuteMasterFlow(this->Code[pointer].value);

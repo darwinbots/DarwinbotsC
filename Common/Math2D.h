@@ -5,6 +5,9 @@
 #define MATH2D_H
 
 #include <math.h>
+#include "Math3D.h"
+
+class Math3D::Vector4;
 
 namespace Math2D {
 
@@ -45,6 +48,7 @@ public:
 	Vector2 () {};
 	Vector2 (SCALAR a, SCALAR b): X(a),Y(b) {};
     explicit Vector2(SCALAR* initArray): X(initArray[0]),Y(initArray[1]) {};
+    Vector2 (const Math3D::Vector4& v4):X(v4.x()),Y(v4.y()){};
     
 	void set(const SCALAR &x, const SCALAR &y){ X = x; Y = y; }
 

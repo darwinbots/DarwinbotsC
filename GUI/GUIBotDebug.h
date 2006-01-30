@@ -79,7 +79,7 @@ class BotDebug_Window : public FXDialogBox
 {
     FXDECLARE(BotDebug_Window)
 
-    friend tempBot_typ;
+    friend class tempBot_typ;
 
     private:
     bool DEBUGMODE;

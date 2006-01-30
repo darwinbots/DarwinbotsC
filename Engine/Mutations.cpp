@@ -1,5 +1,38 @@
-#include "DNAClass.h"
+#include "Mutations.h"
 
+void cPointDeletion::mutate(DNA_Class& DNA)
+{
+    int length = DNA.length();
+    if(DBrand() > pow (param, length))
+    {
+        int pos = frnd(0, length-1);
+        DNA.Delete(pos, pos+1);
+    }
+}
+
+void cPointChange::mutate(DNA_Class& DNA)
+{
+    int length = DNA.length();
+    if(DBrand() > pow (param, length))
+    {
+        int pos = frnd(0, length-1);
+        vector<block>::iterator ptr = DNA.Code.begin()+pos;
+        *ptr=RandomBlock();
+    }
+}
+
+
+void cPointInsertion::mutate(DNA_Class& DNA)
+{
+    int length = DNA.length();
+    if(DBrand() > pow (param, length+1))
+    {
+        int pos = frnd(0,length);
+        DNA.Code.insert(DNA.Code.begin()+pos,RandomBlock());
+    }
+}
+
+//////////////////////// Old stuff below ///////////////////////
 struct MutationsType
 {
     long PointPerUnit;  //per x cycles
@@ -82,38 +115,6 @@ string &MutationType(MUTATIONS_UP mode)
 //'''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 //'''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
-bool DNA_Class::Mutate(bool reproducing = false) //returns wether we should mutate colors or not
-{
-    long delta;
-
-    delta = this->LastMut;
-
-    if (this->Mutables.Mutations == false)
-        return false;
-
-    if (!reproducing)
-    {
-        //if (this->Mutables.mutarray[PointUP] > 0) this->PointMutation();
-        //if (this->Mutables.mutarray[DelatUP] > 0) this->DeltaMut();
-    }
-    else
-    {
-        //if (this->Mutables.mutarray[CopyErrorUP] > 0) this->CopyError();
-        //if (this->Mutables.mutarray[InsertionUP] > 0) this->Insertion();
-        //if (this->Mutables.mutarray[ReversalUP] > 0) this->Reversal();
-        //if (this->Mutables.mutarray[TranslocationUP] > 0) this->Translocation();
-        //if (this->Mutables.mutarray[AmplificationUP] > 0) this->Amplification();
-        //if (this->Mutables.mutarray[MajorDeletionUP] > 0) this->MajorDeletion();
-        //if (this->Mutables.mutarray[MinorDeletionUP] > 0) this->MinorDeletion();
-    }
-
-    delta = this->LastMut - delta;
-
-    if (delta > 0)
-        return true; //mutate colors
-        
-    return false;
-}
 
 
 /*

@@ -3,7 +3,7 @@
 
 #include "SimOptions.h"
 
-string GetLine(ifstream &in);
+string GetLine(std::istream &in);
 bool ReadSett(const string &path, SimOptions &Options);
 bool BuildSysvars();
 

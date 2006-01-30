@@ -8,7 +8,6 @@
 #include <vector>
 #include "GUIMain.h"
 #include "../Engine/Robot.h"
-#include "../Engine/DNA_Execution.h"
 #include <FXToolBarShell.h>
 
 #include "GUIBotDebug.h"

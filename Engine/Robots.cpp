@@ -90,6 +90,9 @@ void Robot::Setup(datispecie *myspecies)
 
     this->DNA->LoadDNA(truePath + "\\" + myspecies->Name);
     this->DNA->Mutables = myspecies->Mutables;
+    //this->DNA->contMutations.push_back(new cPointInsertion(.001));
+    //this->DNA->contMutations.push_back(new cPointDeletion(.001));
+    //this->DNA->contMutations.push_back(new cPointChange(.001));
 }
 
 void Robot::init(datispecie *myspecies)
@@ -100,6 +103,8 @@ void Robot::init(datispecie *myspecies)
         this->Setup(myspecies);
 	this->SetMems();
 }
+
+
 
 void Robot::UpdateRadius()
 {
@@ -586,9 +591,9 @@ void Robot::Reproduction()
             if (baby != NULL)
             {
                 baby->DNA = new DNA_Class((*this->DNA));
-                baby->DNA->Mutables = this->DNA->Mutables;
+                /*baby->DNA->Mutables = this->DNA->Mutables;
                 baby->DNA->Mutations = this->DNA->Mutations;
-                baby->DNA->LastMutDetail = this->DNA->LastMutDetail;
+                baby->DNA->LastMutDetail = this->DNA->LastMutDetail;*/
 
                 //mutate DNA
 		        //mutate DNA in child bot

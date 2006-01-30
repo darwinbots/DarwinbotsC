@@ -9,23 +9,17 @@
 #include "Engine.h"
 #include "HardDriveRoutines.h"
 
+
+
 ofstream settingsout;
 
-void ReadSettPre2_4(ifstream &in, SimOptions &Options);
-bool VBTrue(ifstream &file);
-string GetLine(ifstream &in);
+void ReadSettPre2_4(istream &in, SimOptions &Options);
+//bool VBTrue(ifstream &file);
+string GetLine(istream &in);
 
 bool ReadSett(const string &path, SimOptions &Options)
 {
-	ifstream settingsin;
-
-	string line;
-	
-	//close file if it is already open
-	if (settingsin.is_open() != 0)
-		settingsin.close();
-
-	settingsin.open(path.c_str(), ios::in);
+	ifstream settingsin( path.c_str() );
 
 	if (settingsin.fail() == true)
 	{
@@ -39,7 +33,7 @@ bool ReadSett(const string &path, SimOptions &Options)
 	//if the first line reads "-3", then it's the C++ file version
 	//otherwise it's not a valid settings file
 
-	line = GetLine(settingsin);
+	string line = GetLine(settingsin);
 	
 	if (line == "-2")
 	{
@@ -60,7 +54,7 @@ bool ReadSett(const string &path, SimOptions &Options)
 	return true;
 }
 
-string GetLine(ifstream &in)
+string GetLine(istream &in)
 {
 	string line;
 	char buffer[1024];
@@ -74,12 +68,12 @@ string GetLine(ifstream &in)
 	return line;
 }
 
-double GrabNumber(ifstream &in)
+double GrabNumber(istream &in)
 {
 	return atof(GetLine(in).c_str());
 }
 
-string &GrabString(ifstream &in)
+string &GrabString(istream &in)
 {
 	static string line;
 	string saveto;
@@ -94,7 +88,7 @@ string &GrabString(ifstream &in)
 	return line;
 }
 
-bool GrabBool(ifstream &in)
+bool GrabBool(istream &in)
 {
 	if (GetLine(in) == "#TRUE#")
 		return true;
@@ -105,13 +99,12 @@ bool GrabBool(ifstream &in)
 //disable warnings about conversions
 #pragma warning(disable : 4244)
 #endif
-void ReadSettPre2_4(ifstream &in, SimOptions &Options)
+void ReadSettPre2_4(istream &in, SimOptions &Options)
 {
 	string line;
 	unsigned int x = 0;
 
-	Options.SpeciesNum = GrabNumber(in);
-	Options.SpeciesNum++;
+	Options.SpeciesNum = (unsigned int)(GrabNumber(in)) + 1;
 
 	for (x = 0; x < Options.SpeciesNum; x++)
 	{
@@ -292,17 +285,10 @@ void ReadSettPre2_4(ifstream &in, SimOptions &Options)
 
 bool BuildSysvars()
 {
-    ifstream in;
-    string path, line;
+    string line;
 
-    path = Engine.MainDir() + "\\sysvars2.4.txt";
-
-    //attempt to open file
-    //close file if it is already open
-	if (in.is_open() != 0)
-		in.close();
-
-	in.open(path.c_str(), ios::in);
+    std::string path = Engine.MainDir() + "\\sysvars2.4.txt";
+	ifstream in(path.c_str() );
 
     if (in.fail() == true)
     {
@@ -332,21 +318,18 @@ bool BuildSysvars()
 
 bool DNA_Class::LoadDNA(string path)
 {
-    ifstream in;
-
-    in.open(path.c_str(), ios::in);
-
-	if (in.fail() == true)
+    ifstream DNAfile(path.c_str() );
+	if (DNAfile.fail() == true)
 	{
 		//this isn't a valid settings file
 		std::cout << "Robot file " << path.c_str() << " not found." << endl;
-		in.close();
+		DNAfile.close();
 		return false;
 	}
     
-    this->LoadDNA(in);
+    this->LoadDNA(DNAfile);
     
-    in.close();
+    DNAfile.close();
     return true;
 }
 
@@ -384,15 +367,8 @@ bool LoadSysvars() {
 };
 
 bool LoadSysvars(std::string path) {
-  vector<string> tokenList;
-  ifstream in;
-
-  //attempt to open file
-  //close file if it is already open
-	if (in.is_open() != 0)
-		in.close();
-
-	in.open(path.c_str(), ios::in);
+    vector<string> tokenList;
+    ifstream in(path.c_str() );
 
     if (in.fail() == true)
     {
@@ -401,30 +377,30 @@ bool LoadSysvars(std::string path) {
 		    in.close();
 		    return false;
     }
-  tokenList=tokenize(in);
-  if (tokenList.size() % 2 == 1) return false;
+    tokenList=tokenize(in);
+    if (tokenList.size() % 2 == 1) return false;
 
-  vector<string>::iterator tIter;
-  pair<string,short> tmpPair;
-  for(tIter = tokenList.begin(); tIter!=tokenList.end(); tIter++){
-    tmpPair.first=*tIter;
-    tIter++;
-    if(!from_string<short>(tmpPair.second, *tIter, std::dec)) {
-      std::cout<<"from_string failed while loading sysvars."<<std::endl;
-      return false;
+    vector<string>::iterator tIter;
+    pair<string,short> tmpPair;
+    for(tIter = tokenList.begin(); tIter!=tokenList.end(); tIter++){
+        if(!from_string<short>(tmpPair.second, *tIter, std::dec)) {
+            std::cout<<"from_string failed while loading sysvars."<<std::endl;
+            return false;
+        }
+        tIter++;
+        tmpPair.first=*tIter;
+        vSysvars.push_back(tmpPair);
     }
-    vSysvars.push_back(tmpPair);
-  }
   
   int i=0;
   
   //the below gives me errors.  Probably has to do with iostream.h instead of
   //iostream  Moving this to a seperate file may cure this issue. - Numsgil
-  /*for(vector<pair<string,__int16> >::iterator tIter = vSysvars.begin(); tIter!=vSysvars.end(); tIter++){
-    sysvar[i].name=tIter->first;
-    sysvar[i].value=tIter->second;
+  for(vector<pair<string,__int16> >::iterator iter = vSysvars.begin(); iter!=vSysvars.end(); ++iter){
+    sysvar[i].name=iter->first;
+    sysvar[i].value=iter->second;
     i++;
-  }*/
+  }
   
   maxsysvar=vSysvars.size();
   return true;

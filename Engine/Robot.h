@@ -61,6 +61,7 @@ private:
     Vector4 oldImpulse;
 	float ImpulseStatic;					// static force scalar (always opposes current forces)
     Vector4 temppos;                        // a temporary vector to store for projection collision
+public:
 
 	bool Veg;								// is it a vegetable?
 	bool Wall;								// is it a wall?
@@ -69,7 +70,7 @@ private:
 	bool Dead;								// Allows program to define a robot; dead after a certain operation
 	bool Multibot;        					// Is robot part of a multi-bot
     bool NewMove;                           // does this bot use the new movement controls or is it a pussy?
-
+private:
 	int occurr[20];							// array with the ref* values
 	
 	//Contents of cell
