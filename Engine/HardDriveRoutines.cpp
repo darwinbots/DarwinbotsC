@@ -1,9 +1,4 @@
-#ifdef _MSC_VER
-#include <iostream.h>  //must be iostream.h and not iostream, otherwise ios::nocreate doesn't exist
-#else
 #include <iostream>
-#endif
-
 #include <fstream>
 #include <string>
 #include <cmath>
@@ -30,11 +25,7 @@ bool ReadSett(const string &path, SimOptions &Options)
 	if (settingsin.is_open() != 0)
 		settingsin.close();
 
-	settingsin.open(path.c_str(),
-        #ifdef _MSC_VER
-        ios::nocreate |
-        #endif
-        ios::in);
+	settingsin.open(path.c_str(), ios::in);
 
 	if (settingsin.fail() == true)
 	{
@@ -110,6 +101,10 @@ bool GrabBool(ifstream &in)
 	return false;
 }
 
+#ifdef _MSC_VER
+//disable warnings about conversions
+#pragma warning(disable : 4244)
+#endif
 void ReadSettPre2_4(ifstream &in, SimOptions &Options)
 {
 	string line;
@@ -290,6 +285,11 @@ void ReadSettPre2_4(ifstream &in, SimOptions &Options)
 		Options.FieldDimensions.set(Options.FieldDimensions.x(), 12000, Options.FieldDimensions.z());
 }
 
+#ifdef _MSC_VER
+//enable warnings about conversions
+#pragma warning(default: 4244)
+#endif
+
 bool BuildSysvars()
 {
     ifstream in;
@@ -302,11 +302,7 @@ bool BuildSysvars()
 	if (in.is_open() != 0)
 		in.close();
 
-	in.open(path.c_str(),
-        #ifdef _MSC_VER
-        ios::nocreate |
-        #endif
-        ios::in);
+	in.open(path.c_str(), ios::in);
 
     if (in.fail() == true)
     {
@@ -338,11 +334,7 @@ bool DNA_Class::LoadDNA(string path)
 {
     ifstream in;
 
-    in.open(path.c_str(),
-    #ifdef _MSC_VER
-    ios::nocreate |
-    #endif
-    ios::in);
+    in.open(path.c_str(), ios::in);
 
 	if (in.fail() == true)
 	{
@@ -400,11 +392,7 @@ bool LoadSysvars(std::string path) {
 	if (in.is_open() != 0)
 		in.close();
 
-	in.open(path.c_str(),
-        #ifdef _MSC_VER
-        ios::nocreate |
-        #endif
-        ios::in);
+	in.open(path.c_str(), ios::in);
 
     if (in.fail() == true)
     {

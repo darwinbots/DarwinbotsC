@@ -351,7 +351,7 @@ bool iswhitespace(char c)
 }
 
 
-int NextWord(string &text, int pos = 0)
+int NextWord(string &text, unsigned int pos = 0)
 {
     while(text.size() != pos && !iswhitespace(text.at(pos)))
         pos++;
@@ -394,7 +394,7 @@ void tempBot_typ::Update(Robot *bot)
     if(iswhitespace(text.at(0)))
         text_position = NextWord(text);
     
-    for(int z = 0; z < this->DNA_pos; z++)
+    for(unsigned int z = 0; z < this->DNA_pos; z++)
         text_position = NextWord(text, text_position);
     
     //while(MainWindowHandle->BotDebug->DNATextBox->

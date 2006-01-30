@@ -20,7 +20,7 @@ void Robot::FeedVegWaste()
 
 void Robot::FeedVegSun()
 {
-    static long counter=0;
+    static unsigned long counter=0;
     int daymod;
     float depth=0, tok=0;
 
@@ -57,7 +57,7 @@ void Robot::FeedVegSun()
             if (depth < 1)
                 depth = 1;
 
-            tok = (SimOpts.LightIntensity / pow(depth, SimOpts.Gradient) * daymod + 1);
+            tok = (SimOpts.LightIntensity / powf(depth, SimOpts.Gradient) * daymod + 1);
         }
         else
         {

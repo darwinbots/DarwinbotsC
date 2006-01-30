@@ -1,5 +1,13 @@
+#include "Engine.h"
 #include "Shots.h"
 #include "SimOptions.h"
+
+#define SHOTDECAY 40.0f //increase to have shots lose power slower
+
+//this below is horribly complicated:  allow me to explain:
+//nrg dissipates in a non-linear fashion.  Very little nrg disappears until you
+//get near the last 10% of the journey or so.
+#define POWERMULTIPLIER(age, range) (atanf(float(age)/float(range) * SHOTDECAY - SHOTDECAY) / atanf(-SHOTDECAY))
 
 /****************************************
 Presently, shots have the following physical characteristics:
@@ -16,7 +24,7 @@ Shot *shots[5000];
 
 void FindOpenSpace(Shot *me) //finds spot for robot in array, returns pointer to said robot
 {
-	int firstopenspot=0;
+	unsigned int firstopenspot=0;
 
 	while(shots[firstopenspot] != NULL && firstopenspot <= MaxShots)
 	{
@@ -43,6 +51,7 @@ void Shot::CreateShotBasic()
     age = 0;
     pos.set(0,0);
     opos.set(0,0);
+    vel.set(0,0);
     color = Vector4(0,0,1.0f);
     Memloc = Memval = 0;
     value = shottype = 0;
@@ -60,12 +69,10 @@ Shot::Shot(Robot *parent)
     this->parent = parent->AbsNum;
     //this->color  = parent->color;
     
-    //we don't need velocity.  Verlet integration handles all that
     this->pos = parent->pos + parent->rad() * parent->aimvector;
-    this->opos = parent->opos + parent->rad() * parent->aimvector;
-    
     float angle = (parent->aim * 200 + frnd(-20, 20)) / 200;
-    this->opos = this->opos - Vector4(cos(angle), sin(angle)) * 40;
+    this->vel = parent->vel + Vector4(cosf(angle), sinf(angle)) * 40;
+    this->opos = this->pos;
 }
 
 Shot::~Shot()
@@ -102,6 +109,10 @@ void Shot::CreateNRGStealingShot(Robot *parent)
 void Shot::CreateNRGGivingShot(Robot *parent)
 {
     this->shottype = -2;
+    this->parent = parent->AbsNum;
+    this->age = 0;
+    this->range = 20;
+    this->color.set(1.0f,1.0f, 1.0f);
 }
 
 void Shot::CreateVenomShot(Robot *parent)
@@ -139,8 +150,9 @@ void Shot::UpdatePos()
 
     temp = this->pos;
 
-    this->pos = 2 * this->pos - this->opos - Vector4(0, SimOpts.YGravity);
-    this->opos = temp;
+    this->opos = this->pos;
+    this->vel += Vector4(0, SimOpts.YGravity);
+    this->pos += this->vel;
 }
 
 void Shot::UpdateShot()
@@ -164,14 +176,6 @@ void Shot::UpdateShot()
             return; //baby bots immune to parents' shots at first
 
         //taste shot
-
-        //bounce shot
-        Vector4 temp = opos;
-        opos = pos;
-        pos = temp;
-        this->parent = collide->AbsNum;
-        this->age = 0;
-        this->color.set(0,1.0f, 0);
 
         //Infoshots
         if (this->shottype > 0 && this->shottype != DelgeneSys)
@@ -211,7 +215,7 @@ Robot *Shot::ShotColl()
     MagAB = Length3(ab);
     
     //search through all bots to find one that's collided with us
-    for (int x = 0; x <= MaxRobs; x++)
+    for (unsigned int x = 0; x <= MaxRobs; x++)
     {
         if (rob[x] != NULL)
         {
@@ -246,9 +250,8 @@ Robot *Shot::ShotColl()
             else
             {
                 //this is rarely, if ever called.  Primarily
-                //a error catching routine
-                //the absolute velocity of the shot would have to
-                //be 0
+                //an error catching routine
+                //the speed of the shot would have to be 0
                 dist = LengthSquared3(bc);
             }
 
@@ -270,7 +273,7 @@ void Shot::CollideInfoShot(Robot *collide)
         this->value > 100)
         this->value = 100;
     
-    nrg = atan((this->age - 1)/ this->range * SHOTCONST - SHOTCONST) / atan(-SHOTCONST);
+    nrg = atanf((this->age - 1)/ this->range * SHOTCONST - SHOTCONST) / atanf(-SHOTCONST);
     nrg *= this->value;
 
     if (nrg < collide->Poison * 2)
@@ -286,69 +289,68 @@ void Shot::CollideInfoShot(Robot *collide)
 
 void Shot::CollideFeedingShot(Robot *collide)
 {
-    Vector4 temp = this->opos;
+    float power;
+    
+    
+    //There might be a better vector to return the shot along, but if there is I don't know it.
+    this->vel = -this->vel;
+    this->age = 0; //reset the age of the returning shot
 
-    //this->opos = this->pos;
-    //this->pos = temp;
-  
-  /*vel = VectorScalar(VectorSub(rob(n).vel, Shots(t).velocity), 0.5) 'half the relative velocity of
-                                                                     'the shot to the hit bot
-  vel = VectorAdd(vel, rob(n).vel) 'then add in the velocity of hit robot
-  
-  If SimOpts.EnergyExType Then
-    power = Shots(t).value * Shots(t).nrg / (Shots(t).range * (RobSize / 3)) * SimOpts.EnergyProp
-    If Shots(t).nrg < 0 Then Exit Sub
-  Else
-    power = SimOpts.EnergyFix
-  End If
-  
-  If rob(n).nrg < 0 Then Exit Sub
-  
-  If power > (rob(n).nrg / 0.9 + rob(n).poison) Then
-    power = rob(n).nrg / 0.9 + rob(n).poison
-  End If
-  
-  If rob(n).Corpse Then power = power * 0.5 'half power against corpses.  Most of your shot is wasted
-  
-  range = Shots(t).range     'returned energy shots have the same range as the shot that it came from
-  
-  If rob(n).poison > power Then 'create poison shot
-    createshot Shots(t).pos.x, Shots(t).pos.y, vel.x, vel.y, -5, n, power, range * (RobSize / 3), vbYellow
-    rob(n).Waste = rob(n).Waste + (power * 0.1)
-    rob(n).poison = rob(n).poison - (power * 0.9)
-    If rob(n).poison < 0 Then rob(n).poison = 0
-    rob(n).mem(poison) = rob(n).poison
-  Else ' create energy shot
-    createshot Shots(t).pos.x, Shots(t).pos.y, vel.x, vel.y, -2, n, power, range * (RobSize / 3), vbWhite
-    rob(n).nrg = rob(n).nrg - power * 0.9  'some of shot comes from nrg
-    rob(n).BODY = rob(n).BODY - power * 0.01 'some of shot comes from body
-    rob(n).radius = FindRadius(rob(n).BODY)
-  End If
-  
-  If rob(n).BODY < 0 Or rob(n).nrg < 0 Then
-    rob(Shots(t).parent).Kills = rob(Shots(t).parent).Kills + 1
-    rob(Shots(t).parent).mem(220) = rob(Shots(t).parent).Kills
-  End If
-  */   
+    CreateNRGGivingShot(collide);
+
+    if(SimOpts.EnergyExType == true) power = this->value * 
+        POWERMULTIPLIER(this->age, this->range) * SimOpts.EnergyProp;
+    else power = (float)SimOpts.EnergyFix;
+
+    if(collide->Corpse)
+        power *= 0.5f; //half power against corpses.  Most of your shot is wasted
+
+    if(power > collide->nrg / 0.9f + collide->Poison)
+       power =  collide->nrg / 0.9f + collide->Poison;    
+
+    if(collide->Poison > power)//create poison shot
+    {
+        collide->Poison -= power * 0.9f;
+        if(collide->Poison < 0) collide->Poison = 0;
+    }
+    else //create energy shot
+    {
+        collide->nrg -= power * 0.9f;
+        if(collide->nrg < 0)
+            power += collide->nrg / 0.9f;
+
+        collide->Body -= power * 0.01f;
+        if(collide->Body < 0)
+            power += collide->Body / 0.01f;
+
+        if(power < 0)
+            power = 0.0f;
+
+        this->value = (__int16)power;
+    }
+
+    if(collide->Body <= 0 || collide->nrg <= 0)
+        FindSerialNumber(this->parent)->Kills++;
 }
 
 void Shot::CollideNrgShot(Robot *collide)
 {
-    /*
-    Dim partial As Long
-  
-  If rob(n).Corpse Then Exit Sub
-  
-  partial = Shots(t).nrg / (Shots(t).range * (RobSize / 3)) * Shots(t).value
-   
-  rob(n).nrg = rob(n).nrg + partial * 0.8       'most of energy goes to nrg
-  rob(n).BODY = rob(n).BODY + (partial * 0.019) 'a bit goes to body
-  rob(n).Waste = rob(n).Waste + partial * 0.01  'tiny amount goes to waste
-  If rob(n).nrg > 32000 Then rob(n).nrg = 32000
-  If rob(n).BODY > 32000 Then rob(n).BODY = 32000
-  Shots(t).Exist = False
-  rob(n).radius = FindRadius(rob(n).BODY)
-  */   
+    if(collide->Corpse)
+        return;
+
+    float partial = POWERMULTIPLIER(this->age, this->range) * this->value;
+
+    collide->nrg += partial * 0.8f;
+    collide->Body += partial * 0.019f;
+    collide->Waste += partial * 0.01f;
+    
+    if(collide->nrg > 32000)
+        collide->nrg = 32000;
+
+    if(collide->Body > 32000)
+        collide->Body = 32000;
+    
+    delete this;
 }
 
 void Shot::CollideVenomShot(Robot *collide)

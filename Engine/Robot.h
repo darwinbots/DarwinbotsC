@@ -50,21 +50,17 @@ private:
 
 	//Physical Attributes
 	float radius;
-    Vector4 temppos;                        // a temporary position used for verlet integration
-	//int Shape;                            // shape of the robot, how many sides
-
-	//int Skin[13];        					// skin definition
-	//int OSkin[13];       					// Old skin definition
-
+    
 	float aim;								// aim angle
 	Vector4 aimvector;                      // the unit vector for aim
 
 	TieList Ties;                           //linked list of ties
 	
 	//Physics
-	Vector4 ImpulseInd;                     // independant forces vector
-	Vector4 ImpulseRes;					    // Resistive forces vector
+	Vector4 Impulse;                        // impulses that get divided by mass to get forces
+    Vector4 oldImpulse;
 	float ImpulseStatic;					// static force scalar (always opposes current forces)
+    Vector4 temppos;                        // a temporary vector to store for projection collision
 
 	bool Veg;								// is it a vegetable?
 	bool Wall;								// is it a wall?
@@ -111,7 +107,7 @@ private:
 	DNA_Class *DNA;        					// the DNA
 
 	class Robot *lastopp;         	// pointer to const (last robot in eye5)
-	long AbsNum;             				// absolute robot number
+	unsigned long AbsNum;             				// absolute robot number
 
 	//console; Consoleform    				// console object;sociated to the robot
 
@@ -180,6 +176,8 @@ private:
     void BouyancyForces();
     void EdgeCollisions();
     void BotCollisions();
+    void PlanetEaters();
+    void UpdateAddedMass();
 
     //veg controls
     void FeedVegSun();
@@ -187,17 +185,17 @@ private:
 public:
     bool View;
 
-    Robot::Robot(datispecie *myspecies = NULL):radius(60.),
-                aim(0),aimvector(cos(aim),sin(aim)),
+    Robot::Robot(datispecie *myspecies = NULL):radius(60.0f),
+                aim(0.0f),aimvector(cosf(aim),sinf(aim)),
                 Ties(),
-                ImpulseInd(), ImpulseRes(), ImpulseStatic(),
+                Impulse(), ImpulseStatic(0.0f), oldImpulse(0.0f,0.0f,0.0f),
                 Veg(false),Wall(false),Corpse(false),Fixed(false),
                 Dead(false),Multibot(false),NewMove(false),
-                nrg(1000),onrg(nrg),
-                Body(1000),obody(Body),
-                AddedMass(0.),mass(1.),
-                Shell(0.),Slime(0.),Waste(0.),Pwaste(0.),Poison(0.),Venom(0.),
-                Paralyzed(false),ParaCount(0.),Vloc(0),Vval(0),
+                nrg(1000.0f),onrg(nrg),
+                Body(1000.0f),obody(Body),
+                AddedMass(0.0f),mass(1.0f),
+                Shell(0.0f),Slime(0.0f),Waste(0.0f),Pwaste(0.0f),Poison(0.0f),Venom(0.0f),
+                Paralyzed(false),ParaCount(0),Vloc(0),Vval(0),
                 Poisoned(false),PoisonCount(0),Ploc(0),
                 DecayTimer(0),Kills(0),
                 DNA(NULL),
@@ -209,7 +207,7 @@ public:
     {
         memset(&mem[0], 0, sizeof(mem));
         memset(&occurr[0], 0, sizeof(occurr));
-        init(myspecies);
+        init(myspecies);        
     }
 
     void init(datispecie *myspecies = NULL);      //be called whenever a bot is created

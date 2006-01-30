@@ -161,7 +161,7 @@ void Engine_Class::ExecuteShots()
 
 void FindOpenSpace(Robot *me) //finds spot for robot in array, returns pointer to said robot
 {
-	int firstopenspot=0;
+	unsigned int firstopenspot=0;
 
 	while(rob[firstopenspot] != NULL && firstopenspot <= MaxRobs)
 	{

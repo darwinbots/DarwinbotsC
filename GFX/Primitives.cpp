@@ -11,7 +11,7 @@ void CreatePoint(Vector4 c, float bigness)
 {
 	glPointSize(bigness);
 	glBegin(GL_POINTS);
-    glVertex3f(c.x(),c.y(),c.z());
+    glVertex3f(c.x(),c.y(), c.z());
 	glEnd();
 }
 

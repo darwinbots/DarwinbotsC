@@ -15,9 +15,14 @@ void DrawWorld(void)
 {
     //glShadeModel(GL_SMOOTH);
   
-    glBegin(GL_LINES);
-        glColor3f(1.0f,1.0f,1.0f);//,0.5f);			// Full Brightness, 50% Alpha ( NEW )
-        //glBlendFunc(GL_SRC_ALPHA,GL_ONE);
+    //can we use display lists for the spheres for teh bots and just scale them?  Is that faster?
+    DrawRobots();
+    DrawShots();
+
+    //Draw Ties
+
+	glBegin(GL_LINES);
+        glColor3f(1.0f,1.0f,1.0f);
         glVertex3f(0,0,0);
         glVertex3f(SimOpts.FieldDimensions.x(),0,0);
         glVertex3f(SimOpts.FieldDimensions.x(),0,0);
@@ -27,13 +32,6 @@ void DrawWorld(void)
         glVertex3f(0, SimOpts.FieldDimensions.y(), 0);
         glVertex3f(0,0,0);
     glEnd();
-    
-    //can we use display lists for the spheres for teh bots and just scale them?  Is that faster?
-    DrawRobots();
-    DrawShots();
-
-    //Draw Shots
-    //Draw Ties
 }
 
 void DrawRobots()
@@ -69,6 +67,7 @@ void DrawShots()
 
 void Robot::DrawRobotEye()
 {
+    //eyes are always white
     glColor3f(1,1,1);
-    CreatePoint(this->pos + this->aimvector * this->radius, 2);
+    CreatePoint(this->pos + this->aimvector * this->radius, 2);    
 }

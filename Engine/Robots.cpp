@@ -44,10 +44,10 @@ void Robot::BasicRobotSetup()
 	
 	//set random aim
 	aim = DBrand() * PI * 2;
-	aimvector.set(cos(aim), sin(aim));
+	aimvector.set(cosf(aim), sinf(aim));
 
 	this->BirthCycle = SimOpts.TotRunCycle;
-	(*this)[timersys] = frnd(-32000, 32000);
+	(*this)[timersys] = (__int16)frnd(-32000, 32000);
 
     this->View = false;
 }
@@ -61,15 +61,22 @@ void Robot::Setup(datispecie *myspecies)
 
 	//do I need to set up *.fixed?
 
-	this->pos.set( frnd((long)myspecies->PosTopLeft[0], (long)myspecies->PosLowRight[0]) ,
-				  frnd((long)myspecies->PosTopLeft[1], (long)myspecies->PosLowRight[1]), 0.0f);
-	this->opos = this->pos;
+	this->Impulse.set(0,0,0);
+    this->oldImpulse.set(0,0,0);
+    this->vel.set(0,0,0);
 
 	this->nrg = myspecies->nrg;
 	this->Body = 1000; //default body value
 
 	this->UpdateRadius();
 	this->UpdateMass();
+
+    this->pos.set((const float)frnd(long(myspecies->PosTopLeft[0] + this->radius),
+                                    long(myspecies->PosLowRight[0] - this->radius)),
+				  (const float)frnd(long(myspecies->PosTopLeft[1] + this->radius),
+                                    long(myspecies->PosLowRight[1] - this->radius)));
+	this->opos = this->pos;
+    this->temppos = this->pos;
 
 	this->Dead = false;
 
@@ -99,7 +106,7 @@ void Robot::UpdateRadius()
 	if (Body < 1)
 		radius = 1;
 	else
-		radius = pow((Body * CUBICTWIPPERBODY * 3 / 4 / PI), .3333333333333333f);
+		radius = powf((Body * CUBICTWIPPERBODY * 3 / 4 / PI), .3333333333333333f);
 }
 
 //be sure to call this when a bot is created and given stuff inside it
@@ -138,7 +145,7 @@ void Robot::UpdateAim()
 
 	if ((*this)[SetAim] == (*this)[Aimsys])
 	{
-		Aim = this->aim * 200.0 + (*this)[aimsx] - (*this)[aimdx];
+		Aim = this->aim * 200.0f + (*this)[aimsx] - (*this)[aimdx];
 	}
 	else
 	{
@@ -153,7 +160,7 @@ void Robot::UpdateAim()
 	Aim = Aim / 200;
 	this->aim = Aim;
 	
-	aimvector.set(cos(aim), sin(aim));
+	aimvector.set(cosf(aim), sinf(aim));
 
 	(*this)[aimdx] = 0;
 	(*this)[aimsx] = 0;
@@ -168,10 +175,10 @@ void Robot::UpdatePosition()
 	if ((*this)[fixpos] > 0) Fixed = true;
 	else Fixed = false;
 	
-	if (Fixed==false)
+	if (Fixed==true)
 	{
-		opos = pos;
-        pos = temppos;
+		pos = opos;
+        vel.set(0,0,0);
 	}
 
 	//clear bang commands
@@ -180,11 +187,7 @@ void Robot::UpdatePosition()
 	(*this)[dirdx] = 0;
 	(*this)[dirsx] = 0;
 	
-	//update velocity refvars
-	//these might be reversed of what they need to be, I'll need to expirement later
-	Vector4 vel = pos - opos;
-    
-    (*this)[velscalar] = iceil(Length3(vel));
+	(*this)[velscalar] = iceil(Length3(this->vel));
 	(*this)[velup] = iceil(vel * aimvector); //dot product of direction
 	(*this)[veldn] = -(*this)[velup];
 	(*this)[veldx] = iceil((vel % aimvector)); //the magnitude for a 2D vector crossed in 3D is the Z element
@@ -264,7 +267,7 @@ void Robot::MakeVenom()
 		cost = 0;
 
 	this->ChargeNRG(cost);
-	Waste += cost/10 * 0.4;  //making venom or poison produces slightly more waste
+	Waste += cost/10 * 0.4f;  //making venom or poison produces slightly more waste
 }
 
 void Robot::MakePoison()
@@ -288,7 +291,7 @@ void Robot::MakePoison()
 		cost = 0;
 
 	this->ChargeNRG(cost);
-	Waste += cost/10 * 0.4;  //making venom or poison produces slightly more waste
+	Waste += cost/10.0f * 0.4f;  //making venom or poison produces slightly more waste
 }
 
 void Robot::WasteManagement()
@@ -307,7 +310,7 @@ void Robot::WasteManagement()
 			if (x % 25 == 0 && DBrand() > .999) //(very small) chance of random death for large waste levels
 				Dead = true;					//note that this seems really small, but .999 ^ 693 < 50%, so after
 												//693 chances for death, a bot is only half likely to still be alive
-			(*this)[frnd(1,1000)] = frnd(-32000, 32000);
+			(*this)[(int)frnd(1,1000)] = (__int16)frnd(-32000, 32000);
 		}
 	}
 
@@ -411,7 +414,7 @@ void Robot::Aging()
 	//aging
 	age++;
 	
-	(*this)[robage] = iceil(age);
+	(*this)[robage] = iceil(float(age));
 	
 	//epigenetic timer.  It's okay if the robot modifies this memory location,
 	//we only guarentee that it'll increment each cycle and that it's value
@@ -596,14 +599,6 @@ void Robot::Reproduction()
             (*this)[mrepro] = 0;
         }    
     }
-
-	//If .mem(sexrepro) > 0 Then
-    //If .lastopp > 0 And rob(.lastopp).mem(sexrepro) > 0 Then
-    //  rep(rp) = -n
-    //  rep(rp + 1) = -.lastopp
-    //  rp = rp + 2
-    //End If
-	//End If
 }
 
 bool Robot::FireTie()
@@ -726,7 +721,7 @@ void Robot::ShotManagement()
 		return;
 
 	//set the multiplier given the expense
-	if (abs(value) >= 2) multiplier = log(abs(value)) / log(2);
+	if (abs(value) >= 2) multiplier = logf(float(abs(value))) / logf(2.0f);
 	else multiplier = 1.0f;
 
 	/////////////////////////////////////////////////////
@@ -734,16 +729,16 @@ void Robot::ShotManagement()
 	/////////////////////////////////////////////////////
 	if (type == -1 || type == -6)
 	{
-		unsigned long cost;
+		float cost;
 
-		cost = long((pow(2, multiplier) - 1) * SimOpts.Costs[SHOTCOST]);
+		cost = (powf(2, multiplier) - 1) * SimOpts.Costs[SHOTCOST];
 		if (cost <= this->nrg)
 		{
 			this->ChargeNRG(cost);
 		}
 		else
 		{
-			multiplier = log((nrg / SimOpts.Costs[SHOTCOST]) + 1) / log(2);
+			multiplier = logf((nrg / SimOpts.Costs[SHOTCOST]) + 1) / logf(2.0f);
 			this->ChargeNRG(this->nrg);
 		}
 	}
@@ -796,10 +791,7 @@ void Robot::ShotManagement()
 //returns pointer to baby, or NULL if error
 Robot* Robot::Split(float percentage)
 {
-	if(this->generation > 0)
-        return NULL;
-    
-    long sondist;
+	long sondist;
 	float babyradius;
 	float thisradius;
 	float Length;
@@ -832,8 +824,8 @@ Robot* Robot::Split(float percentage)
 	radius of baby = radius of birthing bot before birth * percentage^(1/3)
 	radius of this after birth = radius before birth * (1.0f - percentage) ^ (1/3)
 	******************************************************************/
-	babyradius = this->radius * pow(percentage, (1/3));
-	thisradius = this->radius * pow((1.0f - percentage), (1/3));
+	babyradius = this->radius * powf(percentage, (1.0f/3.0f));
+	thisradius = this->radius * powf((1.0f - percentage), (1.0f/3.0f));
 	Length = babyradius + thisradius;
 
 	thispos = this->pos - (percentage * Length * this->aimvector);
@@ -856,7 +848,7 @@ Robot* Robot::Split(float percentage)
 	if (baby->aim < 0)
 		baby->aim += 2 * PI;
 
-	baby->aimvector.set(cos(baby->aim), sin(baby->aim));
+	baby->aimvector.set(cosf(baby->aim), sinf(baby->aim));
 		
 	baby->Veg = this->Veg;
 	baby->Fixed = this->Fixed;
@@ -943,7 +935,7 @@ void Robot::SetMems()
 	(*this)[xpos] = iceil(this->pos.x()/120);
 	(*this)[ypos] = iceil(this->pos.y()/120);
 	
-	(*this)[maxvelsys] = iceil(SimOpts.MaxSpeed);
+	(*this)[maxvelsys] = iceil(float(SimOpts.MaxSpeed));
 
 	(*this)[masssys] = iceil(this->mass * 100);
 

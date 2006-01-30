@@ -19,9 +19,9 @@ void Robot::FacingSun()
 	depth = (this->pos.y() / 2000) + 1;
 	if (depth < 1) depth = 1;
 
-	lightfrompond = SimOpts.LightIntensity / pow(depth, SimOpts.Gradient) * SimOpts.Daytime;
+	lightfrompond = SimOpts.LightIntensity / powf(depth, SimOpts.Gradient) * SimOpts.Daytime;
 
-	(*this)[SUNsys] = iceil((SimOpts.LightIntensity + SimOpts.NrgCyc) * sin(aim));
+	(*this)[SUNsys] = iceil((SimOpts.LightIntensity + SimOpts.NrgCyc) * sinf(aim));
 
 	//we don't see negative brightness if we look downwards, we see 0.
 	if ((*this)[SUNsys] < 0)
@@ -45,9 +45,9 @@ void Robot::Touch(Robot *other, float distance)
 	angle = this->aimvector * dpos;
 
 	if (angle > 0)
-		angle = atan((this->aimvector % dpos) / angle);
+		angle = atanf((this->aimvector % dpos) / angle);
 	else
-		angle = atan((this->aimvector % dpos) / angle) + PI;
+		angle = atanf((this->aimvector % dpos) / angle) + PI;
 
 	if (angle < 0)
 		angle = angle + 2*PI;
@@ -59,9 +59,9 @@ void Robot::Touch(Robot *other, float distance)
 	angle = other->aimvector * dpos;
 
 	if (angle > 0)
-		angle = atan((other->aimvector % dpos) / angle);
+		angle = atanf((other->aimvector % dpos) / angle);
 	else
-		angle = atan((other->aimvector % dpos) / angle) + PI;
+		angle = atanf((other->aimvector % dpos) / angle) + PI;
 
 	if (angle < 0)
 		angle = angle + 2*PI;
@@ -150,7 +150,7 @@ void Robot::EraseSenses()
 //returns a pointer to the robot in lastopp
 Robot *Robot::BasicProximity()
 {
-	for (int counter = 0; counter <= MaxRobs; counter++)
+	for (unsigned int counter = 0; counter <= MaxRobs; counter++)
 	{
 		if (rob[counter] != this)
 			CompareRobots(rob[counter], 12);
@@ -170,6 +170,8 @@ void Robot::WriteSenses()
     (*this)[pleas] = iceil(nrg - onrg);
     (*this)[bodloss] = iceil(obody - Body);
     (*this)[bodgain] = iceil(Body - obody);
+    (*this)[Kills] = iceil((float)this->Kills);
+
     onrg = nrg;
     obody = Body;
 
@@ -186,7 +188,7 @@ void Robot::WriteRefVars(const Robot *lastopp)
 		(*this)[occurrstart + t] = lastopp->occurr[t];
 
 	(*this)[occurrstart + 9] = iceil(lastopp->nrg);
-	(*this)[occurrstart + 10]= iceil(lastopp->age);
+	(*this)[occurrstart + 10]= iceil((float)lastopp->age);
 
 	(*this)[in1] = (*lastopp)[out1];
 	(*this)[in2] = (*lastopp)[out2];
@@ -202,7 +204,7 @@ void Robot::WriteRefVars(const Robot *lastopp)
 
 	(*this)[refpoison] = (*lastopp)[poison];
 	(*this)[refvenom] = (*lastopp)[venomsys];
-	(*this)[refkills] = iceil(lastopp->Kills);
+	(*this)[refkills] = iceil((float)lastopp->Kills);
 
 	if (lastopp->Multibot == true)
 		(*this)[refmulti] = 1;
@@ -220,14 +222,14 @@ void Robot::WriteRefVars(const Robot *lastopp)
 	//these should be double checked
     Vector4 vel = (lastopp->pos - lastopp->opos) - (this->pos - this->opos);
 	(*this)[refvelup] = iceil(vel * this->aimvector);
-	(*this)[refveldn] = iceil((*this)[refvelup] * -1);
+	(*this)[refveldn] = iceil(float((*this)[refvelup] * -1));
 	
 	//these should be double checked
 	(*this)[refveldx] = iceil(this->aimvector % vel);
-	(*this)[refvelsx] = iceil((*this)[refveldx] * -1);
+	(*this)[refvelsx] = iceil(float((*this)[refveldx] * -1));
 
-	(*this)[refvelscalar] = iceil(sqrt((*this)[refvelup] * (*this)[refvelup] +
-                                       (*this)[refveldx] * (*this)[refveldx]));
+	(*this)[refvelscalar] = iceil(sqrtf(float((*this)[refvelup] * (*this)[refvelup] +
+                                        (*this)[refveldx] * (*this)[refveldx])));
 }
 
 void Robot::occurrList()
@@ -342,7 +344,7 @@ void Robot::CompareRobots(Robot *const other, const unsigned int field)
 	if (eyecellD == 0)
 		eyecellD = EyeStart + 1;
 
-	for (int x = eyecellD; x <= eyecellC; x++)
+	for (unsigned int x = eyecellD; x <= eyecellC; x++)
 	{
 		discheck = RobSize * 100 * mag;
 		if ((*this)[x] < discheck)

@@ -45,11 +45,11 @@ void ExecuteLogic(int n);
 __int32 StackCeil(float value)
 {
     if (value < -2147483648.0f)
-        return -2147483648;
+        return -(signed)2147483648;
     else if (value > 2147483647.0f)
         return 2147483647;
     else
-        return value;
+        return (__int32)value;
 }
 
 //intstack.pos points to the Least Upper Bound element of the stack
@@ -251,7 +251,7 @@ void DNA_Class::Execute()
                 //'  CurrentFlow = CLEAR
                 //'End If
 
-                (*currbot)[thisgene] = currgene;
+                (*currbot)[thisgene] = (__int16)currgene;
 
                 break;
             }
@@ -458,9 +458,9 @@ void findang()
     else
     {
         if (b < 0)
-            e = atan(b/a) + PI;
+            e = atanf(b/a) + PI;
         else
-            e = atan(b/a);        
+            e = atanf(b/a);        
     }
 
     if (e < 0)
@@ -478,7 +478,7 @@ void finddist()
 
     b = float(long(currbot->y()) - PopIntStack());
     a = float(long(currbot->x()) - PopIntStack());
-    c = sqrt(b*b+a*a);
+    c = sqrtf(b*b+a*a);
 
     PushIntStack(StackCeil(c));
 }
@@ -515,10 +515,10 @@ void DNAsqr()
 {
     float a;
 
-    a = PopIntStack();
+    a = (float)PopIntStack();
 
     if (a > 0)
-        PushIntStack(StackCeil(sqrt(a)));
+        PushIntStack(StackCeil(sqrtf(a)));
     else
         PushIntStack(0);
 }
@@ -534,17 +534,17 @@ void DNApow()
     
     c = pow(b,a);
 
-    PushIntStack(StackCeil(c));
+    PushIntStack(StackCeil(float(c)));
 }
 
 void DNApyth()
 {
     float a,b,c;
 
-    b = PopIntStack();
-    a = PopIntStack();
+    b = (float)PopIntStack();
+    a = (float)PopIntStack();
 
-    c = sqrt(a*a+b*b);
+    c = sqrtf(a*a+b*b);
     PushIntStack(StackCeil(c));
 }
 

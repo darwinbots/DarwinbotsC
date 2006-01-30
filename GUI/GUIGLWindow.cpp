@@ -80,7 +80,7 @@ long MainWindow::DrawScene(FXObject *, FXSelector, void *)
   GLdouble height = canvas->getHeight();
   GLdouble aspect = height>0 ? width/height : 1.0;
 
-  glViewport(0,0,width,height);
+  glViewport(0,0,(int)width,(int)height);
 
   glClearColor(0.0235294118f, 0.0705882353f, 0.3176470588f, 1.0);				// classic blue color
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );

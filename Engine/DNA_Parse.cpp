@@ -24,7 +24,7 @@ vector<pair<string,__int16> > vSysvars;
 ///////////////////////////////////////////////////////////////////////////
 string &DNA_Class::SysvarDetok(__int16 number)
 {
-    __int16 t;
+    unsigned __int16 t;
     char buffer[256];
     static string detok("UNKNOWN_SYMBOL");
 
@@ -45,13 +45,13 @@ string &DNA_Class::SysvarDetok(__int16 number)
 __int16 DNA_Class::SysvarTok(const string &in)
 {
     string a = in;
-    int t;
+    unsigned int t;
     
     if (a[0] == '.') //is indeed a sysvar
     {
         a = a.substr(1, a.size()); //get rid of the period
 
-        for (t = 0; t < maxsysvar; t++)
+        for (t = 0; t < (unsigned)maxsysvar; t++)
             if (sysvar[t].name == a)
                 return sysvar[t].value;
 

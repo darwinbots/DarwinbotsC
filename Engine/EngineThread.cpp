@@ -23,7 +23,7 @@ int EngineThread_Class::run()
             Flow.Add_Cycles(-1);
             x++;
         }
-        this->sleep(0, 5000000);
+        this->sleep(0, 1000000000 / 36);
         
         //update cyc/sec calculation at most once every quarter second
         if(float(clock() - elapsed_time) / float(CLOCKS_PER_SEC) >= .25f)
