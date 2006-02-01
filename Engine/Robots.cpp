@@ -104,7 +104,11 @@ void Robot::init(datispecie *myspecies)
 	this->SetMems();
 }
 
-
+void Robot::ExecuteDNA()
+{
+    if (this->DNA != NULL)
+        this->DNA->Execute(this);
+}
 
 void Robot::UpdateRadius()
 {

@@ -9,6 +9,7 @@ class Tie;
 
 #include "../Common/Math3D.h"
 #include "Robot.h"
+class Robot;
 
 /*Creating and deleting ties can be tricky because we have to make sure that
 both bots are simultaneously made aware of the tie's creation. Also, since only

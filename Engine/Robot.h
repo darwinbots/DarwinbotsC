@@ -6,7 +6,7 @@
 #endif
 
 //we stick this up here or else we get a semi-infinite loop of including between this and tie.h
-class Robot;
+//class Robot;
 
 #include <iostream>
 #include <vector>

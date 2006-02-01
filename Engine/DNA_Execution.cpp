@@ -12,7 +12,8 @@ TODO: be sure DNA costs are being exacted
 ******************************************/
 
 //the conditions stack
-boolstack_type Condst;
+BoolStack condStack;
+const int BoolStack::BOOLSTACK_MAX = 20;
 
 //the integer stack
 intstack_type IntStack;
@@ -21,7 +22,7 @@ FlowType CurrentFlow;
 
 bool CurrentCondFlag;
 
-Robot *currbot;
+Robot* currbot;
 unsigned long currgene;
 
 /*********************************************
@@ -29,7 +30,6 @@ FUNCTION PROTOTYPES
 ************************************************/
 
 bool ExecuteFlowCommands(int n);
-bool AddupCond();
 void ExecuteBasicCommand(int n);
 void ExecuteAdvancedCommand(int n);
 void ExecuteBitwiseCommand(int n);
@@ -89,53 +89,52 @@ __int32 PopIntStack(void)
     return IntStack.val[IntStack.pos];
 }
 
-void PushBoolStack(bool value)
+//////////////////////////////////////////////
+///////////// BoolStack class ////////////////
+//////////////////////////////////////////////
+void BoolStack::push(const bool& value)
 {
-    if (Condst.pos >= 21) //next push will overfill
-    {
-        for (int a = 0; a < 20; a++)
-            Condst.val[a] = Condst.val[a+1];
-
-        Condst.val[20] = 0;
-        Condst.pos = 20;
-    }
-
-    Condst.val[Condst.pos] = value;
-    Condst.pos++;
+    val.push_front(value);
+    if(val.size() > BOOLSTACK_MAX)
+        val.pop_back();
 }
 
-int PopBoolStack(void)
+bool BoolStack::pop()
 {
-    Condst.pos--;
-
-    if (Condst.pos < 0)
+    if ( this->val.empty() )
+        return true;
+    else
     {
-        Condst.pos = 0;
-        return -5;
+        bool res = val.front();
+        val.pop_front();
+        return res;
     }
+}
 
-    return Condst.val[Condst.pos];
+bool BoolStack::Addup()
+{
+    bool returnme = true;
+    for(deque<bool>::iterator ptr=val.begin();ptr!=val.end();++ptr)
+    {
+        returnme = returnme && *ptr;
+    }
+    val.clear();
+    return returnme;
 }
 
 ////////////////////////////////////////////
 ////////////////////////////////////////////
 ////////////////////////////////////////////
 
-void Robot::ExecuteDNA()
+void DNA_Class::Execute(Robot* bot)
 {
-    currbot = this;
+    currbot=bot;
     currgene = 0;
     CurrentCondFlag = NEXTBODY;
 
     IntStack.pos = 0;
     IntStack.val[0] = 0;
-
-    if (this->DNA != NULL)
-        this->DNA->Execute();
-}
-
-void DNA_Class::Execute()
-{
+    
     unsigned long pointer=0;
 
     while(this->Code[pointer] != DNA_END)
@@ -512,9 +511,7 @@ void DNAfloor()
 
 void DNAsqr()
 {
-    float a;
-
-    a = (float)PopIntStack();
+    float a = (float)PopIntStack();
 
     if (a > 0)
         PushIntStack(StackCeil(sqrtf(a)));
@@ -526,24 +523,20 @@ void DNAsqr()
 //possibly buggy post C++ port
 void DNApow()
 {
-    double a,b,c;
-
-    b = PopIntStack();
-    a = PopIntStack();
+    double b = PopIntStack();
+    double a = PopIntStack();
     
-    c = pow(b,a);
+    double c = pow(b,a);
 
     PushIntStack(StackCeil(float(c)));
 }
 
 void DNApyth()
 {
-    float a,b,c;
+    float b = (float)PopIntStack();
+    float a = (float)PopIntStack();
 
-    b = (float)PopIntStack();
-    a = (float)PopIntStack();
-
-    c = sqrtf(a*a+b*b);
+    float c = sqrtf(a*a+b*b);
     PushIntStack(StackCeil(c));
 }
 
@@ -685,61 +678,33 @@ void ExecuteBitwiseCommand(int n)
 //'''''''''''''''''''''''''''''''''''''''
 //'''''''''''''''''''''''''''''''''''''''
 
-void Min()
-{
-    PushBoolStack(PopIntStack() > PopIntStack());
-}
-
-void magg()
-{
-    PushBoolStack(PopIntStack() < PopIntStack());
-}
-
-void equa()
-{
-    PushBoolStack(PopIntStack() == PopIntStack());
-}
-
-void diff()
-{
-    PushBoolStack(PopIntStack() != PopIntStack());
-}
-
-void minequal()
-{
-    PushBoolStack(PopIntStack() >= PopIntStack());
-}
-
-void maggequal()
-{
-    PushBoolStack(PopIntStack() <= PopIntStack());
-}
-
 void ExecuteConditions(int n)
 {
+    bool cond = true;
     switch(n)
     {
-        case 1:
-            Min();
+        case 1: // <
+            cond = (PopIntStack() > PopIntStack());
             break;
-        case 2:
-            magg();
+        case 2: // >
+            cond = (PopIntStack() < PopIntStack());
             break;
-        case 3:
-            equa();
+        case 3: // =
+            cond = (PopIntStack() == PopIntStack());
             break;
-        case 4:
-            diff();
+        case 4: // !=
+            cond = (PopIntStack() != PopIntStack());
             break;
         case 5: //>=
-            maggequal();
+            cond = (PopIntStack() >= PopIntStack());
             break;
         case 6: //<=
-            minequal();
+            cond = (PopIntStack() <= PopIntStack());
             break;
         default:
             break;
     }
+    condStack.push(cond);
 }
 
 
@@ -749,35 +714,21 @@ void ExecuteConditions(int n)
 
 void ExecuteLogic(int n)
 {
-    int a,b;
-    
-    b = PopBoolStack();
-    
-    if (b != 5) switch(n)
+    bool b = condStack.pop();
+
+    switch(n)
     {
         case 1: //and
-            a = PopBoolStack();
-            if (a != 5)
-                PushBoolStack(a && b);
-            else
-                PushBoolStack(b && b);
+            condStack.push( condStack.pop() && b );
             break;
         case 2: //or
-            a = PopBoolStack();
-            if (a != 5)
-                PushBoolStack(a || b);
-            else
-                PushBoolStack(b || b);
+            condStack.push( condStack.pop() || b );
             break;
         case 3: //xor
-            a = PopBoolStack();
-            if (a != 5)
-                PushBoolStack((a ^ b) != 0);
-            else
-                PushBoolStack(b && b);
+            condStack.push( condStack.pop() ^ b );
             break;
         case 4:
-            PushBoolStack(b == 0);
+            condStack.push( !b );
             break;
         default:
             break;
@@ -861,7 +812,7 @@ bool ExecuteFlowCommands(int n)
             //'this is supposed to come before case 2 and 3, since these commands
             //'must be executed before start and else have a chance to go
             if (CurrentFlow == COND)
-                CurrentCondFlag = AddupCond();
+                CurrentCondFlag = condStack.Addup();
             CurrentFlow = CLEAR;
 
             switch(n)
@@ -886,21 +837,6 @@ bool ExecuteFlowCommands(int n)
     }
 
     return false;
-}
-
-bool AddupCond()
-{
-    int a;
-    bool returnme=true;
-
-    a = PopBoolStack();
-    while(a != -5)
-    {
-        returnme = returnme && a;
-        a = PopBoolStack();
-    }
-
-    return returnme;
 }
 
 /*'''''''''''''''''''''''''''''''''''''''''''

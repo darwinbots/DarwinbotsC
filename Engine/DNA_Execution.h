@@ -3,13 +3,19 @@
 
 #include "DNAClass.h"
 #include "Robot.h"
+#include <deque>
 
 //the conditions stack
-struct boolstack_type
+class BoolStack
 {
-    bool val[21];
-    int pos;
-}extern Condst;
+    std::deque<bool> val;
+    static const int BOOLSTACK_MAX;
+public:
+    bool pop();
+    bool Addup();   //empties the stack and ANDs everything together
+    void push(const bool& value);
+};
+
 
 //the integer stack
 struct intstack_type

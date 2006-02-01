@@ -9,8 +9,11 @@
 #include "specie.h"
 #include "Block.h"
 #include "Mutations.h"
+class Robot;
+//#include "Robot.h"
 
 using namespace std;
+
 
 template <class T>
 bool from_string(T &t,
@@ -72,7 +75,7 @@ public: //stupid VC++ 6.0 doesn't handle friend functions
 
     string &text(); //parse into a string
     bool LoadDNA(string path);
-    void Execute();
+    void Execute(Robot* bot);
 };
 
 inline istream& operator>>(istream& input, DNA_Class& newDNA)
