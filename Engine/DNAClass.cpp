@@ -91,7 +91,7 @@ bool DNA_Class::Delete(int start, int end)
 
 bool DNA_Class::Mutate(bool reproducing) //returns wether we should mutate colors or not
 {
-    long oldMut = this->LastMut;
+    unsigned long oldMut = this->LastMut;
 
     /*if (this->Mutables.Mutations == false)
         return false;*/

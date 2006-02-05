@@ -474,12 +474,12 @@ std::string& block::text(bool converttosysvar) const
 
 block randomValue()
 {
-    return block(btValue,frnd(1,1000));
+    return block(btValue,(__int16)frnd(1,1000));
 }
 
 block randomPointer()
 {
-    return block(btPointer,frnd(1,1000));
+    return block(btPointer,(__int16)frnd(1,1000));
 }
 
 block randomCommand()
@@ -488,19 +488,21 @@ block randomCommand()
     switch(typeval)
     {
         case 2:
-            return block(btBasicCommand,frnd(1,10));
+            return block(btBasicCommand,(__int16)frnd(1,10));
         case 3:
-            return block(btAdvancedCommand,frnd(1,6));
+            return block(btAdvancedCommand,(__int16)frnd(1,6));
         case 4:
-            return block(btBitwiseCommand,frnd(1,9));
+            return block(btBitwiseCommand,(__int16)frnd(1,9));
         case 5:
-            return block(btCondition,frnd(1,6));
+            return block(btCondition,(__int16)frnd(1,6));
         case 6:
-            return block(btLogic,frnd(1,4));
+            return block(btLogic,(__int16)frnd(1,4));
         case 7:
-            return block(btStores,frnd(1,3));
+            return block(btStores,(__int16)frnd(1,3));
         case 8:
-            return block(btFlow,frnd(1,4));
+            return block(btFlow,(__int16)frnd(1,4));
+        default:
+            return block(btNONE, (__int16)-1);
     }
 }
 

@@ -259,8 +259,8 @@ void ReadSettPre2_4(istream &in, SimOptions &Options)
 	
 	/*if (!in.eof())
 	{
-		::cout << "This settings file is to a newer version." << endl;
-		::cout << "Not all the information contained in it can be transfered to this version." << endl;
+		cout << "This settings file is to a newer version." << endl;
+		cout << "Not all the information contained in it can be transfered to this version." << endl;
 		unsigned int k=0;
 
 		while(!in.eof())
@@ -269,13 +269,15 @@ void ReadSettPre2_4(istream &in, SimOptions &Options)
 			k++;
 		}
 
-		::cout << k << " lines were not grabed." << endl;
+		cout << k << " lines were not grabed." << endl;
 	}*/
 
 	if (Options.FieldDimensions.x() == 0)
 		Options.FieldDimensions.set(16000, Options.FieldDimensions.y(), Options.FieldDimensions.z());
 	if (Options.FieldDimensions.y() == 0)
 		Options.FieldDimensions.set(Options.FieldDimensions.x(), 12000, Options.FieldDimensions.z());
+    if (SimOpts.BadWasteLevel == 0)
+        SimOpts.BadWasteLevel = 400;
 }
 
 #ifdef _MSC_VER
