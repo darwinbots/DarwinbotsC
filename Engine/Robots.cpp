@@ -76,8 +76,7 @@ void Robot::Setup(datispecie *myspecies)
 				  (const float)frnd(long(myspecies->PosTopLeft[1] + this->radius),
                                     long(myspecies->PosLowRight[1] - this->radius)));
 	this->opos = this->pos;
-    this->temppos = this->pos;
-
+    
 	this->Dead = false;
 
 	this->color = myspecies->color;

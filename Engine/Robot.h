@@ -57,10 +57,11 @@ private:
 	TieList Ties;                           //linked list of ties
 	
 	//Physics
-	Vector4 Impulse;                        // impulses that get divided by mass to get forces
+	Vector4 ovel;
+    Vector4 Impulse;                        // impulses that get divided by mass to get forces
     Vector4 oldImpulse;
 	float ImpulseStatic;					// static force scalar (always opposes current forces)
-    Vector4 temppos;                        // a temporary vector to store for projection collision
+
 public:
 
 	bool Veg;								// is it a vegetable?
@@ -175,11 +176,10 @@ private:
     void GravityForces();
     void BrownianForces();
     void BouyancyForces();
-    void EdgeCollisions();
-    void BotCollisions();
+    void BotCollisionsVel();
     void PlanetEaters();
     void UpdateAddedMass();
-
+    
     //veg controls
     void FeedVegSun();
 
@@ -217,7 +217,12 @@ public:
 	~Robot();
 	void TurnGenesis();
 	void PreTurn();
-	void Constraints();
+	
+    void Integrate();
+    void EdgeCollisions();
+    void BotCollisionsPos();
+    void VelocityCap();
+    
     void DuringTurn();
 	void PostTurn();
 	void TurnCleanup();

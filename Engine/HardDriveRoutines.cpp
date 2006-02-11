@@ -278,6 +278,8 @@ void ReadSettPre2_4(istream &in, SimOptions &Options)
 		Options.FieldDimensions.set(Options.FieldDimensions.x(), 12000, Options.FieldDimensions.z());
     if (SimOpts.BadWasteLevel == 0)
         SimOpts.BadWasteLevel = 400;
+    if (SimOpts.MaxSpeed == 0)
+        SimOpts.MaxSpeed = 60;
 }
 
 #ifdef _MSC_VER

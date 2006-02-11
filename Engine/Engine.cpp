@@ -33,9 +33,29 @@ void Engine_Class::UpdateSim(void)
 		if (rob[counter] != NULL)
 			rob[counter]->PreTurn();
 
-	for(counter = 0; counter<=MaxRobs; counter++)
+	//Physics Steps:    
+    for(counter = 0; counter<=MaxRobs; counter++)
 		if (rob[counter] != NULL)
-			rob[counter]->Constraints();
+			rob[counter]->Integrate();
+
+    //CONSTRAINTS (done after movement)
+
+    //max tie length and rigid ties (if ties are hardened)
+
+    for(counter = 0; counter<=MaxRobs; counter++)
+		if (rob[counter] != NULL)
+            rob[counter]->VelocityCap();
+    
+    for(counter = 0; counter<=MaxRobs; counter++)
+		if (rob[counter] != NULL)
+            rob[counter]->BotCollisionsPos();
+
+    for(counter = 0; counter<=MaxRobs; counter++)
+		if (rob[counter] != NULL)
+            rob[counter]->EdgeCollisions();  //collisions with edges (if rigid edges are selected)
+
+    //END CONSTRAINTS
+    //END Physics steps
     
     for(counter = 0; counter<=MaxRobs; counter++)
 		if (rob[counter] != NULL)
@@ -185,5 +205,6 @@ Robot *FindSerialNumber(unsigned long serial)
     for(unsigned int x = 0; x <= MaxRobs; x++)
         if(rob[x] != NULL && rob[x]->findAbsNum() == serial)
             return rob[x];
+    
     return NULL;
 }

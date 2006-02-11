@@ -41,6 +41,10 @@ struct PhysicsConstants
 
     bool PlanetEaters;
     float PlanetEatersG;
+
+    float ElasticCoefficient; //coefficient used in bot to bot collisions
+
+    bool ZeroMomentum;		  //bool, is ZeroMomentum mode enabled?
 };
 
 //definition of the SimOpts structure
@@ -98,10 +102,8 @@ struct SimOptions: PhysicsConstants
     
     bool UserSeedToggle;		//bool
     long UserSeedNumber;		//long
-
-    bool ZeroMomentum;			//bool
     
-    float Costs[70];  //costs for various activities (float)
+    float Costs[70];            //costs for various activities (float)
 
     float NrgCyc;
 	float LightIntensity;		//float
@@ -128,7 +130,8 @@ struct SimOptions: PhysicsConstants
     unsigned int VegFeedingMethod;//unsigned int
     float VegFeedingToBody;		  //how much nrg given to vegs gets put into body? (float)
 
-	unsigned int BadWasteLevel;  //be sure to save in settings files (wasn't in 2.4VB) and be sure to catch if this is set to 0 (unsigned int)
+	unsigned int BadWasteLevel;  //be sure to save in settings files
+                                 // (wasn't in 2.4VB) and be sure to catch if this is set to 0
 	unsigned int MaxSpeed;		 //Same as above
 };
 
@@ -136,5 +139,3 @@ extern SimOptions SimOpts;  //for use in sims
 extern SimOptions TmpOpts; //for use in GUI, gets copied to SimOpts
 
 #endif
-
-

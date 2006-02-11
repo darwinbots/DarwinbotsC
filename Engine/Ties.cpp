@@ -28,8 +28,7 @@ bool Tie::MakeTie(Robot* shooter, Robot* target, int _port)
 	//Place pointers in the robots' respective lists//
 	//////////////////////////////////////////////////
 	
-	//this causes the illegal operation - Numsgil
-    shooter->addTie(temp);
+	shooter->addTie(temp);
 	target->addTie(temp);
 
 	return true;
