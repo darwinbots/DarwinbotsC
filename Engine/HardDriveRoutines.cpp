@@ -125,7 +125,7 @@ void ReadSettPre2_4(istream &in, SimOptions &Options)
 		Options.Specie[x].Veg =					 GrabBool(in);
 		Options.Specie[x].Fixed =				 GrabBool(in);
 				
-		Options.Specie[x].color =	Vector4(GrabNumber(in), 0,0);
+		Options.Specie[x].color =	             GrabNumber(in);
 		line =									 GrabString(in);  //obsolete
 		Options.Specie[x].nrg =					 GrabNumber(in);
 
@@ -276,10 +276,10 @@ void ReadSettPre2_4(istream &in, SimOptions &Options)
 		Options.FieldDimensions.set(16000, Options.FieldDimensions.y(), Options.FieldDimensions.z());
 	if (Options.FieldDimensions.y() == 0)
 		Options.FieldDimensions.set(Options.FieldDimensions.x(), 12000, Options.FieldDimensions.z());
-    if (SimOpts.BadWasteLevel == 0)
-        SimOpts.BadWasteLevel = 400;
-    if (SimOpts.MaxSpeed == 0)
-        SimOpts.MaxSpeed = 60;
+    if (Options.BadWasteLevel == 0)
+        Options.BadWasteLevel = 400;
+    if (Options.MaxSpeed == 0)
+        Options.MaxSpeed = 60;
 }
 
 #ifdef _MSC_VER

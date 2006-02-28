@@ -4,11 +4,12 @@ long MainWindow::General(FXTabBook *TabBook,FXDialogBox *Options){
     FXTabItem *linesTab2=new FXTabItem(TabBook,"&General",NULL);
     FXPacker *linesPage2=new FXPacker(TabBook,FRAME_THICK|FRAME_RAISED);  
     
-    FXGroupBox *GeneralGroup=new FXGroupBox(linesPage2,"General Properties",GROUPBOX_TITLE_LEFT|FRAME_RIDGE|LAYOUT_FILL_X|LAYOUT_FILL_Y);
+    //FXGroupBox *GeneralGroup=new FXGroupBox(linesPage2,"General Properties",GROUPBOX_TITLE_LEFT|FRAME_RIDGE|LAYOUT_FILL_X|LAYOUT_FILL_Y);
   
-    FXMatrix *GeneralMatrix=new FXMatrix(GeneralGroup,2,MATRIX_BY_COLUMNS|LAYOUT_SIDE_TOP|LAYOUT_FILL_X|LAYOUT_FILL_Y);
+    //FXMatrix *GeneralMatrix=new FXMatrix(GeneralGroup,2,MATRIX_BY_COLUMNS|LAYOUT_SIDE_TOP|LAYOUT_FILL_X|LAYOUT_FILL_Y);
+    FXMatrix *GeneralMatrix=new FXMatrix(linesPage2,2,MATRIX_BY_COLUMNS|LAYOUT_SIDE_TOP|LAYOUT_FILL_X|LAYOUT_FILL_Y);
   
-    FXMatrix *GeneralMatrix2=new FXMatrix(GeneralMatrix,1,MATRIX_BY_COLUMNS|LAYOUT_SIDE_TOP|LAYOUT_FILL_X|LAYOUT_FILL_Y);
+    /*FXMatrix *GeneralMatrix2=new FXMatrix(GeneralMatrix,1,MATRIX_BY_COLUMNS|LAYOUT_SIDE_TOP|LAYOUT_FILL_X|LAYOUT_FILL_Y);
   
     FXGroupBox *WidthConGroup=new FXGroupBox(GeneralMatrix2,"Width control",GROUPBOX_TITLE_LEFT|FRAME_RIDGE|LAYOUT_FILL_X|LAYOUT_FILL_Y);
     FXMatrix *WConMatrix=new FXMatrix(WidthConGroup,3,MATRIX_BY_COLUMNS|LAYOUT_SIDE_TOP|LAYOUT_FILL_X|LAYOUT_FILL_Y);
@@ -74,7 +75,7 @@ long MainWindow::General(FXTabBook *TabBook,FXDialogBox *Options){
     new FXSpinner(DRMatrix,4,0,FXDataTarget::ID_VALUE,SPIN_CYCLIC|FRAME_SUNKEN|FRAME_THICK|LAYOUT_CENTER_Y|LAYOUT_FILL_ROW);
     new FXLabel(DRMatrix,"Period",NULL,LAYOUT_RIGHT|JUSTIFY_RIGHT);
     new FXSpinner(DRMatrix,4,0,FXDataTarget::ID_VALUE,SPIN_CYCLIC|FRAME_SUNKEN|FRAME_THICK|LAYOUT_CENTER_Y|LAYOUT_FILL_ROW);
- 
+ */
     
     FXGroupBox *PopulationGroup=new FXGroupBox(GeneralMatrix,"Population control",GROUPBOX_TITLE_LEFT|FRAME_RIDGE|LAYOUT_FILL_X|LAYOUT_FILL_Y);
     
@@ -135,7 +136,7 @@ long MainWindow::General(FXTabBook *TabBook,FXDialogBox *Options){
     new FXLabel(VBMatrix,"NRG",NULL,LAYOUT_RIGHT|JUSTIFY_RIGHT);
     FXSlider *slider2=new FXSlider(VBMatrix,0,FXDataTarget::ID_VALUE,LAYOUT_CENTER_Y|LAYOUT_FILL_X|LAYOUT_FILL_ROW|LAYOUT_FIX_WIDTH,0,0,100);
     slider2->setRange(0,100);
-    new FXLabel(VBMatrix,"Body",NULL,LAYOUT_LEFT|JUSTIFY_RIGHT);  
+    new FXLabel(VBMatrix,"Body",NULL,LAYOUT_LEFT|JUSTIFY_RIGHT);
 
     return 1;
 }

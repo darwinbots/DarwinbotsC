@@ -96,8 +96,16 @@ void MainWindow::create()
 MainWindow *MainWindowHandle;
 
 #ifndef DB_NOGUI
-int main(int argc, char **argv)
-{
+
+#ifdef WIN32
+    #define WIN32_LEAN_AND_MEAN
+    #include "windows.h"
+    INT WINAPI WinMain( HINSTANCE hInst, HINSTANCE, LPSTR strCmdLine, INT ){
+    int argc = 1;
+    char *argv[] = {""};
+#else
+    int main(int argc, char **argv){
+#endif
     FXApp app(PROJECT_NAME, "yo");
     app.init(argc, argv);
 
@@ -111,7 +119,6 @@ int main(int argc, char **argv)
 
     app.addTimeout(MainWindowHandle, MainWindow::ID_UpdGfx);
                 
-    //later we will move this into Engine.SetupSim()
     EngineThread.start();
     
     return app.run();

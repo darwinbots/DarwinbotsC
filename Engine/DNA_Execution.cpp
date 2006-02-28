@@ -456,16 +456,16 @@ void findang()
     else
     {
         if (b < 0)
-            e = atanf(b/a) + PI;
+            e = atanf(b/a) + float(PI);
         else
             e = atanf(b/a);        
     }
 
     if (e < 0)
-        e += 2*PI;
+        e += 2*float(PI);
 
     if (e > 2 * PI)
-        e -= 2 * PI;
+        e -= 2.0f * float(PI);
 
     PushIntStack(StackCeil(e*200));
 }

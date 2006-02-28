@@ -79,7 +79,7 @@ void Robot::Setup(datispecie *myspecies)
     
 	this->Dead = false;
 
-	this->color = myspecies->color;
+	//this->color = myspecies->color;
 
     this->DNA = new DNA_Class;
     

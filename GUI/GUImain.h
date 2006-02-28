@@ -7,8 +7,14 @@
 //#include "GUIBotDebug.h"
 class BotDebug_Window;
 
-#define PROJECT_NAME "DarwinBots 2.5"
-#define PROJECT_VERSION "0.0.1"
+#define PROJECT_NAME "DarwinBots 3.0"
+#define PROJECT_VERSION "3.0 Pre-Alpha"
+
+#define LAYOUT_FILL_XY LAYOUT_FILL_X|LAYOUT_FILL_Y
+#define LAYOUT_FILL_RC LAYOUT_FILL_COLUMN|LAYOUT_FILL_ROW
+#define LAYOUT_FILL_ALL LAYOUT_FILL_XY | LAYOUT_FILL_RC
+#define LAYOUT_FILL_YC LAYOUT_FILL_COLUMN | LAYOUT_FILL_Y
+#define LAYOUT_FILL_XR LAYOUT_FILL_ROW | LAYOUT_FILL_X
 
 class MainWindow : public FXMainWindow
 {
@@ -83,6 +89,7 @@ public:
     long onCmdShowLog           (FXObject *, FXSelector, void *);
     long onCmdPAndCAdv          (FXObject *, FXSelector, void *);
     long Species                (FXTabBook *TabBook,FXDialogBox *Options);
+    long Veggy                  (FXTabBook *TabBook,FXDialogBox *Options);
     long General                (FXTabBook *TabBook,FXDialogBox *Options);
     long PhysicsAndCosts        (FXTabBook *TabBook,FXDialogBox *Options);
     long Mutations              (FXTabBook *TabBook,FXDialogBox *Options);

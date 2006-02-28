@@ -11,6 +11,18 @@ class Tie;
 #include "Robot.h"
 class Robot;
 
+enum substance_ID
+{
+    UNKNOWN = 0,
+    BODY_ID,
+    POISON_ID,
+    WASTE_ID,
+    VENOM_ID,
+    NRG_ID,
+    SHELL_ID,
+    SLIME_ID
+};
+
 /*Creating and deleting ties can be tricky because we have to make sure that
 both bots are simultaneously made aware of the tie's creation. Also, since only
 bots at the end of a tie know of its existence, we must make sure that no tie is
@@ -35,7 +47,8 @@ class Tie
 	float NaturalLength;
 	float k;
 	float b;
-	int type;
+	
+    int type;
     //'0 = damped spring, lower b and k values, birth ties here
     //'1 = string (only applies force if longer than
     //  "natural length", not if too short) b and k values high
@@ -53,6 +66,10 @@ private:
     Tie(Robot* _sender, Robot* _receiver, int _port,
                 float _k = 0.005f, float _b = 0.01f, int _type=0);
 
+    Robot *Tie::FindOther(Robot *me);
+    __int16 Tie::ReadMem(Robot *me, __int16 loc);
+    void Tie::WriteMem(Robot *me, __int16 loc, __int16 value);
+    void Tie::ShareSubstance(Robot *me, substance_ID ID, float amount);
 };
 
 #endif

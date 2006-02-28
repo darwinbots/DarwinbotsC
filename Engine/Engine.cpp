@@ -45,7 +45,7 @@ void Engine_Class::UpdateSim(void)
     for(counter = 0; counter<=MaxRobs; counter++)
 		if (rob[counter] != NULL)
             rob[counter]->VelocityCap();
-    
+
     for(counter = 0; counter<=MaxRobs; counter++)
 		if (rob[counter] != NULL)
             rob[counter]->BotCollisionsPos();
@@ -53,6 +53,16 @@ void Engine_Class::UpdateSim(void)
     for(counter = 0; counter<=MaxRobs; counter++)
 		if (rob[counter] != NULL)
             rob[counter]->EdgeCollisions();  //collisions with edges (if rigid edges are selected)
+
+    //More iterations decreases overlap between bots when stacking, but
+    //it hardly seems practical.  A better solution must exist, which
+    //more intelligently offsets colliding bots.
+
+    //perhaps collisions with edges offsets the whole world as well (or rather,
+    //offsets all objects in the world an opposite amount)
+    //or conversely, bot collisions have one of the bots moving 100%
+    //of the distance
+
 
     //END CONSTRAINTS
     //END Physics steps

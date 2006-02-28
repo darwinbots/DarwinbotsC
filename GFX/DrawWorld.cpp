@@ -66,6 +66,73 @@ void DrawShots()
     }
 }
 
+void DrawTies()
+{
+    for (unsigned int x = 0; x <= MaxRobs; x++)
+    {
+        if (rob[x] != NULL)
+        {
+            //draw all ties this bot has that haven't been
+            //drawn already
+        }
+    }
+}
+
+//draws the voluntary translational movement vector
+void DrawBangs()
+{
+    for (unsigned int x = 0; x <= MaxRobs; x++)
+    {
+        if (rob[x] != NULL)
+        {
+            //draw a line representing the last translational bang,
+            //or perhaps draw a rocket-type exhaust fire
+        }
+    }
+}
+
+//draws the current bot velocity vector
+void DrawVelocity()
+{
+    for (unsigned int x = 0; x <= MaxRobs; x++)
+    {
+        if (rob[x] != NULL)
+        {
+            //I'm not sure how best to do this actually.
+            //either we could draw a slightly ghosted
+            //afterimage of where the bot used to be,
+            //or draw a line to where the velocity
+            //vector is directing the bot
+
+            //or maybe draw a long time-cylinder between
+            //opos and pos, sort of like motion blur
+            //this would help capture movement in a still
+            //picture
+
+            //drawing wake lines is also an option, though a
+            //bit above what I know how to do at the moment
+
+            //-Numsgil
+        }
+    }
+}
+
+void DrawImpulse()
+{
+    for (unsigned int x = 0; x <= MaxRobs; x++)
+    {
+        if (rob[x] != NULL)
+        {
+            //Draws the impulse vector of the bots
+        }
+    }
+}
+
+void DrawEyeField()
+{
+    //Draws the eye fields of the bot
+}
+
 void Robot::DrawRobotEye()
 {
     //eyes are always white

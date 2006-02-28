@@ -5,20 +5,25 @@
 
 long MainWindow::onCmdQuit(FXObject *, FXSelector, void *)
 {
-        getApp()->exit(0);
-        return 1;
+    getApp()->exit(0);
+    return 1;
 }
-long MainWindow::onCmdNewSimulation(FXObject *, FXSelector, void *){
-	
-    
+
+long MainWindow::onCmdNewSimulation(FXObject *, FXSelector, void *)
+{
     FXDialogBox Options(this, "Sim options ", DECOR_TITLE|DECOR_BORDER,
- 		0,0,0,0, 0,0,0,0, 0,0);
+ 		0,0,0,0,0,0,0,0,0,0);
     
-    FXMatrix *LayoutMatrix=new FXMatrix(&Options,1,MATRIX_BY_COLUMNS|LAYOUT_SIDE_TOP|LAYOUT_FILL_X|LAYOUT_FILL_Y);
+    FXMatrix *LayoutMatrix=new FXMatrix(&Options,1,MATRIX_BY_COLUMNS|
+        LAYOUT_FILL_X | LAYOUT_FILL_Y | LAYOUT_FILL_ROW | LAYOUT_FILL_COLUMN,
+        0,0,0,0,0,0);
     
-    FXTabBook *tabbook=new FXTabBook(LayoutMatrix,NULL,0,LAYOUT_FILL_X|LAYOUT_FILL_Y|LAYOUT_RIGHT);
+    FXTabBook *tabbook=new FXTabBook(LayoutMatrix,NULL,0,
+        LAYOUT_FILL_X | LAYOUT_FILL_Y | LAYOUT_FILL_ROW | LAYOUT_FILL_COLUMN);
     
     Species(tabbook, &Options);
+
+    Veggy(tabbook, &Options);
     
     General(tabbook, &Options);
     
@@ -32,33 +37,23 @@ long MainWindow::onCmdNewSimulation(FXObject *, FXSelector, void *){
     
     Recording(tabbook, &Options);
     
-    FXGroupBox *ButtonGroup=new FXGroupBox(LayoutMatrix,0,GROUPBOX_TITLE_LEFT|FRAME_RIDGE|LAYOUT_FILL_X|LAYOUT_FILL_Y);
-    FXMatrix *ButtonMatrix=new FXMatrix(ButtonGroup,6,MATRIX_BY_COLUMNS|LAYOUT_SIDE_TOP|LAYOUT_FILL_X|LAYOUT_FILL_Y);
+    //////////////////////////////////////////////////////////////////////////////////////////////////
+    FXGroupBox *ButtonGroup=new FXGroupBox(LayoutMatrix,NULL,FRAME_RIDGE | LAYOUT_FILL_X | LAYOUT_FILL_ROW);
+    FXMatrix *ButtonMatrix = new FXMatrix(ButtonGroup, 1, MATRIX_BY_ROWS | LAYOUT_FILL_X | LAYOUT_FILL_ROW,
+        0,0,0,0,0,0,0,0);
     
-    FXButton *button5 = new FXButton(ButtonMatrix, "Load Settings", 0, &Options,
-        	FXDialogBox::ID_ACCEPT, BUTTON_INITIAL|BUTTON_DEFAULT|FRAME_RAISED|FRAME_THICK|LAYOUT_CENTER_X,
-                0,0,0,0,10,10,0,0);
+    new FXButton(ButtonMatrix, "Load Settings", 0, &Options, FXDialogBox::ID_ACCEPT);
+    new FXButton(ButtonMatrix, "Save Settings", 0, &Options, FXDialogBox::ID_ACCEPT);
+    
+    new FXSeparator(ButtonMatrix, LAYOUT_FILL_X|LAYOUT_FILL_COLUMN);
+    new FXButton(ButtonMatrix, "Cancel", 0, &Options, FXDialogBox::ID_CANCEL);
+    new FXSeparator(ButtonMatrix, LAYOUT_FILL_X|LAYOUT_FILL_COLUMN);
+    
+    new FXButton(ButtonMatrix, "Pause", 0, &Options, FXDialogBox::ID_ACCEPT);    
+    new FXButton(ButtonMatrix, "Start New", 0, &Options, FXDialogBox::ID_ACCEPT);
+    new FXButton(ButtonMatrix, "Change", 0, &Options, FXDialogBox::ID_ACCEPT);
 
-    FXButton *button6 = new FXButton(ButtonMatrix, "Save Settings", 0, &Options,
-        	FXDialogBox::ID_ACCEPT, BUTTON_INITIAL|BUTTON_DEFAULT|FRAME_RAISED|FRAME_THICK|LAYOUT_CENTER_X,
-                0,0,0,0,10,10,0,0);
-                
-    FXButton *button7 = new FXButton(ButtonMatrix, "Cancel", 0, &Options,
-        	FXDialogBox::ID_CANCEL, BUTTON_INITIAL|BUTTON_DEFAULT|FRAME_RAISED|FRAME_THICK|LAYOUT_CENTER_X,
-                0,0,0,0,10,10,0,0);
-                
-    FXButton *button8 = new FXButton(ButtonMatrix, "Pause", 0, &Options,
-        	FXDialogBox::ID_ACCEPT, BUTTON_INITIAL|BUTTON_DEFAULT|FRAME_RAISED|FRAME_THICK|LAYOUT_CENTER_X,
-                0,0,0,0,10,10,0,0);
-                
-    FXButton *button9 = new FXButton(ButtonMatrix, "Start New", 0, &Options,
-        	FXDialogBox::ID_ACCEPT, BUTTON_INITIAL|BUTTON_DEFAULT|FRAME_RAISED|FRAME_THICK|LAYOUT_CENTER_X,
-                0,0,0,0,10,10,0,0);
-                
-    FXButton *button10 = new FXButton(ButtonMatrix, "Change", 0, &Options,
-        	FXDialogBox::ID_ACCEPT, BUTTON_INITIAL|BUTTON_DEFAULT|FRAME_RAISED|FRAME_THICK|LAYOUT_CENTER_X,
-                0,0,0,0,10,10,0,0);
-                
+    /////////////////////////////////////////////////////////////////////////////////////////////////                
     Options.execute(PLACEMENT_OWNER);   
     
     return 1;
@@ -86,14 +81,12 @@ long MainWindow::onCmdAbout(FXObject *, FXSelector, void *)
     Button->setFocus();
     About.execute(PLACEMENT_OWNER);
 
-	  return 1;
-}
-long MainWindow::onCmdShowOptions(FXObject *, FXSelector, void *){return 1;}
-long MainWindow::onCmdShowLog(FXObject *, FXSelector, void *){return 1;}
-long MainWindow::onCmdNewViewer(FXObject*,FXSelector,void*)
-{
     return 1;
 }
+
+long MainWindow::onCmdShowOptions(FXObject *, FXSelector, void *){return 1;}
+long MainWindow::onCmdShowLog(FXObject *, FXSelector, void *){return 1;}
+long MainWindow::onCmdNewViewer(FXObject*,FXSelector,void*){return 1;}
 
 void MainWindow::ConnectVar()
 {

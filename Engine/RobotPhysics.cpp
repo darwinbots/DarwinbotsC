@@ -71,6 +71,8 @@ void Robot::BotCollisionsPos()
     {
         if(rob[x] != NULL && rob[x]->AbsNum < this->AbsNum)
         {
+            if(rob[x]->pos == this->pos)
+                continue;
             Vector4 normal = rob[x]->pos - this->pos;
             float mindist = this->radius + rob[x]->radius;
             mindist *= mindist;
@@ -84,8 +86,8 @@ void Robot::BotCollisionsPos()
                 
                 //these need to be modified to deal with differences in mass
                 //and fixed/unfixed pairs
-                rob[x]->pos += normal * 0.51f;
-                this->pos -= normal * 0.51f;
+                rob[x]->pos += normal * 0.5f;
+                this->pos -= normal * 0.5f;
             }
         }
     }
@@ -93,8 +95,8 @@ void Robot::BotCollisionsPos()
 
 void Robot::VelocityCap()
 {
-    //if (LengthSquared3(this->vel) > SimOpts.MaxSpeed * SimOpts.MaxSpeed)
-    //    this->vel = Normalize3(this->vel) * (float)SimOpts.MaxSpeed;
+    if (LengthSquared3(this->vel) > SimOpts.MaxSpeed * SimOpts.MaxSpeed)
+        this->vel = Normalize3(this->vel) * (float)SimOpts.MaxSpeed;
 }
 
 void Robot::EdgeCollisions()
@@ -109,36 +111,27 @@ void Robot::EdgeCollisions()
     VectorMax(this->pos, radvec),
     SimOpts.FieldDimensions - radvec); 
     
-    if (LengthSquared3(dist) > 0)
+    const float CoefficientRestitution = 0.95f;
+    
+    if(dist.x() <= this->radius ||
+       dist.x() >= SimOpts.FieldDimensions.x() - this->radius)
     {
-        const float CoefficientRestitution = 0.99f;
-        //any coefficients > 0.5 results in perpetual bouncing
-        //I'm not sure exactly how to fix this problem
-
-        if(dist.x() <= this->radius ||
-           dist.x() >= SimOpts.FieldDimensions.x() - this->radius)
-        {
-            vel(0) = -ovel.x();
-            vel *= CoefficientRestitution;            
-        }
-
-        if(dist.y() <= this->radius ||
-           dist.y() >= SimOpts.FieldDimensions.x() - this->radius)
-        {
-            vel(1) = -ovel.y();
-            vel *= CoefficientRestitution;            
-        }
-
-        //bounce off the wall with a loss of speed
-        //I don't know if this is accurate with any sort
-        //of physical model, but it looks realistic
-
-        //speed loss in non normal direction of wall
-        //represents loss of energy due to friction or
-        //rolling or something like that
-        
-        this->pos = dist;
+        vel(0) = -ovel.x();
+        vel *= CoefficientRestitution;            
     }
+
+    if(dist.y() <= this->radius ||
+       dist.y() >= SimOpts.FieldDimensions.x() - this->radius)
+    {
+        vel(1) = -ovel.y();
+        vel *= CoefficientRestitution;            
+    }
+
+    //speed loss in non normal direction of wall
+    //represents loss of energy due to friction or
+    //rolling or something like that
+    
+    this->pos = dist;
 }
 
 /*Collisions are modified by a slider
@@ -203,25 +196,17 @@ void Robot::BotCollisionsVel()
                 
                 normal /= sqrtf(currdist); //normalize normal vector
 
-                Vector4 V1 = this->vel;// * normal;
-                Vector4 V2 = rob[x]->vel;// * normal;
+                Vector4 V1 = this->vel;
+                Vector4 V2 = rob[x]->vel;
 
-                Vector4 V1f = (M1 * V1 + M2 * V2) / (M1 + M2);
-                Vector4 V2f = V1f;
-                
-                /*float V1f = (e + 1.0f) * M2 * V2 + V1 * (M1 - e * M2)/
+                Vector4 V1f = ((e + 1.0f) * M2 * V2 + V1 * (M1 - e * M2))/
                             (M1 + M2);
                 
-                float V2f = (e + 1.0f) * M1 * V1 + V2 * (M2 - e * M1)/
-                            (M1 + M2);*/
+                Vector4 V2f = ((e + 1.0f) * M1 * V1 + V2 * (M2 - e * M1))/
+                            (M1 + M2);
                 
                 this->vel = V1f;
                 rob[x]->vel = V2f;
-
-                /*
-                this->Impulse   = this->mass   * (V1f - V1);// * normal;
-                rob[x]->Impulse = rob[x]->mass * (V2f - V2);// * normal;
-                */
             }
         }
     }
