@@ -1,6 +1,7 @@
-#include "GUImain.h"
+#include "OptionsForm.h"
 
-long MainWindow::ReststartAndL(FXTabBook *TabBook,FXDialogBox *Options){
+void OptionsFormDialogBox::ReststartAndL(FXTabBook *TabBook)
+{
     FXTabItem *linesTab5=new FXTabItem(TabBook,"&Restart and League",NULL);
     FXPacker *linesPage5=new FXPacker(TabBook,FRAME_THICK|FRAME_RAISED);
     
@@ -40,23 +41,21 @@ long MainWindow::ReststartAndL(FXTabBook *TabBook,FXDialogBox *Options){
     
     
     FXMatrix *Matrix6=new FXMatrix(Matrix3,4,MATRIX_BY_COLUMNS|LAYOUT_SIDE_TOP|LAYOUT_FILL_X|LAYOUT_FILL_Y);
-    FXButton *button1 = new FXButton(Matrix6, "F1", 0, Options,
+    FXButton *button1 = new FXButton(Matrix6, "F1", 0, NULL,
         	FXDialogBox::ID_ACCEPT, BUTTON_INITIAL|BUTTON_DEFAULT|FRAME_RAISED|FRAME_THICK|LAYOUT_CENTER_X,
                 0,0,0,0,10,10,0,0);
                 
-    FXButton *button2 = new FXButton(Matrix6, "F2", 0, Options,
+    FXButton *button2 = new FXButton(Matrix6, "F2", 0, NULL,
         	FXDialogBox::ID_ACCEPT, BUTTON_INITIAL|BUTTON_DEFAULT|FRAME_RAISED|FRAME_THICK|LAYOUT_CENTER_X,
                 0,0,0,0,10,10,0,0);
 
-    FXButton *button3 = new FXButton(Matrix6, "SB", 0, Options,
+    FXButton *button3 = new FXButton(Matrix6, "SB", 0, NULL,
         	FXDialogBox::ID_ACCEPT, BUTTON_INITIAL|BUTTON_DEFAULT|FRAME_RAISED|FRAME_THICK|LAYOUT_CENTER_X,
                 0,0,0,0,10,10,0,0);
                 
-    FXButton *button4 = new FXButton(Matrix6, "MB", 0, Options,
+    FXButton *button4 = new FXButton(Matrix6, "MB", 0, NULL,
         	FXDialogBox::ID_ACCEPT, BUTTON_INITIAL|BUTTON_DEFAULT|FRAME_RAISED|FRAME_THICK|LAYOUT_CENTER_X,
                 0,0,0,0,10,10,0,0);
                 
     FXCheckButton *Check3 = new FXCheckButton(Matrix3,"Rerun League",0,0,CHECKBUTTON_NORMAL);
-
-    return 1;
 }

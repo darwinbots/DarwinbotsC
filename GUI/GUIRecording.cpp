@@ -1,6 +1,7 @@
-#include "GUImain.h"
+#include "OptionsForm.h"
 
-long MainWindow::Recording(FXTabBook *TabBook,FXDialogBox *Options){
+void OptionsFormDialogBox::Recording(FXTabBook *TabBook)
+{
     FXTabItem *linesTab7=new FXTabItem(TabBook,"&Recording",NULL);
     FXPacker *linesPage7=new FXPacker(TabBook,FRAME_THICK|FRAME_RAISED);
     
@@ -46,7 +47,7 @@ long MainWindow::Recording(FXTabBook *TabBook,FXDialogBox *Options){
     FXMatrix *DatabaseMatrix=new FXMatrix(group2,2,MATRIX_BY_COLUMNS|LAYOUT_SIDE_TOP|LAYOUT_FILL_X|LAYOUT_FILL_Y);
     new FXCheckButton(DatabaseMatrix,"Enable database recording",0,0,CHECKBUTTON_NORMAL);
     
-    new FXButton(DatabaseMatrix, "Stop database\nrecording", 0, Options,
+    new FXButton(DatabaseMatrix, "Stop database\nrecording", 0, NULL,
         FXDialogBox::ID_ACCEPT, BUTTON_INITIAL|BUTTON_DEFAULT|FRAME_RAISED|FRAME_THICK|LAYOUT_CENTER_X,0,0,0,0,10,10,0,0);
         
     new FXLabel(DatabaseMatrix,"Database name",NULL,LAYOUT_LEFT|JUSTIFY_LEFT);
@@ -55,10 +56,8 @@ long MainWindow::Recording(FXTabBook *TabBook,FXDialogBox *Options){
         
     new FXCheckButton(DatabaseMatrix,"Exclude vegs from recording",0,0,CHECKBUTTON_NORMAL);
     
-    new FXButton(DatabaseMatrix, "browse", 0, Options,
+    new FXButton(DatabaseMatrix, "browse", 0, NULL,
         FXDialogBox::ID_ACCEPT, BUTTON_INITIAL|BUTTON_DEFAULT|FRAME_RAISED|FRAME_THICK|LAYOUT_CENTER_X,0,0,0,0,10,10,0,0);
     
     FXGroupBox *group3=new FXGroupBox(LayoutMatrix2,"Future Recording Method",GROUPBOX_TITLE_LEFT|FRAME_RIDGE|LAYOUT_FILL_X|LAYOUT_FILL_Y);
-    
-    return 1;
 }

@@ -21,7 +21,7 @@ void Robot::FacingSun()
 
 	lightfrompond = SimOpts.LightIntensity / powf(depth, SimOpts.Gradient) * SimOpts.Daytime;
 
-	(*this)[SUNsys] = iceil((SimOpts.LightIntensity + SimOpts.NrgCyc) * sinf(aim));
+	(*this)[SUNsys] = iceil((SimOpts.LightIntensity) * sinf(aim));
 
 	//we don't see negative brightness if we look downwards, we see 0.
 	if ((*this)[SUNsys] < 0)

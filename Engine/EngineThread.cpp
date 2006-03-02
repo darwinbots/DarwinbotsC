@@ -14,6 +14,8 @@ int EngineThread_Class::run()
     time_t elapsed_time = clock(), second_counter = time(NULL);
     int x = 0;
     Engine.SetupSim();
+
+    //priority(10);
     
     while(true)
     {

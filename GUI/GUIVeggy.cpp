@@ -1,7 +1,7 @@
-#include "GUIMain.h"
+#include "OptionsForm.h"
 
 //in: GeneralMatrix
-long MainWindow::Veggy(FXTabBook *TabBook,FXDialogBox *Options)
+void OptionsFormDialogBox::Veggy(FXTabBook *TabBook)
 {
     FXTabItem *Tab = new FXTabItem(TabBook,"&Veggy Controls",NULL);
     FXPacker *Page = new FXPacker(TabBook,FRAME_THICK|FRAME_RAISED);
@@ -35,7 +35,8 @@ long MainWindow::Veggy(FXTabBook *TabBook,FXDialogBox *Options)
                 {
                     new FXLabel(PondModeCheckMatrix, "Pond Mode");
                     new FXSeparator(PondModeCheckMatrix, LAYOUT_FILL_ALL);
-                    new FXCheckButton(PondModeCheckMatrix, "", NULL, 0, ICON_AFTER_TEXT, LAYOUT_FILL_ALL);
+                    new FXCheckButton(PondModeCheckMatrix, "", new FXDataTarget((FXbool &)TmpOpts.PondMode), FXDataTarget::ID_VALUE,
+                        ICON_AFTER_TEXT, LAYOUT_FILL_ALL);
                 }
         
 
@@ -46,17 +47,19 @@ long MainWindow::Veggy(FXTabBook *TabBook,FXDialogBox *Options)
                 {
                     new FXLabel(LightIntensityMatrix, "Light Intensity");
                     new FXSeparator(LightIntensityMatrix, LAYOUT_FILL_ALL);
-                    new FXSpinner(LightIntensityMatrix, 4, NULL, 0, FRAME_SUNKEN|FRAME_THICK);
+                    new FXSpinner(LightIntensityMatrix, 4, new FXDataTarget(TmpOpts.LightIntensity), FXDataTarget::ID_VALUE,
+                        FRAME_SUNKEN|FRAME_THICK);
                 }
 
-                //Light Intensity
+                //Sediment Level
                 FXMatrix *SedimentLevelMatrix = new FXMatrix(PondMode, 1, MATRIX_BY_ROWS | LAYOUT_FILL_ALL,
                     0,0,0,0,
                     0,0,0,0);
                 {
                     new FXLabel(SedimentLevelMatrix, "Sediment Level");
                     new FXSeparator(SedimentLevelMatrix, LAYOUT_FILL_ALL);
-                    new FXSpinner(SedimentLevelMatrix, 4, NULL, 0, FRAME_SUNKEN|FRAME_THICK | LAYOUT_SIDE_RIGHT);
+                    new FXSpinner(SedimentLevelMatrix, 4, new FXDataTarget(TmpOpts.Gradient), FXDataTarget::ID_VALUE,
+                        FRAME_SUNKEN|FRAME_THICK | LAYOUT_SIDE_RIGHT);
                 }
             }
 
@@ -75,25 +78,27 @@ long MainWindow::Veggy(FXTabBook *TabBook,FXDialogBox *Options)
             0,0,0,0,
             0,0,0,0);
         {
-            new FXSpinner(PopulationControlMatrix, 5, NULL, 0, FRAME_SUNKEN | FRAME_THICK);
+            new FXSpinner(PopulationControlMatrix, 5, new FXDataTarget(TmpOpts.MaxPopulation), FXDataTarget::ID_VALUE, FRAME_SUNKEN | FRAME_THICK);
             new FXLabel(PopulationControlMatrix, "Maximum Vegetable Population");
             
-            new FXSpinner(PopulationControlMatrix, 5, NULL, 0, FRAME_SUNKEN | FRAME_THICK);
+            new FXSpinner(PopulationControlMatrix, 5, new FXDataTarget(TmpOpts.MinVegs), FXDataTarget::ID_VALUE, FRAME_SUNKEN | FRAME_THICK);
             new FXLabel(PopulationControlMatrix, "Repopulation Threshold");
 
-            new FXSpinner(PopulationControlMatrix, 5, NULL, 0, FRAME_SUNKEN | FRAME_THICK);
+            new FXSpinner(PopulationControlMatrix, 5, new FXDataTarget(TmpOpts.RepopAmount), FXDataTarget::ID_VALUE, FRAME_SUNKEN | FRAME_THICK);
             new FXLabel(PopulationControlMatrix, "Vegetables per Repopulation Event");
 
-            new FXSpinner(PopulationControlMatrix, 5, NULL, 0, FRAME_SUNKEN | FRAME_THICK);
+            new FXSpinner(PopulationControlMatrix, 5, new FXDataTarget(TmpOpts.RepopCooldown), FXDataTarget::ID_VALUE, FRAME_SUNKEN | FRAME_THICK);
             new FXLabel(PopulationControlMatrix, "Repopulation Cooldown Period");
         }
 
         FXGroupBox *VegFeedingDistFrame = new FXGroupBox(LeftColumn, "Vegetable Feeding Distribution", FRAME_RIDGE | LAYOUT_FILL_ALL);
-        FXMatrix *VegFeedingDistMatrix = new FXMatrix(VegFeedingDistFrame, 1, MATRIX_BY_ROWS);
+        FXMatrix *VegFeedingDistMatrix = new FXMatrix(VegFeedingDistFrame, 1, MATRIX_BY_ROWS | LAYOUT_FILL_ALL);
         {
-            new FXLabel(VegFeedingDistMatrix, "Hi");
-            new FXLabel(VegFeedingDistMatrix, "Hi");
-            new FXLabel(VegFeedingDistMatrix, "Hi");
+            new FXLabel(VegFeedingDistMatrix, "Energy");
+            new FXSeparator(VegFeedingDistMatrix, LAYOUT_FILL_ALL);
+            new FXSlider(VegFeedingDistMatrix, new FXDataTarget(TmpOpts.VegFeedingToBody), FXDataTarget::ID_VALUE, LAYOUT_FILL_ALL);
+            new FXSeparator(VegFeedingDistMatrix, LAYOUT_FILL_ALL);
+            new FXLabel(VegFeedingDistMatrix, "Body");
         }
     }
 
@@ -113,7 +118,7 @@ long MainWindow::Veggy(FXTabBook *TabBook,FXDialogBox *Options)
                     0,0,0,0,
                     0,0,0,0);
 
-                new FXTextField(VeggyEnergyTopLine, 5);
+                new FXTextField(VeggyEnergyTopLine, 5, new FXDataTarget(TmpOpts.LightIntensity), FXDataTarget::ID_VALUE);
                 new FXLabel(VeggyEnergyTopLine, "energy per");
             }
 
@@ -123,9 +128,12 @@ long MainWindow::Veggy(FXTabBook *TabBook,FXDialogBox *Options)
                     0,0,0,0,
                     0,0,0,0);
         
-                new FXRadioButton(VeggyFeedingMethodMatrix, "Veggy per cycle",0,0, ICON_BEFORE_TEXT);
-                new FXRadioButton(VeggyFeedingMethodMatrix,"1000 body points per cycle",0,0, ICON_BEFORE_TEXT);
-                new FXRadioButton(VeggyFeedingMethodMatrix,"A Polynomial Function of Body",0,0, ICON_BEFORE_TEXT);
+                new FXRadioButton(VeggyFeedingMethodMatrix, "Veggy per cycle",
+                    new FXDataTarget(TmpOpts.VegFeedingMethod),FXDataTarget::ID_OPTION + 0, ICON_BEFORE_TEXT);
+                new FXRadioButton(VeggyFeedingMethodMatrix,"1000 body points per cycle",
+                    new FXDataTarget(TmpOpts.VegFeedingMethod),FXDataTarget::ID_OPTION + 1, ICON_BEFORE_TEXT);
+                new FXRadioButton(VeggyFeedingMethodMatrix,"A Polynomial Function of Body",
+                    new FXDataTarget(TmpOpts.VegFeedingMethod),FXDataTarget::ID_OPTION + 2, ICON_BEFORE_TEXT);
             }
 
             new FXText(VeggyEnergyFrame, NULL, 0, LAYOUT_FILL_ALL);
@@ -134,7 +142,8 @@ long MainWindow::Veggy(FXTabBook *TabBook,FXDialogBox *Options)
         //Day/night cycles
         FXGroupBox *DayNightFrame = new FXGroupBox(RightColumn, "Day Cycles", FRAME_RIDGE | LAYOUT_FILL_ALL);
         {
-            new FXCheckButton(DayNightFrame,"Enable Day Cycles");
+            new FXCheckButton(DayNightFrame,"Enable Day Cycles", new FXDataTarget((FXbool &)TmpOpts.DayNight),
+                FXDataTarget::ID_VALUE);
 
             FXMatrix *DayNightSubMatrix = new FXMatrix(DayNightFrame, 1, MATRIX_BY_ROWS | LAYOUT_FILL_ALL,
                 0,0,0,0,
@@ -142,67 +151,7 @@ long MainWindow::Veggy(FXTabBook *TabBook,FXDialogBox *Options)
 
             new FXLabel(DayNightSubMatrix,"Period",NULL,LAYOUT_RIGHT|JUSTIFY_RIGHT);
             new FXSeparator(DayNightSubMatrix, LAYOUT_FILL_COLUMN);
-            new FXSpinner(DayNightSubMatrix,6,0,FXDataTarget::ID_VALUE,SPIN_CYCLIC|FRAME_SUNKEN|FRAME_THICK|LAYOUT_CENTER_Y|LAYOUT_FILL_ROW);
+            new FXSpinner(DayNightSubMatrix,6,new FXDataTarget(TmpOpts.CycleLength),FXDataTarget::ID_VALUE,FRAME_SUNKEN | FRAME_THICK);
         }
     }
-
-
-
-
-
-    
-/*
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    FXMatrix *PopMatrix=new FXMatrix(PopulationGroup,1,MATRIX_BY_COLUMNS|LAYOUT_SIDE_TOP|LAYOUT_FILL_X|LAYOUT_FILL_Y);
-    
-    FXMatrix *PopMatrix2=new FXMatrix(PopMatrix,2,MATRIX_BY_COLUMNS|LAYOUT_SIDE_TOP|LAYOUT_FILL_X|LAYOUT_FILL_Y);
-    
-    FXMatrix *PopMatrix4=new FXMatrix(PopMatrix2,1,MATRIX_BY_COLUMNS|LAYOUT_SIDE_TOP|LAYOUT_FILL_X|LAYOUT_FILL_Y);
-    
-    FXGroupBox *PopulationGroup4=new FXGroupBox(PopMatrix4,"Pond Mode",GROUPBOX_TITLE_LEFT|FRAME_RIDGE|LAYOUT_FILL_X|LAYOUT_FILL_Y);
-       
-    FXGroupBox *PopulationGroup5=new FXGroupBox(PopMatrix4,"Population Control",GROUPBOX_TITLE_LEFT|FRAME_RIDGE|LAYOUT_FILL_X|LAYOUT_FILL_Y);
-    FXMatrix *PCMatrix=new FXMatrix(PopulationGroup5,2,MATRIX_BY_COLUMNS|LAYOUT_SIDE_TOP|LAYOUT_FILL_X|LAYOUT_FILL_Y);
-    new FXSpinner(PCMatrix,4,0,FXDataTarget::ID_VALUE,SPIN_CYCLIC|FRAME_SUNKEN|FRAME_THICK|LAYOUT_CENTER_Y|LAYOUT_FILL_ROW);
-    new FXLabel(PCMatrix,"Max number of Veggies",NULL,LAYOUT_LEFT|JUSTIFY_RIGHT);
-    new FXSpinner(PCMatrix,4,0,FXDataTarget::ID_VALUE,SPIN_CYCLIC|FRAME_SUNKEN|FRAME_THICK|LAYOUT_CENTER_Y|LAYOUT_FILL_ROW);
-    new FXLabel(PCMatrix,"Repopulation Threshold",NULL,LAYOUT_LEFT|JUSTIFY_RIGHT);
-    new FXSpinner(PCMatrix,4,0,FXDataTarget::ID_VALUE,SPIN_CYCLIC|FRAME_SUNKEN|FRAME_THICK|LAYOUT_CENTER_Y|LAYOUT_FILL_ROW);
-    new FXLabel(PCMatrix,"Veggies per repopulation event",NULL,LAYOUT_LEFT|JUSTIFY_RIGHT);
-    new FXSpinner(PCMatrix,4,0,FXDataTarget::ID_VALUE,SPIN_CYCLIC|FRAME_SUNKEN|FRAME_THICK|LAYOUT_CENTER_Y|LAYOUT_FILL_ROW);
-    new FXLabel(PCMatrix,"Repopulation cooldown period",NULL,LAYOUT_LEFT|JUSTIFY_RIGHT);
-    
-    FXMatrix *PopMatrix3=new FXMatrix(PopMatrix,2,MATRIX_BY_COLUMNS|LAYOUT_SIDE_TOP|LAYOUT_FILL_X|LAYOUT_FILL_Y);
-    
-    FXGroupBox *PopulationGroup1=new FXGroupBox(PopMatrix3,"Day Cycles",GROUPBOX_TITLE_LEFT|FRAME_RIDGE|LAYOUT_FILL_X|LAYOUT_FILL_Y);
-    FXMatrix *DCMatrix=new FXMatrix(PopulationGroup1,2,MATRIX_BY_COLUMNS|LAYOUT_SIDE_TOP|LAYOUT_FILL_X|LAYOUT_FILL_Y);
-    new FXCheckButton(DCMatrix,"Enable",0,0,CHECKBUTTON_NORMAL);
-    new FXFrame(DCMatrix,LAYOUT_FILL_COLUMN|LAYOUT_FILL_ROW);
-    new FXLabel(DCMatrix,"Period",NULL,LAYOUT_RIGHT|JUSTIFY_RIGHT);
-    new FXSpinner(DCMatrix,4,0,FXDataTarget::ID_VALUE,SPIN_CYCLIC|FRAME_SUNKEN|FRAME_THICK|LAYOUT_CENTER_Y|LAYOUT_FILL_ROW);
-    
-    FXGroupBox *PopulationGroup2=new FXGroupBox(PopMatrix3,"Veg Body/NRG Distribution",GROUPBOX_TITLE_LEFT|FRAME_RIDGE|LAYOUT_FILL_X|LAYOUT_FILL_Y);
-    FXMatrix *VBMatrix=new FXMatrix(PopulationGroup2,3,MATRIX_BY_COLUMNS|LAYOUT_SIDE_TOP|LAYOUT_FILL_X|LAYOUT_FILL_Y);
-    new FXLabel(VBMatrix,"NRG",NULL,LAYOUT_RIGHT|JUSTIFY_RIGHT);
-    FXSlider *slider2=new FXSlider(VBMatrix,0,FXDataTarget::ID_VALUE,LAYOUT_CENTER_Y|LAYOUT_FILL_X|LAYOUT_FILL_ROW|LAYOUT_FIX_WIDTH,0,0,100);
-    slider2->setRange(0,100);
-    new FXLabel(VBMatrix,"Body",NULL,LAYOUT_LEFT|JUSTIFY_RIGHT);*/
-    return 1;
 }

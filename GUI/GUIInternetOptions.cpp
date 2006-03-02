@@ -1,6 +1,7 @@
-#include "GUImain.h"
+#include "OptionsForm.h"
 
-long MainWindow::InternetOptions(FXTabBook *TabBook,FXDialogBox *Options){
+void OptionsFormDialogBox::InternetOptions(FXTabBook *TabBook)
+{
     FXTabItem *linesTab6=new FXTabItem(TabBook,"&Internet",NULL);
     FXPacker *linesPage6=new FXPacker(TabBook,FRAME_THICK|FRAME_RAISED);
                 
@@ -37,6 +38,4 @@ long MainWindow::InternetOptions(FXTabBook *TabBook,FXDialogBox *Options){
     FXCheckButton *Check3 = new FXCheckButton(ParameterMatrix,"and every time somthing is uploaded",0,0,CHECKBUTTON_NORMAL);
     
     new FXLabel(LayoutMatrix2,"DarwinBots will upload up to one\n""organism every 100,000 cycles to\n""the specified server. Also, the first\n""upload will be allowed at 100,000 cycles.",NULL,LAYOUT_LEFT|JUSTIFY_LEFT);
-    
-    return 1;
 }

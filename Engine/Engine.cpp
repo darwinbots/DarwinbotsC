@@ -46,6 +46,8 @@ void Engine_Class::UpdateSim(void)
 		if (rob[counter] != NULL)
             rob[counter]->VelocityCap();
 
+    
+    
     for(counter = 0; counter<=MaxRobs; counter++)
 		if (rob[counter] != NULL)
             rob[counter]->BotCollisionsPos();

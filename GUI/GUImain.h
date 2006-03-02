@@ -4,8 +4,8 @@
 #include <fx.h>
 #include <fx3d.h>
 
-//#include "GUIBotDebug.h"
 class BotDebug_Window;
+class OptionsFormDialogBox;
 
 #define PROJECT_NAME "DarwinBots 3.0"
 #define PROJECT_VERSION "3.0 Pre-Alpha"
@@ -46,6 +46,7 @@ protected:
         
 public:
     BotDebug_Window *BotDebug;
+    OptionsFormDialogBox *OptionsForm;
 
     MainWindow(FXApp *app);
     ~MainWindow();
@@ -88,14 +89,7 @@ public:
     long onCmdShowOptions       (FXObject *, FXSelector, void *);
     long onCmdShowLog           (FXObject *, FXSelector, void *);
     long onCmdPAndCAdv          (FXObject *, FXSelector, void *);
-    long Species                (FXTabBook *TabBook,FXDialogBox *Options);
-    long Veggy                  (FXTabBook *TabBook,FXDialogBox *Options);
-    long General                (FXTabBook *TabBook,FXDialogBox *Options);
-    long PhysicsAndCosts        (FXTabBook *TabBook,FXDialogBox *Options);
-    long Mutations              (FXTabBook *TabBook,FXDialogBox *Options);
-    long ReststartAndL          (FXTabBook *TabBook,FXDialogBox *Options);
-    long InternetOptions        (FXTabBook *TabBook,FXDialogBox *Options);
-    long Recording              (FXTabBook *TabBook,FXDialogBox *Options);
+    
     long onCmdPCAdvancedControls(FXObject *, FXSelector, void *);
     long onCmdNewViewer         (FXObject*,FXSelector,void*);
     long onUpdGfx               (FXObject*,FXSelector,void*);

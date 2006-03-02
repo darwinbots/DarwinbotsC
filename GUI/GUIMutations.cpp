@@ -1,6 +1,7 @@
-#include "GUImain.h"
+#include "OptionsForm.h"
 
-long MainWindow::Mutations(FXTabBook *TabBook,FXDialogBox *Options){
+void OptionsFormDialogBox::Mutations(FXTabBook *TabBook)
+{
     FXTabItem *linesTab4=new FXTabItem(TabBook,"&Mutations",NULL);
     FXPacker *linesPage4=new FXPacker(TabBook,FRAME_THICK|FRAME_RAISED);
     
@@ -46,7 +47,4 @@ long MainWindow::Mutations(FXTabBook *TabBook,FXDialogBox *Options){
     FXMatrix *GroupMatrix6=new FXMatrix(GroupMatrix4,5,MATRIX_BY_COLUMNS|LAYOUT_SIDE_TOP|LAYOUT_FILL_X|LAYOUT_FILL_Y);
     
     FXMatrix *GroupMatrix7=new FXMatrix(GroupMatrix4,1,MATRIX_BY_COLUMNS|LAYOUT_SIDE_TOP|LAYOUT_FILL_X|LAYOUT_FILL_Y);
-
-    return 1;
-    
 }

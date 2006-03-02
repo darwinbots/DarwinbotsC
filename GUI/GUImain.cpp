@@ -1,4 +1,5 @@
 #include "GUImain.h"
+#include "OptionsForm.h"
 #include <signal.h>
 #include "../Engine/SimOptions.h"
 #include "../Engine/Engine.h"
@@ -78,9 +79,9 @@ MainWindow::MainWindow(FXApp *app)
     new FXMenuTitle(menubar, "&Help", 0, helpMenu);
     
     GLWindow();
-    ConnectVar();
 
     BotDebug = NULL;
+    OptionsForm = new OptionsFormDialogBox(this);
 }
 
 MainWindow::~MainWindow()

@@ -147,10 +147,10 @@ void ReadSettPre2_4(istream &in, SimOptions &Options)
     Options.FieldDimensions.set(Options.FieldDimensions.y(), Options.FieldDimensions.x(), 0);
 	Options.MaxPopulation =						GrabNumber(in);
 	line =										GrabString(in);  //obsolete
-	Options.DisableTies =						GrabBool(in);
-	Options.PopLimMethod =						GrabNumber(in);
+	                                            GrabBool(in);
+	                                            GrabNumber(in);
 	Options.Toroidal =							GrabBool(in);
-	Options.NrgCyc =							GrabNumber(in);
+	                							GrabNumber(in);
 	Options.MinVegs =							GrabNumber(in);
 	Options.Costs[CONDCOST] =					GrabNumber(in);
 	Options.Costs[COSTSTORE] =					GrabNumber(in);
@@ -184,7 +184,7 @@ void ReadSettPre2_4(istream &in, SimOptions &Options)
 	if (!in.eof()) line =						GrabString(in); //obsolete
 	if (!in.eof()) Options.LightIntensity =		GrabNumber(in);
 	if (!in.eof()) Options.CorpseEnabled  =		GrabBool(in);
-	if (!in.eof()) Options.Decay =				GrabNumber(in);
+	if (!in.eof()) Options.DecaySize =  		GrabNumber(in);
 	if (!in.eof()) Options.Gradient  =			GrabNumber(in);
 	if (!in.eof()) Options.DayNight  =			GrabBool(in);
 	if (!in.eof()) Options.CycleLength  =		GrabNumber(in);

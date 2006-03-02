@@ -614,7 +614,7 @@ bool Robot::FireTie()
 	int tieport = (*this)[mtie];
 
 	(*this)[mtie] = 0;	
-	if (tieport > 0 && this->lastopp != NULL && SimOpts.DisableTies == false)
+	if (tieport > 0 && this->lastopp != NULL)
 	{
 		return Tie::MakeTie(this, lastopp, tieport);
 	}

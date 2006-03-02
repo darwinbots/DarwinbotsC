@@ -70,8 +70,6 @@ struct SimOptions: PhysicsConstants
     unsigned int MaxPopulation; //unsigned int
     unsigned int MinVegs;		//unsigned int
     bool KillDistVegs;			//bool
-	bool DisableTies;			//bool
-    unsigned int PopLimMethod;	//unsigned int
 
     //toroidal is updnconnected = dxsxconected = true
     bool Toroidal;				//bool
@@ -105,8 +103,7 @@ struct SimOptions: PhysicsConstants
     
     float Costs[70];            //costs for various activities (float)
 
-    float NrgCyc;
-	float LightIntensity;		//float
+    float LightIntensity;		//float
 	bool PondMode;				//bool
     float Gradient;				//bool
     bool DayNight;				//daynight mode? (bool)
@@ -115,7 +112,7 @@ struct SimOptions: PhysicsConstants
 
     bool CorpseEnabled;			//bool
     
-    float Decay;				//float
+    float DecaySize;		    //float
     unsigned int DecayDelay;	//unsigned int
     unsigned int DecayType;		//unsigned int
     

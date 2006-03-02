@@ -61,7 +61,7 @@ void Robot::FeedVegSun()
         }
         else
         {
-            tok = SimOpts.NrgCyc;
+            tok = SimOpts.LightIntensity;
         }
 
         if (tok < 0)

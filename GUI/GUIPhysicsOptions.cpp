@@ -1,3 +1,4 @@
+#include "OptionsForm.h"
 #include "GUImain.h"
 
 long MainWindow::onCmdPCAdvancedControls(FXObject *, FXSelector, void *){
@@ -250,7 +251,8 @@ long MainWindow::onCmdPAndCAdv(FXObject *, FXSelector, void *){
         return 1;
 }
 
-long MainWindow::PhysicsAndCosts(FXTabBook *TabBook,FXDialogBox *Options){
+void OptionsFormDialogBox::PhysicsAndCosts(FXTabBook *TabBook)
+{
     FXTabItem *linesTab3=new FXTabItem(TabBook,"&Physics and Costs",NULL);
     FXPacker *linesPage3=new FXPacker(TabBook,FRAME_THICK|FRAME_RAISED);
         
@@ -298,9 +300,9 @@ long MainWindow::PhysicsAndCosts(FXTabBook *TabBook,FXDialogBox *Options){
     new FXLabel(matrix2,"Brownian Movement",NULL,LAYOUT_LEFT|JUSTIFY_LEFT);
     
     FXPopup *popup3=new FXPopup(this);
-    new FXOption(popup3,"Ideal",NULL,&MovingEfficiency_Tar,FXDataTarget::ID_OPTION+0,JUSTIFY_HZ_APART|ICON_AFTER_TEXT);
-    new FXOption(popup3,"Biological",NULL,&MovingEfficiency_Tar,FXDataTarget::ID_OPTION+1,JUSTIFY_HZ_APART|ICON_AFTER_TEXT);
-    new FXOption(popup3,"Mechanical",NULL,&MovingEfficiency_Tar,FXDataTarget::ID_OPTION+2,JUSTIFY_HZ_APART|ICON_AFTER_TEXT);
+    new FXOption(popup3,"Ideal",NULL,NULL,FXDataTarget::ID_OPTION+0,JUSTIFY_HZ_APART|ICON_AFTER_TEXT);
+    new FXOption(popup3,"Biological",NULL,NULL,FXDataTarget::ID_OPTION+1,JUSTIFY_HZ_APART|ICON_AFTER_TEXT);
+    new FXOption(popup3,"Mechanical",NULL,NULL,FXDataTarget::ID_OPTION+2,JUSTIFY_HZ_APART|ICON_AFTER_TEXT);
     FXOptionMenu *options3=new FXOptionMenu(matrix2,popup3,LAYOUT_TOP|FRAME_RAISED|FRAME_THICK|JUSTIFY_HZ_APART|ICON_AFTER_TEXT);
     options2->setTarget(0);
     options2->setSelector(FXDataTarget::ID_VALUE);
@@ -324,8 +326,8 @@ long MainWindow::PhysicsAndCosts(FXTabBook *TabBook,FXDialogBox *Options){
     options2->setTarget(0);
     options2->setSelector(FXDataTarget::ID_VALUE);
     
-    FXButton *button3 = new FXButton(matrix2, "Advanced Controls", 0, this,
-        	ID_PCAdvancedControls, BUTTON_INITIAL|BUTTON_DEFAULT|FRAME_RAISED|FRAME_THICK|LAYOUT_CENTER_X,
+    FXButton *button3 = new FXButton(matrix2, "Advanced Controls", 0, NULL,
+        	NULL, BUTTON_INITIAL|BUTTON_DEFAULT|FRAME_RAISED|FRAME_THICK|LAYOUT_CENTER_X,
                 0,0,0,0,10,10,0,0);
                 
     new FXLabel(matrix2,"Swimming Factor",NULL,LAYOUT_LEFT|JUSTIFY_LEFT);
@@ -337,8 +339,8 @@ long MainWindow::PhysicsAndCosts(FXTabBook *TabBook,FXDialogBox *Options){
     
     FXMatrix *matrix4=new FXMatrix(group3,2,MATRIX_BY_COLUMNS|LAYOUT_SIDE_TOP|LAYOUT_FILL_X|LAYOUT_FILL_Y);
     
-    FXButton *button4 = new FXButton(matrix4, "Advanced Costs", 0, this,
-        	ID_PAndCAdv, BUTTON_INITIAL|BUTTON_DEFAULT|FRAME_RAISED|FRAME_THICK|LAYOUT_CENTER_X,
+    FXButton *button4 = new FXButton(matrix4, "Advanced Costs", 0, NULL,
+        	NULL, BUTTON_INITIAL|BUTTON_DEFAULT|FRAME_RAISED|FRAME_THICK|LAYOUT_CENTER_X,
                 0,0,0,0,10,10,0,0);
                 
     new FXFrame(matrix4,LAYOUT_FILL_COLUMN|LAYOUT_FILL_ROW);
@@ -354,5 +356,4 @@ long MainWindow::PhysicsAndCosts(FXTabBook *TabBook,FXDialogBox *Options){
     new FXRadioButton(matrix4,"Propotional",0,FXDataTarget::ID_OPTION+1,LAYOUT_CENTER_Y|LAYOUT_FILL_COLUMN|LAYOUT_FILL_ROW|ICON_BEFORE_TEXT);
 
     new FXSpinner(matrix4,5,0,FXDataTarget::ID_VALUE,SPIN_CYCLIC|FRAME_SUNKEN|FRAME_THICK|LAYOUT_CENTER_Y|LAYOUT_FILL_ROW);
-	return 1;
 }
