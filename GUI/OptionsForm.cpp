@@ -1,9 +1,5 @@
 #include "OptionsForm.h"
-
-FXDEFMAP(OptionsFormDialogBox) OptionsFormDialogBoxMap[] = {
-    FXMAPFUNC(SEL_COMMAND, OptionsFormDialogBox::ID_STARTNEW,   OptionsFormDialogBox::onStartNew),
-    FXMAPFUNC(SEL_COMMAND, OptionsFormDialogBox::ID_CHANGE,     OptionsFormDialogBox::onChange)
-};
+#include "../Engine/EngineThread.h"
 
 FXIMPLEMENT(OptionsFormDialogBox, FXDialogBox,
     OptionsFormDialogBoxMap, ARRAYNUMBER(OptionsFormDialogBoxMap))
@@ -52,6 +48,15 @@ void OptionsFormDialogBox::BottomToolbar(FXMatrix *LayoutMatrix)
 long OptionsFormDialogBox::onChange(FXObject *, FXSelector, void *)
 {
     SimOpts = TmpOpts;
+    this->hide();
+    return 1;
+}
+
+long OptionsFormDialogBox::onStartNew(FXObject *, FXSelector, void *)
+{
+    EngineThread.cancel();
+    SimOpts = TmpOpts;
+    EngineThread.start();
     this->hide();
     return 1;
 }

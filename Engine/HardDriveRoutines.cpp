@@ -123,7 +123,7 @@ void ReadSettPre2_4(istream &in, SimOptions &Options)
 		Options.Specie[x].qty =					 GrabNumber(in);
 		Options.Specie[x].Name =				 GrabString(in);
 		Options.Specie[x].Veg =					 GrabBool(in);
-		Options.Specie[x].Fixed =				 GrabBool(in);
+		                                         GrabBool(in);
 				
 		Options.Specie[x].color =	             GrabNumber(in);
 		line =									 GrabString(in);  //obsolete

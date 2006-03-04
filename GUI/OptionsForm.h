@@ -12,6 +12,7 @@ class OptionsFormDialogBox : public FXDialogBox
     FXDECLARE(OptionsFormDialogBox)
 
     private:
+    FXList *SpeciesList;
     void BottomToolbar(FXMatrix *LayoutMatrix);
     void Species                (FXTabBook *TabBook);
     void Veggy                  (FXTabBook *TabBook);
@@ -22,12 +23,16 @@ class OptionsFormDialogBox : public FXDialogBox
     void InternetOptions        (FXTabBook *TabBook);
     void Recording              (FXTabBook *TabBook);
 
+    long ReConnectToSpecies(unsigned int SpeciesNumber);
+
     public:
     OptionsFormDialogBox(FXComposite *parent = NULL);
 
     //Commands
-    long onStartNew             (FXObject *, FXSelector, void *) {return 1;}
+    long onStartNew             (FXObject *, FXSelector, void *);
     long onChange               (FXObject *, FXSelector, void *);
+
+    long onSelectNewSpecies     (FXObject *, FXSelector, void *);
 
     void hide()
     {
@@ -36,6 +41,15 @@ class OptionsFormDialogBox : public FXDialogBox
 
     void show(FXuint placement)
     {
+        SpeciesList->clearItems();
+        for (int x = 0; x < 50; x++)
+        {
+            if(!strcmp(TmpOpts.Specie[x].Name.c_str(), ""))
+                break;
+            SpeciesList->appendItem(TmpOpts.Specie[x].Name.c_str());
+            ReConnectToSpecies(0);
+        }
+
         FXDialogBox::show(placement);
     }
 
@@ -44,6 +58,19 @@ class OptionsFormDialogBox : public FXDialogBox
         ID_STARTNEW = FXDialogBox::ID_LAST,
         ID_CHANGE,
 
+        ID_SELECTSPECIES,
+        ID_ADDSPECIES,
+        ID_CLONESPECIES,
+        ID_INHERITSPECIES,
+        ID_DELETESPECIES,
+        ID_DELETEALLSPECIES,
+
         ID_LAST
     };
+};
+
+FXDEFMAP(OptionsFormDialogBox) OptionsFormDialogBoxMap[] = {
+    FXMAPFUNC(SEL_COMMAND, OptionsFormDialogBox::ID_STARTNEW,   OptionsFormDialogBox::onStartNew),
+    FXMAPFUNC(SEL_COMMAND, OptionsFormDialogBox::ID_CHANGE,     OptionsFormDialogBox::onChange),
+    FXMAPFUNC(SEL_COMMAND, OptionsFormDialogBox::ID_SELECTSPECIES,     OptionsFormDialogBox::onSelectNewSpecies)
 };

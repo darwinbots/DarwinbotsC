@@ -41,9 +41,7 @@ void DrawRobots()
         if (rob[x] != NULL)
         {
             //load texture
-            //glColor3f(rob[x]->color.x(), rob[x]->color.y(), rob[x]->color.z());
-            
-            glColor3f(1.0f,0,0);
+            glColor3f(rob[x]->color.x(), rob[x]->color.y(), rob[x]->color.z());
 
             CreateCircle(rob[x]->findpos(), rob[x]->rad(), 4);
             rob[x]->DrawRobotEye();

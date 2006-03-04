@@ -26,14 +26,18 @@ struct datispecie
     int Skin[13];
     string path;
     string Name;
-    float nrg;
-    bool Veg;
-    bool Fixed;
+
     unsigned int color;
-    Vector4 PosTopLeft, PosLowRight;
+    
     unsigned int qty;
+    unsigned int nrg;
+    unsigned int body;
+    
+    bool Veg;
+    
+    Vector4 PosTopLeft, PosLowRight;
+    
     string Comment;
-    string LeaguefileComment;
     
     mutationprobs Mutables;
 };

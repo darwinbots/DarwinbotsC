@@ -1,4 +1,3 @@
-//#include <windows.h>
 #include "SimOptions.h"
 #include "HardDriveRoutines.h"
 #include "Shots.h"
@@ -46,25 +45,23 @@ void Engine_Class::UpdateSim(void)
 		if (rob[counter] != NULL)
             rob[counter]->VelocityCap();
 
-    
-    
-    for(counter = 0; counter<=MaxRobs; counter++)
-		if (rob[counter] != NULL)
-            rob[counter]->BotCollisionsPos();
-
-    for(counter = 0; counter<=MaxRobs; counter++)
-		if (rob[counter] != NULL)
-            rob[counter]->EdgeCollisions();  //collisions with edges (if rigid edges are selected)
-
     //More iterations decreases overlap between bots when stacking, but
     //it hardly seems practical.  A better solution must exist, which
     //more intelligently offsets colliding bots.
+    {
+        for(counter = 0; counter<=MaxRobs; counter++)
+		    if (rob[counter] != NULL)
+                rob[counter]->BotCollisionsPos();
+
+        for(counter = 0; counter<=MaxRobs; counter++)
+		    if (rob[counter] != NULL)
+                rob[counter]->EdgeCollisions();  //collisions with edges (if rigid edges are selected)
+    }    
 
     //perhaps collisions with edges offsets the whole world as well (or rather,
     //offsets all objects in the world an opposite amount)
     //or conversely, bot collisions have one of the bots moving 100%
     //of the distance
-
 
     //END CONSTRAINTS
     //END Physics steps
@@ -92,26 +89,13 @@ void Engine_Class::UpdateSim(void)
 	SimOpts.TotRunCycle++;
 }
 
-void Engine_Class::SetupSim(void)
+void Engine_Class::ProgramInitialize(void)
 {
-	ReadSett("c:\\DarwinbotsII\\settings\\lastexit.set", SimOpts);
+    ReadSett("c:\\DarwinbotsII\\settings\\lastexit.set", SimOpts);
     this->maindir = "C:\\DarwinbotsII\\";
 
     BuildSysvars();
-	
-	//seed the random number generator
-	DBsrand(800741);
-	//Load script Lists
 
-	//setup graphics engine
-
-	SimOpts.MutCurrMult = 1;
-	SimOpts.TotRunCycle = 0;
-	SimOpts.TotBorn = 0;
-	SimOpts.TotRunTime = 0;
-
-	//reset graphs
-	
     //initialize the robot and shot pointer array
 	for (unsigned int x = 0; x < 5000; x++)
     {
@@ -121,10 +105,35 @@ void Engine_Class::SetupSim(void)
 
 	MaxRobs = 0;
     MaxShots = 0;
+}
+
+void Engine_Class::SetupSim(void)
+{	
+	DBsrand(800741);
+	
+    //Load script Lists
+
+	SimOpts.MutCurrMult = 1;
+	SimOpts.TotRunCycle = 0;
+	SimOpts.TotBorn = 0;
+	SimOpts.TotRunTime = 0;
+
+	//reset graphs
+
+    //clear out the robot and shot arrays if we need to
+    for (unsigned int x = 0; x < 5000; x++)
+    {
+        if(rob[x])
+            delete rob[x];
+
+        if(shots[x])
+            delete shots[x];
+    }
+
+	MaxRobs = 0;
+    MaxShots = 0;
 
 	this->LoadRobots();
-
-	//draw first frame
 
 	//MDIForm.enablesim(?)
 
@@ -145,36 +154,13 @@ void Engine_Class::SetupSim(void)
 		End If
 	End If
 	*/
-
-	//setup engine thread (just calls Engine::Update_Sim over and over)
-	//setup graphics thread
-	//setup input thread
-
-	/*unsigned long clocks;
-	unsigned long counter=0;
-
-    cout << rob[0]->DNA_Text();
-	
-	do
-	{
-		clocks = GetTickCount();
-		this->UpdateSim();
-		clocks = GetTickCount() - clocks;
-		clocks = (clocks);
-		cout << clocks << endl;
-	}while(++counter < 5);*/
 }
 
 void Engine_Class::LoadRobots(void)
 {
-	Robot *temp;
 	for (unsigned int y = 0; y < SimOpts.SpeciesNum; y++)
-	{
-		for (unsigned int x = 0; x < SimOpts.Specie[y].qty; x++)
-		{
-			temp = new Robot(&SimOpts.Specie[y]);
-		}
-	}
+	    for (unsigned int x = 0; x < SimOpts.Specie[y].qty; x++)
+			new Robot(&SimOpts.Specie[y]);
 }
 
 void Engine_Class::ExecuteDNA()

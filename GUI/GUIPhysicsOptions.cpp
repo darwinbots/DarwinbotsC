@@ -330,11 +330,6 @@ void OptionsFormDialogBox::PhysicsAndCosts(FXTabBook *TabBook)
         	NULL, BUTTON_INITIAL|BUTTON_DEFAULT|FRAME_RAISED|FRAME_THICK|LAYOUT_CENTER_X,
                 0,0,0,0,10,10,0,0);
                 
-    new FXLabel(matrix2,"Swimming Factor",NULL,LAYOUT_LEFT|JUSTIFY_LEFT);
-    
-    FXRealSlider *slider=new FXRealSlider(matrix2,0,FXDataTarget::ID_VALUE,LAYOUT_CENTER_Y|LAYOUT_FILL_X|LAYOUT_FILL_ROW|LAYOUT_FIX_WIDTH,0,0,100);
-    slider->setRange(0.0,0.8);
-
     FXGroupBox *group3=new FXGroupBox(LayoutMatrix,"Costs and Returned Shots",GROUPBOX_TITLE_LEFT|FRAME_RIDGE|LAYOUT_FILL_X|LAYOUT_FILL_Y);
     
     FXMatrix *matrix4=new FXMatrix(group3,2,MATRIX_BY_COLUMNS|LAYOUT_SIDE_TOP|LAYOUT_FILL_X|LAYOUT_FILL_Y);

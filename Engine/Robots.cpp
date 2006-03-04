@@ -10,6 +10,7 @@ Class containing all the info for robots
 #include "Robot.h"
 #include "Engine.h"
 #include "Shots.h"
+#include <fx.h>
 
 using namespace std;
 using namespace Math3D;
@@ -55,8 +56,7 @@ void Robot::BasicRobotSetup()
 void Robot::Setup(datispecie *myspecies)
 {
 	this->Veg = myspecies->Veg;
-	this->Fixed = myspecies->Fixed;
-
+	
 	this->fname = myspecies->Name;
 
 	//do I need to set up *.fixed?
@@ -65,8 +65,11 @@ void Robot::Setup(datispecie *myspecies)
     this->oldImpulse.set(0,0,0);
     this->vel.set(0,0,0);
 
-	this->nrg = myspecies->nrg;
-	this->Body = 1000; //default body value
+	this->nrg = (float)myspecies->nrg;
+	this->Body = (float)myspecies->body;
+    this->color = Vector4(float(FXREDVAL(myspecies->color))   / 255.0f,
+                          float(FXGREENVAL(myspecies->color)) / 255.0f,
+                          float(FXBLUEVAL(myspecies->color))  / 255.0f);    
 
 	this->UpdateRadius();
 	this->UpdateMass();

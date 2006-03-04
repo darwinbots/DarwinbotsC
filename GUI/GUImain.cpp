@@ -97,7 +97,6 @@ void MainWindow::create()
 MainWindow *MainWindowHandle;
 
 #ifndef DB_NOGUI
-
 #ifdef WIN32
     #define WIN32_LEAN_AND_MEAN
     #include "windows.h"
@@ -107,7 +106,8 @@ MainWindow *MainWindowHandle;
 #else
     int main(int argc, char **argv){
 #endif
-    FXApp app(PROJECT_NAME, "yo");
+
+    FXApp app(PROJECT_NAME, "");
     app.init(argc, argv);
 
     MainWindowHandle = new MainWindow(&app);
@@ -120,6 +120,7 @@ MainWindow *MainWindowHandle;
 
     app.addTimeout(MainWindowHandle, MainWindow::ID_UpdGfx);
                 
+    EngineThread.ProgramInitialize();
     EngineThread.start();
     
     return app.run();

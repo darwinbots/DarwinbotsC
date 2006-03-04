@@ -1,12 +1,13 @@
 #include "OptionsForm.h"
 #include "..\Engine\SimOptions.h"
 
-datispecie *currspec = &TmpOpts.Specie[0];
+FXDataTarget *Speciesqty =   new FXDataTarget;//(TmpOpts.Specie[0].qty);
+FXDataTarget *Speciesnrg =   new FXDataTarget;//(TmpOpts.Specie[0].nrg);
+FXDataTarget *Speciesbody =  new FXDataTarget;//(TmpOpts.Specie[0].body);
+FXDataTarget *Speciescolor = new FXDataTarget;//(TmpOpts.Specie[0].color);
 
 void OptionsFormDialogBox::Species(FXTabBook *TabBook)
 {
-    unsigned int x;   
-    
     FXTabItem *linesTab=new FXTabItem(TabBook,"&Species",NULL);
     FXPacker *linesPage=new FXPacker(TabBook,FRAME_THICK|FRAME_RAISED);
 
@@ -32,13 +33,8 @@ void OptionsFormDialogBox::Species(FXTabBook *TabBook)
                 0,0,0,0,
                 0,0,0,0);
             {
-                FXList *SpeciesList = new FXList(SpeciesListMatrix, NULL, 0,
+                SpeciesList = new FXList(SpeciesListMatrix, this, OptionsFormDialogBox::ID_SELECTSPECIES,
                     LIST_BROWSESELECT | LAYOUT_FIX_WIDTH | LAYOUT_FIX_HEIGHT, 0, 0, 135, 135);
-
-                for (x = 0; x < TmpOpts.SpeciesNum; x++)
-                {
-                    SpeciesList->appendItem(TmpOpts.Specie[x].Name.c_str());
-                }
             }
 
             //Species List interface buttons
@@ -89,8 +85,8 @@ void OptionsFormDialogBox::Species(FXTabBook *TabBook)
         FXMatrix *AppearanceMatrix = new FXMatrix(SpeciesAppearanceFrame, 1, MATRIX_BY_ROWS);
     
         new FXLabel(AppearanceMatrix, "Color");
-        FXColorWell *SpeciesColor = new FXColorWell(AppearanceMatrix, FXRGB(255,0,0), NULL,
-                                    0, COLORWELL_NORMAL | LAYOUT_FIX_WIDTH, 0, 0, 50, 0);
+        FXColorWell *SpeciesColor = new FXColorWell(AppearanceMatrix, FXRGB(255,0,0), Speciescolor,
+                                    FXDataTarget::ID_VALUE, COLORWELL_NORMAL | LAYOUT_FIX_WIDTH, 0, 0, 50, 0);
 
         ///////////////////////////////////////////////////////////////////////
         FXGroupBox *SpeciesPositionControlFrame = new FXGroupBox(SpeciesDetailsMasterMatrixLeft,
@@ -111,22 +107,26 @@ void OptionsFormDialogBox::Species(FXTabBook *TabBook)
     
         new FXLabel(InitialPopulationTopRow, "Initial Population");
         new FXSeparator(InitialPopulationTopRow, LAYOUT_FILL_ALL);
-        FXSpinner *InitialPopulationSpinner = new FXSpinner(InitialPopulationTopRow, 4, NULL,
-                                              0, SPIN_NORMAL | FRAME_SUNKEN | FRAME_THICK | LAYOUT_RIGHT);
+        FXSpinner *InitialPopulationSpinner = new FXSpinner(InitialPopulationTopRow, 5, Speciesqty,
+                                              FXDataTarget::ID_VALUE, SPIN_NORMAL | FRAME_SUNKEN | FRAME_THICK | LAYOUT_RIGHT);
     
-        InitialPopulationSpinner->setRange(0, 5000);
+        InitialPopulationSpinner->setRange(0, 32000);
 
         FXMatrix *InitialPopulationButtonMatrix = new FXMatrix(InitialPopulationMatrix, 1, MATRIX_BY_ROWS,
             0,0,0,0,
             0,0,0,0,
             0,0);
     
-        new FXButton(InitialPopulationButtonMatrix, "0", BUTTON_STUFF | LAYOUT_FIX_WIDTH, 0, 0, 33);
-        new FXButton(InitialPopulationButtonMatrix, "1", BUTTON_STUFF | LAYOUT_FIX_WIDTH, 0, 0, 33);
-        new FXButton(InitialPopulationButtonMatrix, "5", BUTTON_STUFF | LAYOUT_FIX_WIDTH, 0, 0, 33);
-        new FXButton(InitialPopulationButtonMatrix, "10", BUTTON_STUFF | LAYOUT_FIX_WIDTH, 0, 0, 33);
-        new FXButton(InitialPopulationButtonMatrix, "30", BUTTON_STUFF | LAYOUT_FIX_WIDTH, 0, 0, 33);
-        new FXButton(InitialPopulationButtonMatrix, "100", BUTTON_STUFF | LAYOUT_FIX_WIDTH, 0, 0, 33);
+        #undef BUTTON_STUFF
+        //                   icon, tgt, sel, options
+        #define BUTTON_STUFF(amt) NULL, Speciesqty, FXDataTarget::ID_OPTION + amt, BUTTON_NORMAL | LAYOUT_FILL_X
+        
+        new FXButton(InitialPopulationButtonMatrix, "0", BUTTON_STUFF(0) | LAYOUT_FIX_WIDTH, 0, 0, 33);
+        new FXButton(InitialPopulationButtonMatrix, "1", BUTTON_STUFF(1) | LAYOUT_FIX_WIDTH, 0, 0, 33);
+        new FXButton(InitialPopulationButtonMatrix, "5", BUTTON_STUFF(5) | LAYOUT_FIX_WIDTH, 0, 0, 33);
+        new FXButton(InitialPopulationButtonMatrix, "10", BUTTON_STUFF(10) | LAYOUT_FIX_WIDTH, 0, 0, 33);
+        new FXButton(InitialPopulationButtonMatrix, "30", BUTTON_STUFF(30) | LAYOUT_FIX_WIDTH, 0, 0, 33);
+        new FXButton(InitialPopulationButtonMatrix, "100", BUTTON_STUFF(100) | LAYOUT_FIX_WIDTH, 0, 0, 33);
     
         ///////
         new FXSeparator(SpeciesInitializationFrame);
@@ -138,8 +138,8 @@ void OptionsFormDialogBox::Species(FXTabBook *TabBook)
     
         new FXLabel(InitialEnergyTopRow, "Initial Energy");
         new FXSeparator(InitialEnergyTopRow, LAYOUT_FILL_ALL);
-        FXSpinner *InitialEnergySpinner = new FXSpinner(InitialEnergyTopRow, 4, NULL, 0,
-                                              SPIN_NORMAL | FRAME_SUNKEN | FRAME_THICK | LAYOUT_RIGHT);
+        FXSpinner *InitialEnergySpinner = new FXSpinner(InitialEnergyTopRow, 5, Speciesnrg,
+                                          FXDataTarget::ID_VALUE, SPIN_NORMAL | FRAME_SUNKEN | FRAME_THICK | LAYOUT_RIGHT);
     
         InitialEnergySpinner->setRange(0, 32000);
 
@@ -147,13 +147,17 @@ void OptionsFormDialogBox::Species(FXTabBook *TabBook)
             0,0,0,0,
             0,0,0,0,
             0,0);
-    
-        new FXButton(InitialEnergyButtonMatrix, "2K", BUTTON_STUFF | LAYOUT_FIX_WIDTH, 0, 0, 33);
-        new FXButton(InitialEnergyButtonMatrix, "3K", BUTTON_STUFF | LAYOUT_FIX_WIDTH, 0, 0, 33);
-        new FXButton(InitialEnergyButtonMatrix, "5K", BUTTON_STUFF | LAYOUT_FIX_WIDTH, 0, 0, 33);
-        new FXButton(InitialEnergyButtonMatrix, "10K", BUTTON_STUFF | LAYOUT_FIX_WIDTH, 0, 0, 33);
-        new FXButton(InitialEnergyButtonMatrix, "20K", BUTTON_STUFF | LAYOUT_FIX_WIDTH, 0, 0, 33);
-        new FXButton(InitialEnergyButtonMatrix, "30K", BUTTON_STUFF | LAYOUT_FIX_WIDTH, 0, 0, 33);
+        
+        #undef BUTTON_STUFF
+        //                   icon, tgt, sel, options
+        #define BUTTON_STUFF(amt) NULL, Speciesnrg, FXDataTarget::ID_OPTION + amt, BUTTON_NORMAL | LAYOUT_FILL_X
+        
+        new FXButton(InitialEnergyButtonMatrix, "2K", BUTTON_STUFF(2000) | LAYOUT_FIX_WIDTH, 0, 0, 33);
+        new FXButton(InitialEnergyButtonMatrix, "3K", BUTTON_STUFF(3000) | LAYOUT_FIX_WIDTH, 0, 0, 33);
+        new FXButton(InitialEnergyButtonMatrix, "5K", BUTTON_STUFF(5000) | LAYOUT_FIX_WIDTH, 0, 0, 33);
+        new FXButton(InitialEnergyButtonMatrix, "10K", BUTTON_STUFF(10000) | LAYOUT_FIX_WIDTH, 0, 0, 33);
+        new FXButton(InitialEnergyButtonMatrix, "20K", BUTTON_STUFF(20000) | LAYOUT_FIX_WIDTH, 0, 0, 33);
+        new FXButton(InitialEnergyButtonMatrix, "30K", BUTTON_STUFF(30000) | LAYOUT_FIX_WIDTH, 0, 0, 33);
 
         //////////
         new FXSeparator(SpeciesInitializationFrame);
@@ -165,9 +169,9 @@ void OptionsFormDialogBox::Species(FXTabBook *TabBook)
     
         new FXLabel(InitialBodyTopRow, "Initial Body");
         new FXSeparator(InitialBodyTopRow, LAYOUT_FILL_ALL);
-        FXSpinner *InitialBodySpinner = new FXSpinner(InitialBodyTopRow, 4, NULL, 0,
+        FXSpinner *InitialBodySpinner = new FXSpinner(InitialBodyTopRow, 5, Speciesbody, FXDataTarget::ID_VALUE,
                                               SPIN_NORMAL | FRAME_SUNKEN | FRAME_THICK | LAYOUT_RIGHT);
-    
+        
         InitialBodySpinner->setRange(0, 32000);
 
         FXMatrix *InitialBodyButtonMatrix = new FXMatrix(InitialBodyMatrix, 1, MATRIX_BY_ROWS,
@@ -175,13 +179,33 @@ void OptionsFormDialogBox::Species(FXTabBook *TabBook)
             0,0,0,0,
             0,0);
     
-        new FXButton(InitialBodyButtonMatrix, "100", BUTTON_STUFF | LAYOUT_FIX_WIDTH, 0, 0, 33);
-        new FXButton(InitialBodyButtonMatrix, "1K", BUTTON_STUFF | LAYOUT_FIX_WIDTH, 0, 0, 33);
-        new FXButton(InitialBodyButtonMatrix, "3K", BUTTON_STUFF | LAYOUT_FIX_WIDTH, 0, 0, 33);
-        new FXButton(InitialBodyButtonMatrix, "8K", BUTTON_STUFF | LAYOUT_FIX_WIDTH, 0, 0, 33);
-        new FXButton(InitialBodyButtonMatrix, "15K", BUTTON_STUFF | LAYOUT_FIX_WIDTH, 0, 0, 33);
-        new FXButton(InitialBodyButtonMatrix, "30K", BUTTON_STUFF | LAYOUT_FIX_WIDTH, 0, 0, 33);
+        #undef BUTTON_STUFF
+        //                   icon, tgt, sel, options
+        #define BUTTON_STUFF(amt) NULL, Speciesbody, FXDataTarget::ID_OPTION + amt, BUTTON_NORMAL | LAYOUT_FILL_X
+        
+        new FXButton(InitialBodyButtonMatrix, "100", BUTTON_STUFF(100) | LAYOUT_FIX_WIDTH, 0, 0, 33);
+        new FXButton(InitialBodyButtonMatrix, "1K", BUTTON_STUFF(1000) | LAYOUT_FIX_WIDTH, 0, 0, 33);
+        new FXButton(InitialBodyButtonMatrix, "3K", BUTTON_STUFF(3000) | LAYOUT_FIX_WIDTH, 0, 0, 33);
+        new FXButton(InitialBodyButtonMatrix, "8K", BUTTON_STUFF(8000) | LAYOUT_FIX_WIDTH, 0, 0, 33);
+        new FXButton(InitialBodyButtonMatrix, "15K", BUTTON_STUFF(15000) | LAYOUT_FIX_WIDTH, 0, 0, 33);
+        new FXButton(InitialBodyButtonMatrix, "30K", BUTTON_STUFF(30000) | LAYOUT_FIX_WIDTH, 0, 0, 33);
 
         ///////////////////////////////////////////////////////////////////
     }
+}
+
+long OptionsFormDialogBox::ReConnectToSpecies(unsigned int SpeciesNumber)
+{
+    Speciesqty->connect(TmpOpts.Specie[SpeciesNumber].qty);
+    Speciesnrg->connect(TmpOpts.Specie[SpeciesNumber].nrg);
+    Speciesbody->connect(TmpOpts.Specie[SpeciesNumber].body);
+    Speciescolor->connect(TmpOpts.Specie[SpeciesNumber].color);
+
+    return 1;
+}
+
+long OptionsFormDialogBox::onSelectNewSpecies(FXObject *, FXSelector, void *)
+{
+    ReConnectToSpecies(SpeciesList->getCurrentItem());
+    return 1;
 }

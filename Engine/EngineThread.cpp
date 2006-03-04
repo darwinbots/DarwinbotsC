@@ -39,6 +39,11 @@ int EngineThread_Class::run()
     return 1;
 }
 
+void EngineThread_Class::ProgramInitialize()
+{
+    Engine.ProgramInitialize();
+}
+
 /*
 Important Note:
 

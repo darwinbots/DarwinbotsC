@@ -52,6 +52,7 @@ class EngineThread_Class : public FXThread
 {
     public:
     int run();
+    void ProgramInitialize();
     EngineThread_MasterFlowControl Flow;
     
 }extern EngineThread;

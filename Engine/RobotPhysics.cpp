@@ -38,7 +38,7 @@ void Robot::NetForces()
     this->GravityForces();
     this->BouyancyForces();
     this->BrownianForces();
-    this->PlanetEaters();
+    if(SimOpts.PlanetEaters) this->PlanetEaters();
 
     //tie springs for elastic ties (ie: young ties)
     //tie angles
@@ -190,7 +190,7 @@ void Robot::BotCollisionsVel()
             if(currdist < mindist)
             {
                 //UPDATE CHANGES IN VELOCITY
-                const float e  = SimOpts.ElasticCoefficient = 0.0f;
+                const float e  = SimOpts.ElasticCoefficient = 0.5f;
                 const float M1 = this->mass;
                 const float M2 = rob[x]->mass;
                 

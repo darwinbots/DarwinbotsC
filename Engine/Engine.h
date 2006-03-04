@@ -11,7 +11,8 @@ class Engine_Class
 {
 	public:
 
-	void UpdateSim(void);
+	void ProgramInitialize(void);
+    void UpdateSim(void);
 	void SetupSim(void);
     const string &MainDir(void)
     {
