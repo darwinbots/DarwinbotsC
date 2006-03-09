@@ -41,14 +41,14 @@ void OptionsFormDialogBox::Species(FXTabBook *TabBook)
             FXMatrix *SpeciesListButtonMatrix = new FXMatrix(SpeciesListMatrix, 1,
                 MATRIX_BY_COLUMNS|LAYOUT_FILL_ALL, 0, 0, 0, 0, 0, 0, 0, 0, 0, DEFAULT_SPACING / 2);
             {
-                //                   icon, tgt, sel, options
-                #define BUTTON_STUFF NULL, NULL, 0, BUTTON_NORMAL | LAYOUT_FILL_X
-                FXButton *AddSpeciesButton = new FXButton(SpeciesListButtonMatrix, "Add Species", BUTTON_STUFF);
-                FXButton *CloneSpeciesButton = new FXButton(SpeciesListButtonMatrix, "Clone Species", BUTTON_STUFF);
-                FXButton *InheritSettingsSpeciesButton = new FXButton(SpeciesListButtonMatrix, "Inherit Settings", BUTTON_STUFF);
-                FXButton *DeleteSpeciesButton = new FXButton(SpeciesListButtonMatrix, "Delete Species", BUTTON_STUFF);
+                //                           icon, tgt, sel, options
+                #define BUTTON_STUFF(signal) NULL, this, signal, BUTTON_NORMAL | LAYOUT_FILL_X
+                FXButton *AddSpeciesButton = new FXButton(SpeciesListButtonMatrix, "Add Species", BUTTON_STUFF(this->ID_ADDSPECIES));
+                FXButton *CloneSpeciesButton = new FXButton(SpeciesListButtonMatrix, "Clone Species", BUTTON_STUFF(this->ID_CLONESPECIES));
+                FXButton *InheritSettingsSpeciesButton = new FXButton(SpeciesListButtonMatrix, "Inherit Settings", BUTTON_STUFF(this->ID_INHERITSPECIES));
+                FXButton *DeleteSpeciesButton = new FXButton(SpeciesListButtonMatrix, "Delete Species", BUTTON_STUFF(this->ID_DELETESPECIES));
                 new FXSeparator(SpeciesListButtonMatrix, LAYOUT_FILL_ALL);
-                FXButton *DeleteAllSpeciesButton = new FXButton(SpeciesListButtonMatrix, "Clear List", BUTTON_STUFF | LAYOUT_BOTTOM);
+                FXButton *DeleteAllSpeciesButton = new FXButton(SpeciesListButtonMatrix, "Clear List", BUTTON_STUFF(this->ID_DELETEALLSPECIES) | LAYOUT_BOTTOM);
             }
         }
         /////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -156,8 +156,10 @@ void OptionsFormDialogBox::Species(FXTabBook *TabBook)
         new FXButton(InitialEnergyButtonMatrix, "3K", BUTTON_STUFF(3000) | LAYOUT_FIX_WIDTH, 0, 0, 33);
         new FXButton(InitialEnergyButtonMatrix, "5K", BUTTON_STUFF(5000) | LAYOUT_FIX_WIDTH, 0, 0, 33);
         new FXButton(InitialEnergyButtonMatrix, "10K", BUTTON_STUFF(10000) | LAYOUT_FIX_WIDTH, 0, 0, 33);
-        new FXButton(InitialEnergyButtonMatrix, "20K", BUTTON_STUFF(20000) | LAYOUT_FIX_WIDTH, 0, 0, 33);
-        new FXButton(InitialEnergyButtonMatrix, "30K", BUTTON_STUFF(30000) | LAYOUT_FIX_WIDTH, 0, 0, 33);
+        new FXButton(InitialEnergyButtonMatrix, "20K", NULL, this, OptionsFormDialogBox::ID_NRG_20K,
+            BUTTON_NORMAL | LAYOUT_FILL_X | LAYOUT_FIX_WIDTH, 0, 0, 33);
+        new FXButton(InitialEnergyButtonMatrix, "30K", NULL, this, OptionsFormDialogBox::ID_NRG_30K,
+            BUTTON_NORMAL | LAYOUT_FILL_X | LAYOUT_FIX_WIDTH, 0, 0, 33);
 
         //////////
         new FXSeparator(SpeciesInitializationFrame);
@@ -187,8 +189,10 @@ void OptionsFormDialogBox::Species(FXTabBook *TabBook)
         new FXButton(InitialBodyButtonMatrix, "1K", BUTTON_STUFF(1000) | LAYOUT_FIX_WIDTH, 0, 0, 33);
         new FXButton(InitialBodyButtonMatrix, "3K", BUTTON_STUFF(3000) | LAYOUT_FIX_WIDTH, 0, 0, 33);
         new FXButton(InitialBodyButtonMatrix, "8K", BUTTON_STUFF(8000) | LAYOUT_FIX_WIDTH, 0, 0, 33);
-        new FXButton(InitialBodyButtonMatrix, "15K", BUTTON_STUFF(15000) | LAYOUT_FIX_WIDTH, 0, 0, 33);
-        new FXButton(InitialBodyButtonMatrix, "30K", BUTTON_STUFF(30000) | LAYOUT_FIX_WIDTH, 0, 0, 33);
+        new FXButton(InitialBodyButtonMatrix, "15K", NULL, this, OptionsFormDialogBox::ID_BODY_15K,
+            BUTTON_NORMAL | LAYOUT_FILL_X | LAYOUT_FIX_WIDTH, 0, 0, 33);
+        new FXButton(InitialBodyButtonMatrix, "30K", NULL, this, OptionsFormDialogBox::ID_BODY_30K,
+            BUTTON_NORMAL | LAYOUT_FILL_X | LAYOUT_FIX_WIDTH, 0, 0, 33);
 
         ///////////////////////////////////////////////////////////////////
     }
@@ -207,5 +211,124 @@ long OptionsFormDialogBox::ReConnectToSpecies(unsigned int SpeciesNumber)
 long OptionsFormDialogBox::onSelectNewSpecies(FXObject *, FXSelector, void *)
 {
     ReConnectToSpecies(SpeciesList->getCurrentItem());
+    return 1;
+}
+
+long OptionsFormDialogBox::onAddNewSpecies(FXObject *, FXSelector, void *)
+{
+    const FXchar patterns[]="DNA Files (*.txt)\nAll Files (*)";
+    FXFileDialog open(this,"Add Species");
+    open.setPatternList(patterns);
+
+    if(open.execute())
+    {
+        string fullpath = open.getFilename().text();
+        string directory = open.getDirectory().text();
+
+        fullpath.erase(0, directory.length() + 1);
+
+        TmpOpts.AddSpecies(directory, fullpath);
+        SpeciesList->appendItem(fullpath.c_str());
+
+        SpeciesList->setCurrentItem(SpeciesList->getNumItems() - 1);
+
+        onSelectNewSpecies(NULL, 0, NULL);
+    }   
+    
+    return 1;
+}
+
+long OptionsFormDialogBox::onDeleteSpecies        (FXObject *, FXSelector, void *)
+{
+    TmpOpts.DeleteSpecies(SpeciesList->getCurrentItem());
+    SpeciesList->removeItem(SpeciesList->getCurrentItem(), true);
+    onSelectNewSpecies(NULL, 0, NULL);
+    return 1;
+}
+
+long OptionsFormDialogBox::onClearListSpecies     (FXObject *, FXSelector, void *)
+{
+    //maybe ask for confirmation?
+
+    if(MBOX_CLICKED_YES == FXMessageBox::warning(this,  FX::MBOX_YES_NO,
+                     "Erasure Confirmation",
+                     "Are you sure you want to clear the species list?"))
+    {
+        //delete list
+        SpeciesList->clearItems(true);
+        for(int x = 0; x < 50; x++)
+            TmpOpts.DeleteSpecies(0);
+    }
+    
+    return 1;
+}
+
+long OptionsFormDialogBox::onCloneSpecies        (FXObject *, FXSelector, void *)
+{
+    int x = 0;
+
+    while(TmpOpts.Specie[x].Name != "")
+        x++;
+
+    TmpOpts.Specie[x] = TmpOpts.Specie[SpeciesList->getCurrentItem()];
+    SpeciesList->appendItem(TmpOpts.Specie[x].Name.c_str());
+
+    SpeciesList->setCurrentItem(SpeciesList->getNumItems() - 1);
+    onSelectNewSpecies(NULL, 0, NULL);
+    return 1;
+}
+
+long OptionsFormDialogBox::onInheritSpecies        (FXObject *, FXSelector, void *)
+{
+    int x = 0;
+
+    while(TmpOpts.Specie[x].Name != "")
+        x++;
+
+    TmpOpts.Specie[x] = TmpOpts.Specie[SpeciesList->getCurrentItem()];
+
+    const FXchar patterns[]="DNA Files (*.txt)\nAll Files (*)";
+    FXFileDialog open(this,"Add Species with Inherited Settings");
+    open.setPatternList(patterns);
+
+    if(open.execute())
+    {
+        string fullpath = open.getFilename().text();
+        string directory = open.getDirectory().text();
+
+        fullpath.erase(0, directory.length() + 1);
+
+        TmpOpts.Specie[x].Name = fullpath;
+        TmpOpts.Specie[x].path = directory;
+
+        SpeciesList->appendItem(fullpath.c_str());
+        SpeciesList->setCurrentItem(SpeciesList->getNumItems() - 1);
+        onSelectNewSpecies(NULL, 0, NULL);
+    }   
+    
+    return 1;
+}
+
+long OptionsFormDialogBox::onNrgButton20K(FXObject *, FXSelector amt, void *)
+{
+    TmpOpts.Specie[SpeciesList->getCurrentItem()].nrg = 20000;
+    return 1;
+}
+
+long OptionsFormDialogBox::onNrgButton30K(FXObject *, FXSelector amt, void *)
+{
+    TmpOpts.Specie[SpeciesList->getCurrentItem()].nrg = 30000;
+    return 1;
+}
+
+long OptionsFormDialogBox::onBodyButton15K(FXObject *, FXSelector amt, void *)
+{
+    TmpOpts.Specie[SpeciesList->getCurrentItem()].body = 15000;
+    return 1;
+}
+
+long OptionsFormDialogBox::onBodyButton30K(FXObject *, FXSelector amt, void *)
+{
+    TmpOpts.Specie[SpeciesList->getCurrentItem()].body = 30000;
     return 1;
 }

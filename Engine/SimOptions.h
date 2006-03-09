@@ -130,6 +130,10 @@ struct SimOptions: PhysicsConstants
 	unsigned int BadWasteLevel;  //be sure to save in settings files
                                  // (wasn't in 2.4VB) and be sure to catch if this is set to 0
 	unsigned int MaxSpeed;		 //Same as above
+
+    void AddSpecies(string path, string name);
+    void DeleteSpecies(int x);
+    void DeleteSpecies(string path, string name);
 };
 
 extern SimOptions SimOpts;  //for use in sims

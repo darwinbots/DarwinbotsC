@@ -1,5 +1,7 @@
 #include "OptionsForm.h"
 
+FXSlider *FieldSizeSlider;
+
 void OptionsFormDialogBox::General(FXTabBook *TabBook)
 {
     
@@ -22,17 +24,18 @@ void OptionsFormDialogBox::General(FXTabBook *TabBook)
         0,0,0,0);
     new FXLabel(WConMatrix,"Field Size",NULL,LAYOUT_LEFT|JUSTIFY_RIGHT);
     new FXLabel(WConMatrix,"Field Width",NULL,LAYOUT_RIGHT|JUSTIFY_RIGHT);
-    new FXTextField(WConMatrix,5,new FXDataTarget(TmpOpts.FieldDimensions(0)),FXDataTarget::ID_VALUE,
+    new FXTextField(WConMatrix,6,new FXDataTarget(TmpOpts.FieldDimensions(0)),FXDataTarget::ID_VALUE,
         TEXTFIELD_REAL|JUSTIFY_RIGHT|LAYOUT_CENTER_Y|FRAME_SUNKEN|LAYOUT_CENTER_X|FRAME_THICK|LAYOUT_FILL_ROW);
     
-    FXSlider *FieldSizeSlider = new FXSlider(WConMatrix, new FXDataTarget(TmpOpts.FieldSize), FXDataTarget::ID_VALUE,
+    FieldSizeSlider = new FXSlider(WConMatrix, new FXDataTarget(TmpOpts.FieldSize, this, ID_WORLDDIMENSIONSLIDER), FXDataTarget::ID_VALUE,
         SLIDER_TICKS_TOP | SLIDER_TICKS_BOTTOM | LAYOUT_CENTER_Y|LAYOUT_FILL_X|LAYOUT_FILL_ROW|LAYOUT_FIX_WIDTH,0,0,100);
     {
-        FieldSizeSlider->setRange(0,12); //position at 0 means a custom one
+        FieldSizeSlider->setRange(1,12); //position at 0 means a custom one
     }
     
     new FXLabel(WConMatrix,"Field Height",NULL,LAYOUT_RIGHT|JUSTIFY_RIGHT);
-    new FXTextField(WConMatrix,5,new FXDataTarget(TmpOpts.FieldDimensions(1)),FXDataTarget::ID_VALUE,TEXTFIELD_REAL|JUSTIFY_RIGHT|LAYOUT_CENTER_Y|FRAME_SUNKEN|LAYOUT_CENTER_X|FRAME_THICK|LAYOUT_FILL_ROW);
+    new FXTextField(WConMatrix,6,new FXDataTarget(TmpOpts.FieldDimensions(1)),FXDataTarget::ID_VALUE,
+        TEXTFIELD_REAL|JUSTIFY_RIGHT|LAYOUT_CENTER_Y|FRAME_SUNKEN|LAYOUT_CENTER_X|FRAME_THICK|LAYOUT_FILL_ROW);
   
     FXMatrix *GeneralMatrix3=new FXMatrix(GeneralMatrix2,2,MATRIX_BY_COLUMNS|LAYOUT_SIDE_TOP|LAYOUT_FILL_X|LAYOUT_FILL_Y,
         0,0,0,0,
@@ -107,4 +110,20 @@ void OptionsFormDialogBox::General(FXTabBook *TabBook)
     new FXLabel(DRMatrix,"Period",NULL);
     new FXSpinner(DRMatrix,4,new FXDataTarget(TmpOpts.DecayDelay),FXDataTarget::ID_VALUE,
         SPIN_CYCLIC|FRAME_SUNKEN|FRAME_THICK|LAYOUT_CENTER_Y|LAYOUT_FILL_ROW);
+}
+
+long OptionsFormDialogBox::onWorldDimensionSlider (FXObject *, FXSelector, void *)
+{
+    if (TmpOpts.FieldSize >= 2)
+    {
+        TmpOpts.FieldDimensions.set(8000, 6000);
+
+        TmpOpts.FieldDimensions *= float(TmpOpts.FieldSize);
+    }
+    else if (TmpOpts.FieldSize == 1)
+    {
+        TmpOpts.FieldDimensions.set(9327, 6928);
+    }
+
+    return 1;
 }

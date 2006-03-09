@@ -33,6 +33,21 @@ class OptionsFormDialogBox : public FXDialogBox
     long onChange               (FXObject *, FXSelector, void *);
 
     long onSelectNewSpecies     (FXObject *, FXSelector, void *);
+    long onAddNewSpecies        (FXObject *, FXSelector, void *);
+    long onDeleteSpecies        (FXObject *, FXSelector, void *);
+    long onClearListSpecies     (FXObject *, FXSelector, void *);
+    long onCloneSpecies        (FXObject *, FXSelector, void *);
+    long onInheritSpecies        (FXObject *, FXSelector, void *);
+    
+
+    long onNrgButton20K         (FXObject *, FXSelector, void *);
+    long onNrgButton30K         (FXObject *, FXSelector, void *);
+
+    long onBodyButton15K        (FXObject *, FXSelector, void *);
+    long onBodyButton30K        (FXObject *, FXSelector, void *);
+
+    long onWorldDimensionSlider (FXObject *, FXSelector, void *);
+
 
     void hide()
     {
@@ -65,6 +80,14 @@ class OptionsFormDialogBox : public FXDialogBox
         ID_DELETESPECIES,
         ID_DELETEALLSPECIES,
 
+        ID_NRG_20K,
+        ID_NRG_30K,
+
+        ID_BODY_15K,
+        ID_BODY_30K,
+
+        ID_WORLDDIMENSIONSLIDER,
+
         ID_LAST
     };
 };
@@ -72,5 +95,19 @@ class OptionsFormDialogBox : public FXDialogBox
 FXDEFMAP(OptionsFormDialogBox) OptionsFormDialogBoxMap[] = {
     FXMAPFUNC(SEL_COMMAND, OptionsFormDialogBox::ID_STARTNEW,   OptionsFormDialogBox::onStartNew),
     FXMAPFUNC(SEL_COMMAND, OptionsFormDialogBox::ID_CHANGE,     OptionsFormDialogBox::onChange),
-    FXMAPFUNC(SEL_COMMAND, OptionsFormDialogBox::ID_SELECTSPECIES,     OptionsFormDialogBox::onSelectNewSpecies)
+    
+    FXMAPFUNC(SEL_COMMAND, OptionsFormDialogBox::ID_SELECTSPECIES,     OptionsFormDialogBox::onSelectNewSpecies),
+    FXMAPFUNC(SEL_COMMAND, OptionsFormDialogBox::ID_DELETESPECIES,     OptionsFormDialogBox::onDeleteSpecies),
+    FXMAPFUNC(SEL_COMMAND, OptionsFormDialogBox::ID_DELETEALLSPECIES,     OptionsFormDialogBox::onClearListSpecies),
+    FXMAPFUNC(SEL_COMMAND, OptionsFormDialogBox::ID_CLONESPECIES,     OptionsFormDialogBox::onCloneSpecies),    
+    FXMAPFUNC(SEL_COMMAND, OptionsFormDialogBox::ID_INHERITSPECIES,     OptionsFormDialogBox::onInheritSpecies),    
+    FXMAPFUNC(SEL_COMMAND, OptionsFormDialogBox::ID_ADDSPECIES,     OptionsFormDialogBox::onAddNewSpecies),    
+    
+    FXMAPFUNC(SEL_COMMAND, OptionsFormDialogBox::ID_NRG_20K,     OptionsFormDialogBox::onNrgButton20K),
+    FXMAPFUNC(SEL_COMMAND, OptionsFormDialogBox::ID_NRG_30K,     OptionsFormDialogBox::onNrgButton30K),
+
+    FXMAPFUNC(SEL_COMMAND, OptionsFormDialogBox::ID_BODY_15K,     OptionsFormDialogBox::onBodyButton15K),
+    FXMAPFUNC(SEL_COMMAND, OptionsFormDialogBox::ID_BODY_30K,     OptionsFormDialogBox::onBodyButton30K),
+
+    FXMAPFUNC(SEL_COMMAND, OptionsFormDialogBox::ID_WORLDDIMENSIONSLIDER,     OptionsFormDialogBox::onWorldDimensionSlider)
 };
