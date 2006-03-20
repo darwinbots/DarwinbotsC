@@ -19,5 +19,5 @@ void CameraClass::Translate(float xvalue, float yvalue)
 
 void CameraClass::Zoom(float value)
 {
-    this->POS(2) += value * 500;
+    this->POS(2) += value;
 }

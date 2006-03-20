@@ -32,9 +32,6 @@ using namespace std;
 const int CUBICTWIPPERBODY = 905;
 const int RobSize          = 120;
 
-///////GLOBALS/////////////////
-extern unsigned int MaxRobs; //how far into the robot array to go
-
 class Robot : public ObjectPrimitive
 {
     friend class Tie; //tie class has access to bot memory among other things
@@ -263,6 +260,11 @@ public:
         return this->pos;
     }
 
+    const float &findaim() const
+    {
+        return this->aim;
+    }
+
     unsigned long findAbsNum()
     {
         return AbsNum;
@@ -276,5 +278,6 @@ public:
 };
 
 extern Robot *rob[5000];  //an array of pointers to Robots.
+extern int MaxRobs; //how far into the robot array to go
 
 #endif

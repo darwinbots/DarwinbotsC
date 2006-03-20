@@ -66,6 +66,6 @@ class Shot : public ObjectPrimitive
 };
 
 extern Shot *shots[5000];
-extern unsigned int MaxShots; //how far into the shot array to go
+extern int MaxShots; //how far into the shot array to go
 
 #endif //SHOTS_H

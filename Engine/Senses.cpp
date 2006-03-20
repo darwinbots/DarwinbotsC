@@ -150,7 +150,7 @@ void Robot::EraseSenses()
 //returns a pointer to the robot in lastopp
 Robot *Robot::BasicProximity()
 {
-	for (unsigned int counter = 0; counter <= MaxRobs; counter++)
+	for (int counter = 0; counter <= MaxRobs; counter++)
 	{
 		if (rob[counter] != this)
 			CompareRobots(rob[counter], 12);
@@ -220,15 +220,17 @@ void Robot::WriteRefVars(const Robot *lastopp)
 		(*this)[reffixed] = 0;
 
 	//these should be double checked
-    Vector4 vel = (lastopp->pos - lastopp->opos) - (this->pos - this->opos);
+    Vector4 vel = lastopp->vel - this->vel;
+    Vector4 aim = aimvector;
+    aim.set(aim.x(), -aim.y());
 	(*this)[refvelup] = iceil(vel * this->aimvector);
-	(*this)[refveldn] = iceil(float((*this)[refvelup] * -1));
+	(*this)[refveldn] = -iceil(float((*this)[refvelup]));
 	
 	//these should be double checked
-	(*this)[refveldx] = iceil(this->aimvector % vel);
-	(*this)[refvelsx] = iceil(float((*this)[refveldx] * -1));
+	(*this)[refveldx] = -iceil(this->aimvector % vel);
+	(*this)[refvelsx] = -iceil(float((*this)[refveldx]));
 
-	(*this)[refvelscalar] = iceil(sqrtf(float((*this)[refvelup] * (*this)[refvelup] +
+    (*this)[refvelscalar] = iceil(sqrtf(float((*this)[refvelup] * (*this)[refvelup] +
                                         (*this)[refveldx] * (*this)[refveldx])));
 }
 
@@ -339,22 +341,25 @@ void Robot::CompareRobots(Robot *const other, const unsigned int field)
 		return;
 	
 	if (eyecellC == 0)
-		eyecellC = EyeStart + 9;
+		eyecellC = EyeEnd;
 
 	if (eyecellD == 0)
-		eyecellD = EyeStart + 1;
+		eyecellD = EyeStart;
 
-	for (unsigned int x = eyecellD; x <= eyecellC; x++)
-	{
-		discheck = RobSize * 100 * mag;
+	discheck = RobSize * 100 * mag;
+    for (unsigned int x = eyecellD; x <= eyecellC; x++)
+	{		
 		if ((*this)[x] < discheck)
 		{
-			if (x == EyeStart + 5)
+			if (x == EyeMid)
 				this->lastopp = other;
 
 			(*this)[x] = iceil(discheck);
 		}
 	}
+
+    for(x = 0; x < 5; x++)
+        swap((*this)[EyeStart + x], (*this)[EyeEnd - x]);
 }
 
 unsigned int Robot::EyeCells(const Vector4 &ab)
@@ -375,18 +380,18 @@ unsigned int Robot::EyeCells(const Vector4 &ab)
 		
 	if (tantheta > 0.0f)
 	{
-		sign = 1;
+        sign = 1;
 	}
 	else
 	{
-		sign = -1;
+        sign = -1;
 		tantheta = -tantheta;
 	}
 
 	for (A = 0; A <= 4; A++)
 	{
 		if (tantheta < TanLookup[A]) //haha!  it's visible
-			return EyeStart + 5 - sign * A;
+			return EyeMid - sign * A;
 	}
 
 	return 0;

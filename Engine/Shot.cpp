@@ -28,12 +28,12 @@ Presently, shots have the following physical characteristics:
 
 #define SHOTCONST 40 //defines how fast shots decay
 
-unsigned int MaxShots; //how far into the robot array to go
+int MaxShots; //how far into the robot array to go
 Shot *shots[5000];
 
 void FindOpenSpace(Shot *me) //finds spot for robot in array, returns pointer to said robot
 {
-	unsigned int firstopenspot=0;
+	int firstopenspot=0;
 
 	while(shots[firstopenspot] != NULL && firstopenspot <= MaxShots)
 	{
@@ -86,7 +86,7 @@ Shot::Shot(Robot *parent)
 
 Shot::~Shot()
 {
-    unsigned int counter = 0;
+    int counter = 0;
     
     while(shots[counter] != this && counter <= MaxShots)
 	    counter++;
@@ -98,7 +98,7 @@ Shot::~Shot()
 
 	if (MaxShots == counter)
 	{
-		MaxShots = 0;
+		MaxShots = -1;
 		for(long x = counter; x >= 0; x--)
 		{
 			if (shots[x] != NULL)
@@ -236,7 +236,7 @@ Robot *Shot::ShotColl()
     MagAB = Length3(ab);
     
     //search through all bots to find one that's collided with us
-    for (unsigned int x = 0; x <= MaxRobs; x++)
+    for (int x = 0; x <= MaxRobs; x++)
     {
         if (rob[x] != NULL)
         {

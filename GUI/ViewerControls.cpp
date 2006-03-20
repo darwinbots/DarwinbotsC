@@ -15,14 +15,12 @@ enum
     ROTATE
 }mode;
 
-unsigned int Selection(unsigned int MouseX, unsigned int MouseY);
-
 long MainWindow::onMouseWheel(FXObject *, FXSelector, void *ptr)
 {
     FXEvent* event=(FXEvent*)ptr;
     //if(isEnabled())
     {
-        MainCamera.Zoom( fsgn((float)event->code) * float(pow(2,-.1*event->code/120.0)));
+        MainCamera.Zoom( -event->code * 0.001f * __min(-10, MainCamera.pos().z() - 8000));
         return 1;
     }
   return 0;
@@ -56,8 +54,8 @@ long MainWindow::onLeftBtnPress(FXObject *, FXSelector, void *ptr)
 {
     FXEvent* event=(FXEvent*)ptr;
 
-    mode = TRANSLATE;
-    //Selection(event->win_x, event->win_y);
+    if(Selection(event->win_x, event->win_y) == -1)
+        mode = TRANSLATE;
 
     //event->state&MIDDLEBUTTONMASK
     return 1;
@@ -87,57 +85,39 @@ long MainWindow::onRightBtnRelease(FXObject *, FXSelector, void *ptr)
     return 1;
 }
 
-unsigned int MainWindow::Selection(unsigned int MouseX, unsigned int MouseY)
+int MainWindow::Selection(unsigned int MouseX, unsigned int MouseY)
 {
-    GLuint buffer[256];
+    GLint viewport[4];
+    float ratio;
+    GLuint selectBuf[64];
     GLint hits;
-    
-    glSelectBuffer(256, buffer);
-    glRenderMode(GL_SELECT);
-    
-    glInitNames();
-    glPushName(-1);
-    
-    GLdouble width = canvas->getWidth();
-    GLdouble height = canvas->getHeight();
-    GLdouble aspect = height>0 ? width/height : 1.0;
 
-    glViewport(0,0,(int)width,(int)height);
+    glSelectBuffer(64,selectBuf);
+
+    glGetIntegerv(GL_VIEWPORT,viewport);
+
+    glRenderMode(GL_SELECT);
+
+    glInitNames();
 
     glMatrixMode(GL_PROJECTION);
+    glPushMatrix();
     glLoadIdentity();
-    gluPerspective(45,aspect,.1,1000000);
-    
-    //camera (?)
+
+    gluPickMatrix(MouseX,viewport[3]-MouseY,5,5,viewport);
+    ratio = float((viewport[2]+0.0) / viewport[3]);
+    gluPerspective(45,ratio,0.1,1000);
     glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
-  
-    glRotatef(MainCamera.lookat().x(), 1.0f, 0.0f, 0.0f);
-    glRotatef(MainCamera.lookat().y(), 0.0f, 1.0f, 0.0f);
 
-    glTranslatef(MainCamera.pos().x() - 9327/2,
-                 -MainCamera.pos().y() - 6928/2,
-                 MainCamera.pos().z() - 9000);
+    DrawWorld(true);
 
-    DrawWorld();
-
+    glMatrixMode(GL_PROJECTION);
+    glPopMatrix();
+    glMatrixMode(GL_MODELVIEW);
     glFlush();
     hits = glRenderMode(GL_RENDER);
-    if(hits)                          // Switch To Render Mode, Find Out How Many
-    {
-		int	choose = buffer[3];									// Make Our Selection The First Object
-		int depth = buffer[1];									// Store How Far Away It Is 
 
-		for (int loop = 1; loop < hits; loop++)					// Loop Through All The Detected Hits
-		{
-			// If This Object Is Closer To Us Than The One We Have Selected
-			if (buffer[loop*4+1] < GLuint(depth))
-			{
-				choose = buffer[loop*4+3];						// Select The Closer Object
-				depth = buffer[loop*4+1];						// Store How Far Away It Is
-			}       
-		}
-		return choose;		
-    }
-	return -1;
+    if (hits)
+        return selectBuf[3];									// Make Our Selection The First Object
+    return -1;
 }

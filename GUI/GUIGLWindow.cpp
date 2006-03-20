@@ -77,31 +77,20 @@ long MainWindow::DrawScene(FXObject *, FXSelector, void *)
   canvas->makeCurrent();
 
   GLdouble width = canvas->getWidth();
-  GLdouble height = canvas->getHeight();
-  GLdouble aspect = height>0 ? width/height : 1.0;
+    GLdouble height = canvas->getHeight();
+    GLdouble aspect = height>0 ? width/height : 1.0;
 
-  glViewport(0,0,(int)width,(int)height);
+    glViewport(0,0,(int)width,(int)height);
 
-  glClearColor(0.0235294118f, 0.0705882353f, 0.3176470588f, 1.0);				// classic blue color
-  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
-  glEnable(GL_DEPTH_TEST);
+    glClearColor(0.0235294118f, 0.0705882353f, 0.3176470588f, 1.0);				// classic blue color
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+    glEnable(GL_DEPTH_TEST);
 
-  glDisable(GL_DITHER);
+    glDisable(GL_DITHER);
 
-  glMatrixMode(GL_PROJECTION);
-  glLoadIdentity();
-  gluPerspective(45.,aspect,.1,1000000);
-    
-  //camera (?)
-  glMatrixMode(GL_MODELVIEW);
-  glLoadIdentity();
-  
-  glRotatef(MainCamera.lookat().x(), 1.0f, 0.0f, 0.0f);
-  glRotatef(MainCamera.lookat().y(), 0.0f, 1.0f, 0.0f);
-
-  glTranslatef(MainCamera.pos().x() - 9327/2,
-               -MainCamera.pos().y() - 6928/2,
-               MainCamera.pos().z() - 9000);
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    gluPerspective(45.,aspect,.1,1000000);
   
   DrawWorld();
 

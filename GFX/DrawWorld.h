@@ -1,6 +1,6 @@
 #ifndef DRAWWORLD_H
 #define DRAWWORLD_H
 
-extern void DrawWorld(void);
+extern void DrawWorld(bool SelectionDraw = false);
 
 #endif

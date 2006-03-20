@@ -1,6 +1,6 @@
-#ifdef _MSC_VER
+/*#ifdef _MSC_VER
 #pragma warning(disable : 4786)
-#endif
+#endif*/
 
 //STILL UNDER DEVELOPMENT
 
@@ -11,6 +11,7 @@
 #include <FXToolBarShell.h>
 
 #include "GUIBotDebug.h"
+#include "BotDNABox.h"
 
 bool GUIWINDOW = false;
 
@@ -29,7 +30,7 @@ FXDEFMAP(BotDebug_Window) BotDebug_WindowMap[] = {
 FXIMPLEMENT(BotDebug_Window,FXDialogBox,BotDebug_WindowMap,ARRAYNUMBER(BotDebug_WindowMap))
 
 BotDebug_Window::BotDebug_Window(Robot *bot, FXComposite *parent) : 
-    FXDialogBox(parent, "Bot Debug Controls", DECOR_TITLE | DECOR_BORDER | LAYOUT_FILL)
+    FXDialogBox(parent, "Bot Debug Controls", DECOR_TITLE | DECOR_BORDER, 0, 0, 600, 800)
 {
     if (bot == NULL)
     {
@@ -37,18 +38,18 @@ BotDebug_Window::BotDebug_Window(Robot *bot, FXComposite *parent) :
         this->destroy();
         return;
     }
-
+    
     point = bot;
-
-    LinkBotTarget();
-
+    
+    //LinkBotTarget();
+    
     SetupToolbar();
     SetupLayout();
-    SetupSideBar();
+    //SetupSideBar();
     SetupIntStackFrame();
-    SetupDNAFrame();
-    SetupSysvarsFrame();
-    SetupDetailsFrame();
+    //SetupDNAFrame();
+    //SetupSysvarsFrame();
+    //SetupDetailsFrame();
 
     this->create();
     this->show();
@@ -108,24 +109,24 @@ void BotDebug_Window::SetupIntStackFrame()
     IntStackFrame = new FXGroupBox(LayoutMatrix,
         "Bot Stack",GROUPBOX_TITLE_LEFT|FRAME_RIDGE|LAYOUT_FILL_X|LAYOUT_FILL_Y | LAYOUT_FILL_COLUMN);
 
-    FXMatrix *StackMatrix=new FXMatrix(IntStackFrame,4,MATRIX_BY_COLUMNS|LAYOUT_SIDE_LEFT|LAYOUT_FILL_X|LAYOUT_FILL_Y);
+    FXMatrix *StackMatrix=new FXMatrix(IntStackFrame,2,MATRIX_BY_COLUMNS|LAYOUT_SIDE_LEFT|LAYOUT_FILL_X|LAYOUT_FILL_Y);
 
     int x = 5;
 
     char buffer[256];
 
-    for(x = 20; x > 10; x--)
+    for(x = 1; x <= 20; x++)
     {
         new FXLabel(StackMatrix,strcat(itoa(x, buffer, 10), "th"),NULL,LAYOUT_RIGHT|JUSTIFY_RIGHT);
         IntStackTextField[x-1] = new FXTextField(StackMatrix,10,&BotTargetInfo.datatargets.stack[x-1],
             FXDataTarget::ID_VALUE,
             TEXTFIELD_REAL|JUSTIFY_RIGHT|LAYOUT_CENTER_Y|FRAME_SUNKEN|LAYOUT_CENTER_X|FRAME_THICK|LAYOUT_FILL_ROW);
 
-        new FXLabel(StackMatrix,strcat(itoa(x-10, buffer, 10), "th"),NULL,LAYOUT_RIGHT|JUSTIFY_RIGHT);
+        /*new FXLabel(StackMatrix,strcat(itoa(x-10, buffer, 10), "th"),NULL,LAYOUT_RIGHT|JUSTIFY_RIGHT);
         IntStackTextField[x-11] = new FXTextField(StackMatrix,10,&BotTargetInfo.datatargets.stack[x-11],
             FXDataTarget::ID_VALUE,
-            TEXTFIELD_REAL|JUSTIFY_RIGHT|LAYOUT_CENTER_Y|FRAME_SUNKEN|LAYOUT_CENTER_X|FRAME_THICK|LAYOUT_FILL_ROW);
-    }
+            TEXTFIELD_REAL|JUSTIFY_RIGHT|LAYOUT_CENTER_Y|FRAME_SUNKEN|LAYOUT_CENTER_X|FRAME_THICK|LAYOUT_FILL_ROW);*/
+    }    
 }
 
 void BotDebug_Window::SetupDNAFrame()
@@ -327,10 +328,12 @@ long MainWindow::onBotDebug()
 {
     //set to bot 0
 
-    if (MainWindowHandle->BotDebug == NULL)
+    /*if (MainWindowHandle->BotDebug == NULL)
         BotDebug = new BotDebug_Window(rob[0], mainview);        
     else
-        BotDebug->show();
+        BotDebug->show();*/
+
+    new BotDNAWindow_Class(rob[0], this);
 
     return 1;
 }

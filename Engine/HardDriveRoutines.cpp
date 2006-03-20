@@ -54,6 +54,24 @@ bool ReadSett(const string &path, SimOptions &Options)
 	return true;
 }
 
+bool WriteSett(const string &path, SimOptions &Options)
+{
+    ofstream settingsout (path.c_str());
+
+    if (settingsout.fail() == true)
+    {
+        //can't make the file for some reason
+        std::cout << "Settings file " << path << "isn't valid for some reason." << endl;
+        settingsout.close();
+        return false;
+    }
+
+    //this is the new versioin of C++ settings file
+    settingsout << "-3";  
+    
+    return true;  
+}
+
 string GetLine(istream &in)
 {
 	string line;
@@ -398,8 +416,7 @@ bool LoadSysvars(std::string path) {
   
   int i=0;
   
-  //the below gives me errors.  Probably has to do with iostream.h instead of
-  //iostream  Moving this to a seperate file may cure this issue. - Numsgil
+  
   for(vector<pair<string,__int16> >::iterator iter = vSysvars.begin(); iter!=vSysvars.end(); ++iter){
     sysvar[i].name=iter->first;
     sysvar[i].value=iter->second;

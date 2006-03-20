@@ -47,7 +47,6 @@ long MainWindow::onCmdShowOptions(FXObject *, FXSelector, void *){return 1;}
 long MainWindow::onCmdShowLog(FXObject *, FXSelector, void *){return 1;}
 long MainWindow::onCmdNewViewer(FXObject*,FXSelector,void*){return 1;}
 
-//these three fxns aren't thread safe, which is a problem
 long MainWindow::onCycle(FXObject *, FXSelector, void *)
 {
     return EngineThread.Flow.Add_Cycles(1);

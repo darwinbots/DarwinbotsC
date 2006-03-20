@@ -107,6 +107,8 @@ MainWindow *MainWindowHandle;
     int main(int argc, char **argv){
 #endif
 
+    EngineThread.ProgramInitialize();
+    
     FXApp app(PROJECT_NAME, "");
     app.init(argc, argv);
 
@@ -120,7 +122,6 @@ MainWindow *MainWindowHandle;
 
     app.addTimeout(MainWindowHandle, MainWindow::ID_UpdGfx);
                 
-    EngineThread.ProgramInitialize();
     EngineThread.start();
     
     return app.run();

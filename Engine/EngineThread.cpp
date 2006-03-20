@@ -1,4 +1,5 @@
 #include <time.h>
+#include "..\GUI\GUIMain.h"
 #include "EngineThread.h"
 #include "Engine.h"
 
@@ -11,32 +12,60 @@ inline float round(float value)
 
 int EngineThread_Class::run()
 {
-    time_t elapsed_time = clock(), second_counter = time(NULL);
-    int x = 0;
-    Engine.SetupSim();
+    try
+    {    
+        time_t elapsed_time = clock(), second_counter = time(NULL);
+        int x = 0;
+        Engine.SetupSim();
 
-    //priority(10);
-    
-    while(true)
-    {
-        if(this->Flow.Counter() >= 0)
+        while(true)
         {
-            Engine.UpdateSim();
-            Flow.Add_Cycles(-1);
-            x++;
-        }
-        this->sleep(0, 1000000000 / 36);
+            if(this->Flow.Counter() >= 0)
+            {
+                Engine.UpdateSim();
+                Flow.Add_Cycles(-1);
+                x++;
+            }
+            this->sleep(0, 1000000000 / 36);
         
-        //update cyc/sec calculation at most once every quarter second
-        if(float(clock() - elapsed_time) / float(CLOCKS_PER_SEC) >= .25f)
-        {
-            SimOpts.CycSec = round(x * float(CLOCKS_PER_SEC) / float(clock() - elapsed_time));
-            elapsed_time = clock();
-            x = 0;
+            //update cyc/sec calculation at most once every quarter second
+            if(float(clock() - elapsed_time) / float(CLOCKS_PER_SEC) >= .25f)
+            {
+                SimOpts.CycSec = round(x * float(CLOCKS_PER_SEC) / float(clock() - elapsed_time));
+                elapsed_time = clock();
+                x = 0;
+            }
         }
+
+        return 1;
+    }
+    catch(...)
+    {
+        //if(MBOX_CLICKED_OK == FXMessageBox::warning(MainWindowHandle, MBOX_OK, "Error!", "Error!"))
+            throw;
+        
+        /*MaxRobs = 0;
+        MaxShots = 0;
+
+        for (unsigned int x = 0; x < 5000; x++)
+        {
+            if(rob[x])
+            {
+                delete rob[x];
+                rob[x] = NULL;
+            }
+
+            if(rob[x])
+            {
+                delete shots[x];
+                shots[x] = NULL;
+            }
+        }
+        throw;*/
+
     }
 
-    return 1;
+    return 0;
 }
 
 void EngineThread_Class::ProgramInitialize()

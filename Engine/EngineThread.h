@@ -3,7 +3,6 @@
 
 #include <fx.h>
 
-//I haven't yet figured out how to get the Mutex controls to work right yet
 class EngineThread_MasterFlowControl : public FXMutex
 {
     private:

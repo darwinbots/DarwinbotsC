@@ -16,7 +16,7 @@ using namespace std;
 using namespace Math3D;
 
 Robot *rob[5000];     // (1000, NULL);  //an array of pointers to Robots.  Default: let's create room for 1000 pointers
-unsigned int MaxRobs; //how far into the robot array to go
+int MaxRobs; //how far into the robot array to go
 
 inline Robot::~Robot()
 {
@@ -67,6 +67,8 @@ void Robot::Setup(datispecie *myspecies)
 
 	this->nrg = (float)myspecies->nrg;
 	this->Body = (float)myspecies->body;
+    if(this->Body <= 0)
+        this->Body = 1000;
     this->color = Vector4(float(FXREDVAL(myspecies->color))   / 255.0f,
                           float(FXGREENVAL(myspecies->color)) / 255.0f,
                           float(FXBLUEVAL(myspecies->color))  / 255.0f);    
@@ -494,7 +496,7 @@ void Robot::Shock()
 
 void Robot::DeathManagement()
 {
-	if (nrg > 0 && Dead == false) return; //cut out if we are still alive
+	if (nrg > 0 && Body > 0 && Dead == false) return; //cut out if we are still alive
 
 	if (SimOpts.CorpseEnabled == false)
 	{
@@ -502,7 +504,7 @@ void Robot::DeathManagement()
 	}
 	else
 	{
-		if (Corpse == false)
+		if (Corpse == false && Body > 0)
 		{
 			Corpse = true;
 			fname = "Corpse";
@@ -517,6 +519,11 @@ void Robot::DeathManagement()
 		{
 			nrg = 0;
 		}
+
+        if (Body <= 0)
+        {
+            Dead = true;
+        }
 	}
 
 	if (Dead == true)
@@ -526,29 +533,21 @@ void Robot::DeathManagement()
 /*Returns false if some really really weird error is occurring*/
 bool Robot::KillRobot()
 {
-	/*If SimOpts.DBEnable Then
-    If rob(n).Veg And SimOpts.DBExcludeVegs Then
-    Else
-      AddRecord n
-    End If
-  End If
-  */
-
-    if (this == NULL)
+	if (this == NULL)
         return false;
-  
-	unsigned int counter = 0;
-
+    
+	int counter = 0;
+    
 	//find where in the array this robot is
 	while(rob[counter] != this && counter <= MaxRobs)
 	    counter++;
-
+    
     if (counter > MaxRobs)
         return false;
-
+    
 	if (MaxRobs == counter)
 	{
-		MaxRobs = 0;
+		MaxRobs = -1;
 		for(unsigned int x = counter-1; x >= 0; x--)
 		{
 			if (rob[x] != NULL)
@@ -570,6 +569,8 @@ bool Robot::KillRobot()
 	
     //remember that shots may still exist that think of us as the parents
 	//make poff
+
+    delete this;
     
     return true;
 }

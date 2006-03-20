@@ -13,11 +13,11 @@ void Engine_Class::UpdateSim(void)
     //_really_ thinking about how it changes the
     //order of other functions
 
-	unsigned int counter;
+	int counter;
 	this->ExecuteDNA();
     this->ExecuteShots();
-	
-	////////////////////
+
+    ////////////////////
 	//UpdateBots
 	////////////////////
 	
@@ -103,8 +103,8 @@ void Engine_Class::ProgramInitialize(void)
         shots[x] = NULL;
     }
 
-	MaxRobs = 0;
-    MaxShots = 0;
+	MaxRobs = -1;
+    MaxShots = -1;
 }
 
 void Engine_Class::SetupSim(void)
@@ -121,17 +121,10 @@ void Engine_Class::SetupSim(void)
 	//reset graphs
 
     //clear out the robot and shot arrays if we need to
-    for (unsigned int x = 0; x < 5000; x++)
-    {
-        if(rob[x])
-            delete rob[x];
+    
 
-        if(shots[x])
-            delete shots[x];
-    }
-
-	MaxRobs = 0;
-    MaxShots = 0;
+	MaxRobs = -1;
+    MaxShots = -1;
 
 	this->LoadRobots();
 
@@ -165,21 +158,21 @@ void Engine_Class::LoadRobots(void)
 
 void Engine_Class::ExecuteDNA()
 {
-    for (unsigned long x = 0; x <= MaxRobs; x++)
+    for (int x = 0; x <= MaxRobs; x++)
         if (rob[x] != NULL)
             rob[x]->ExecuteDNA();
 }
 
 void Engine_Class::ExecuteShots()
 {   
-	for(unsigned long counter = 0; counter <= MaxShots; counter++)
+	for(int counter = 0; counter <= MaxShots; counter++)
         if(shots[counter] != NULL)
             shots[counter]->UpdateShot();
 }
 
 void FindOpenSpace(Robot *me) //finds spot for robot in array, returns pointer to said robot
 {
-	unsigned int firstopenspot=0;
+	int firstopenspot=0;
 
 	while(rob[firstopenspot] != NULL && firstopenspot <= MaxRobs)
 	{
@@ -200,7 +193,7 @@ void FindOpenSpace(Robot *me) //finds spot for robot in array, returns pointer t
 
 Robot *FindSerialNumber(unsigned long serial)
 {
-    for(unsigned int x = 0; x <= MaxRobs; x++)
+    for(int x = 0; x <= MaxRobs; x++)
         if(rob[x] != NULL && rob[x]->findAbsNum() == serial)
             return rob[x];
     

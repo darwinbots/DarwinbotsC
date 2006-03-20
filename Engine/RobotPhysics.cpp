@@ -67,7 +67,7 @@ void Robot::Integrate()
 //sets a hard constraint that pulls bots that are too close to each other apart
 void Robot::BotCollisionsPos()
 {
-    for(unsigned int x = 0; x <= MaxRobs; x++)
+    for(int x = 0; x <= MaxRobs; x++)
     {
         if(rob[x] != NULL && rob[x]->AbsNum < this->AbsNum)
         {
@@ -113,15 +113,15 @@ void Robot::EdgeCollisions()
     
     const float CoefficientRestitution = 0.95f;
     
-    if(dist.x() <= this->radius ||
-       dist.x() >= SimOpts.FieldDimensions.x() - this->radius)
+    if(this->pos.x() < this->radius ||
+       this->pos.x() > SimOpts.FieldDimensions.x() - this->radius)
     {
         vel(0) = -ovel.x();
         vel *= CoefficientRestitution;            
     }
 
-    if(dist.y() <= this->radius ||
-       dist.y() >= SimOpts.FieldDimensions.x() - this->radius)
+    if(this->pos.y() < this->radius ||
+       this->pos.y() > SimOpts.FieldDimensions.x() - this->radius)
     {
         vel(1) = -ovel.y();
         vel *= CoefficientRestitution;            
@@ -177,7 +177,7 @@ which Numsgil heavily contributed to.
 //as part of the momentum equation for collisions?
 void Robot::BotCollisionsVel()
 {
-    for(unsigned int x = 0; x <= MaxRobs; x++)
+    for(int x = 0; x <= MaxRobs; x++)
     {
         if(rob[x] != NULL && rob[x]->AbsNum < this->AbsNum)
         {
@@ -196,8 +196,8 @@ void Robot::BotCollisionsVel()
                 
                 normal /= sqrtf(currdist); //normalize normal vector
 
-                Vector4 V1 = this->vel;
-                Vector4 V2 = rob[x]->vel;
+                Vector4 V1 = (this->vel * normal) * normal;
+                Vector4 V2 = (rob[x]->vel * normal) * normal;
 
                 Vector4 V1f = ((e + 1.0f) * M2 * V2 + V1 * (M1 - e * M2))/
                             (M1 + M2);
@@ -205,8 +205,8 @@ void Robot::BotCollisionsVel()
                 Vector4 V2f = ((e + 1.0f) * M1 * V1 + V2 * (M2 - e * M1))/
                             (M1 + M2);
                 
-                this->vel = V1f;
-                rob[x]->vel = V2f;
+                this->vel = V1f + (this->vel - V1);
+                rob[x]->vel = V2f + (rob[x]->vel - V2);
             }
         }
     }
@@ -230,7 +230,9 @@ void Robot::VoluntaryForces()
     dir.set(float( (*this)[dirup] - (*this)[dirdn]), float((*this)[dirdx] - (*this)[dirsx]));
     dir = dir * mult;
 
-    NewAccel.set(this->aimvector * dir, this->aimvector % dir);
+    Vector4 aim(this->aimvector.x(), -this->aimvector.y());
+
+    NewAccel.set(aim * dir, aim % dir);
 
     //NewAccel is the impulse vector formed by the robot's internal "engine".
     //Impulse is the integral of Force over time.
@@ -273,7 +275,7 @@ void Robot::BouyancyForces()
 
 void Robot::PlanetEaters()
 {
-    for(unsigned int x = 0; x <= MaxRobs; x++)
+    for(int x = 0; x <= MaxRobs; x++)
     {
         if(rob[x] != NULL && rob[x]->AbsNum < this->AbsNum)
         {

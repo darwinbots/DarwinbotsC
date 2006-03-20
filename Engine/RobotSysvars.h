@@ -81,6 +81,7 @@ const int memval = 473;
 const int memloc = 474;
 const int reffixed = 477;
 const int EyeStart = 501;
+const int EyeMid = 505;
 const int EyeEnd = 509;
 const int refmulti = 686;
 const int refshell = 687;
