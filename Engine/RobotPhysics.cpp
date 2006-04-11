@@ -65,14 +65,18 @@ void Robot::Integrate()
 }
 
 //sets a hard constraint that pulls bots that are too close to each other apart
-void Robot::BotCollisionsPos()
+float Robot::BotCollisionsPos()
 {
+    float maxoverlap = 0.0f;
     for(int x = 0; x <= MaxRobs; x++)
     {
         if(rob[x] != NULL && rob[x]->AbsNum < this->AbsNum)
         {
             if(rob[x]->pos == this->pos)
+            {
                 continue;
+            }
+
             Vector4 normal = rob[x]->pos - this->pos;
             float mindist = this->radius + rob[x]->radius;
             mindist *= mindist;
@@ -81,8 +85,13 @@ void Robot::BotCollisionsPos()
             
             if(currdist < mindist)
             {
+                float overlap = sqrtf(mindist / currdist) - 1.0f;
+                
+                if(overlap > maxoverlap)
+                    maxoverlap = overlap;
+                
                 //UPDATE POSITIONS
-                normal *= sqrtf(mindist / currdist) - 1.0f;
+                normal *= overlap;
                 
                 //these need to be modified to deal with differences in mass
                 //and fixed/unfixed pairs
@@ -91,6 +100,8 @@ void Robot::BotCollisionsPos()
             }
         }
     }
+
+    return maxoverlap;
 }
 
 void Robot::VelocityCap()

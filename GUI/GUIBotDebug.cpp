@@ -384,30 +384,30 @@ void tempBot_typ::Update(Robot *bot)
     for (int x = 0; x < 20; x++)
         stack[x] = IntStack.val[x];
 
-    char buffer[256];
+    //char buffer[256];
     
-    for (int y = 0; y < lastmem; y++)
-        MainWindowHandle->BotDebug->SysvarsTextField[y]->setText(itoa( (*bot)[memory[y]], buffer, 10));
+    //for (int y = 0; y < lastmem; y++)
+    //    MainWindowHandle->BotDebug->SysvarsTextField[y]->setText(itoa( (*bot)[memory[y]], buffer, 10));
 
-    string text = MainWindowHandle->BotDebug->DNATextBox->getText().text();
+    //string text = MainWindowHandle->BotDebug->DNATextBox->getText().text();
     
     int text_position = 0;
     
-    if(iswhitespace(text.at(0)))
-        text_position = NextWord(text);
+    //if(iswhitespace(text.at(0)))
+    //    text_position = NextWord(text);
     
-    for(unsigned int z = 0; z < this->DNA_pos; z++)
-        text_position = NextWord(text, text_position);
+    //for(unsigned int z = 0; z < this->DNA_pos; z++)
+    //    text_position = NextWord(text, text_position);
     
     //while(MainWindowHandle->BotDebug->DNATextBox->
     
-    unsigned int length = NextWord(text, text_position) - text_position;
+    //unsigned int length = NextWord(text, text_position) - text_position;
 
-    while(iswhitespace(text.at(length + text_position - 1)))
-        length--;
+    //while(iswhitespace(text.at(length + text_position - 1)))
+    //    length--;
     
-    MainWindowHandle->BotDebug->DNATextBox->killSelection();
-    MainWindowHandle->BotDebug->DNATextBox->setSelection(text_position, length);
+    //MainWindowHandle->BotDebug->DNATextBox->killSelection();
+    //MainWindowHandle->BotDebug->DNATextBox->setSelection(text_position, length);
 
     this->IntStack_pos = IntStack.pos;
 }

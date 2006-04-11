@@ -194,6 +194,7 @@ void OptionsFormDialogBox::Species(FXTabBook *TabBook)
         new FXButton(InitialBodyButtonMatrix, "30K", NULL, this, OptionsFormDialogBox::ID_BODY_30K,
             BUTTON_NORMAL | LAYOUT_FILL_X | LAYOUT_FIX_WIDTH, 0, 0, 33);
 
+        //////////
         ///////////////////////////////////////////////////////////////////
     }
 }

@@ -61,6 +61,9 @@ struct SimOptions: PhysicsConstants
     float CycSec;               //float
     unsigned long TotRunTime;	//unsigned long
     unsigned long TotBorn;		//unsigned long
+    unsigned long TotBotsNow;
+    unsigned long TotVegsNow;
+    unsigned long TotObjects;
     unsigned int SpeciesNum;	//unsigned int
     datispecie Specie[50];		//datispecie
     unsigned int FieldSize;     //unsigned int

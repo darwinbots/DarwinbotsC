@@ -48,20 +48,32 @@ void Engine_Class::UpdateSim(void)
     //More iterations decreases overlap between bots when stacking, but
     //it hardly seems practical.  A better solution must exist, which
     //more intelligently offsets colliding bots.
-    {
-        for(counter = 0; counter<=MaxRobs; counter++)
-		    if (rob[counter] != NULL)
-                rob[counter]->BotCollisionsPos();
-
-        for(counter = 0; counter<=MaxRobs; counter++)
-		    if (rob[counter] != NULL)
-                rob[counter]->EdgeCollisions();  //collisions with edges (if rigid edges are selected)
-    }    
 
     //perhaps collisions with edges offsets the whole world as well (or rather,
     //offsets all objects in the world an opposite amount)
     //or conversely, bot collisions have one of the bots moving 100%
     //of the distance
+
+    float maxoverlap;
+    int loopcounter = 0;
+    do
+    {
+        maxoverlap = 0.0f;
+        for(counter = 0; counter<=MaxRobs; counter++)
+		    if (rob[counter] != NULL)
+            {
+                float overlap = rob[counter]->BotCollisionsPos();
+                if (overlap > maxoverlap)
+                    maxoverlap = overlap;
+            }
+
+        for(counter = 0; counter<=MaxRobs; counter++)
+		    if (rob[counter] != NULL)
+                rob[counter]->EdgeCollisions();
+
+        counter++;
+    
+    }while(maxoverlap > 0.01f && loopcounter <= 4);
 
     //END CONSTRAINTS
     //END Physics steps
@@ -78,7 +90,11 @@ void Engine_Class::UpdateSim(void)
 		if (rob[counter] != NULL)
 			rob[counter]->TurnCleanup();
 
-	//repopulate veggies
+    for(counter = 0; counter<=MaxRobs; counter++)
+		if (rob[counter] != NULL)
+			rob[counter]->Reproduce();
+
+	RepopulateVeggies();
 	
 	//Write senses
 	for(counter = 0; counter<=MaxRobs; counter++)
@@ -118,19 +134,10 @@ void Engine_Class::SetupSim(void)
 	SimOpts.TotBorn = 0;
 	SimOpts.TotRunTime = 0;
 
-	//reset graphs
-
-    //clear out the robot and shot arrays if we need to
-    
-
 	MaxRobs = -1;
     MaxShots = -1;
 
 	this->LoadRobots();
-
-	//MDIForm.enablesim(?)
-
-	//create archive if database recording is on
 
 	//initalize the upload/download boxes for internet sharing
 
@@ -168,6 +175,42 @@ void Engine_Class::ExecuteShots()
 	for(int counter = 0; counter <= MaxShots; counter++)
         if(shots[counter] != NULL)
             shots[counter]->UpdateShot();
+}
+
+void Engine_Class::RepopulateVeggies()
+{
+    static int cooldown=0;
+    unsigned long veggcount=0;
+    unsigned long notveggcount=0;
+
+    for(int x = 0; x <= MaxRobs; x++)
+    {
+        if(rob[x] != NULL)
+        {
+            if(rob[x]->Veg)
+                veggcount++;
+            if(!rob[x]->Veg)
+                notveggcount++;
+        }
+    }
+
+    SimOpts.TotBotsNow = notveggcount;
+    SimOpts.TotVegsNow = veggcount;
+    SimOpts.TotObjects = veggcount + notveggcount;
+    
+    if(--cooldown <= 0)
+        cooldown = 0;
+
+    if(SimOpts.MinVegs > veggcount && cooldown <= 0)
+    {
+        for(unsigned int x = 0; x < SimOpts.MinVegs - veggcount; x++)
+        {
+            //this needs to be changed later into something that uses all species with vegs turned on
+            new Robot(&SimOpts.Specie[0]);            
+            SimOpts.TotVegsNow++;
+        }
+        cooldown = SimOpts.RepopCooldown;
+    }
 }
 
 void FindOpenSpace(Robot *me) //finds spot for robot in array, returns pointer to said robot

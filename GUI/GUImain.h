@@ -7,8 +7,8 @@
 class BotDebug_Window;
 class OptionsFormDialogBox;
 
-#define PROJECT_NAME "DarwinBots 3.0"
-#define PROJECT_VERSION "3.0 Pre-Alpha"
+#define PROJECT_NAME "DarwinBots 2.5"
+#define PROJECT_VERSION "2.5 Pre-Alpha"
 
 #define LAYOUT_FILL_XY LAYOUT_FILL_X|LAYOUT_FILL_Y
 #define LAYOUT_FILL_RC LAYOUT_FILL_COLUMN|LAYOUT_FILL_ROW
@@ -45,7 +45,6 @@ protected:
     void ConnectVar();
         
 public:
-    BotDebug_Window *BotDebug;
     OptionsFormDialogBox *OptionsForm;
 
     MainWindow(FXApp *app);

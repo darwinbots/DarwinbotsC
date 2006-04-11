@@ -30,7 +30,10 @@ string &DNA_Class::text()
         if (temp == "")
             temp = "VOID";
 
-        if (Code[t].tipo == btCondition || Code[t].tipo == btLogic || Code[t].tipo == btStores || Code[t].tipo == btFlow)
+        if (Code[t].tipo == btCondition ||
+            Code[t].tipo == btLogic ||
+            Code[t].tipo == btStores ||
+            Code[t].tipo == btFlow)
         {
             temp = temp + "\n";
             
@@ -79,7 +82,6 @@ istream& DNA_Class::LoadDNA(istream &input)
                 //parsing for use, def, and shp
                 //parsing for Hashing
 
-                //this->Code.reserve(this->Code.size() + 1); that's pointless
                 this->Code.push_back(ParseCommand(word));
                 //parse this word
 

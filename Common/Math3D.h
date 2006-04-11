@@ -268,6 +268,11 @@ return Vector4( 	 v1[1] * v2[2] - v1[2] * v2[1]
 					,1);
 }
 
+inline Vector4 floorV(const Vector4 &v1)
+{
+    return Vector4(floorf(v1[0]), floorf(v1[1]), floorf(v1[2]), floorf(v1[3]));
+}
+
 //3D cross product
   inline Vector4 operator^ (const Vector4 &v1, const Vector4 &v2)
 {	return CrossProduct(v1, v2); }

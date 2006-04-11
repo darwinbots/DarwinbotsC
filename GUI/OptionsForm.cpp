@@ -1,4 +1,6 @@
 #include "OptionsForm.h"
+#include "../Engine/HardDriveRoutines.h"
+#include "../Engine/Engine.h"
 #include "../Engine/EngineThread.h"
 
 FXIMPLEMENT(OptionsFormDialogBox, FXDialogBox,
@@ -20,9 +22,9 @@ OptionsFormDialogBox::OptionsFormDialogBox(FXComposite *parent) :
     Veggy(tabbook);
     PhysicsAndCosts(tabbook);
     Mutations(tabbook);
-    ReststartAndL(tabbook);
-    InternetOptions(tabbook);
-    Recording(tabbook);
+    //ReststartAndL(tabbook);
+    //InternetOptions(tabbook);
+    //Recording(tabbook);
     
     BottomToolbar(LayoutMatrix);
 }
@@ -33,8 +35,8 @@ void OptionsFormDialogBox::BottomToolbar(FXMatrix *LayoutMatrix)
     FXMatrix *ButtonMatrix = new FXMatrix(ButtonGroup, 1, MATRIX_BY_ROWS | LAYOUT_FILL_X | LAYOUT_FILL_ROW,
         0,0,0,0,0,0,0,0);
     
-    new FXButton(ButtonMatrix, "Load Settings", 0, NULL, 0);
-    new FXButton(ButtonMatrix, "Save Settings", 0, NULL, 0);
+    new FXButton(ButtonMatrix, "Load Settings", 0, this, OptionsFormDialogBox::ID_LOADSETTINGS);
+    new FXButton(ButtonMatrix, "Save Settings", 0, this, OptionsFormDialogBox::ID_SAVESETTINGS);
     
     new FXSeparator(ButtonMatrix, LAYOUT_FILL_X|LAYOUT_FILL_COLUMN);
     new FXButton(ButtonMatrix, "Cancel", 0, this, FXDialogBox::ID_CANCEL);
@@ -58,5 +60,18 @@ long OptionsFormDialogBox::onStartNew(FXObject *, FXSelector, void *)
     SimOpts = TmpOpts;
     EngineThread.start();
     this->hide();
+    return 1;
+}
+
+long OptionsFormDialogBox::onSaveSettings(FXObject *, FXSelector, void *)
+{
+    WriteSett(Engine.MainDir() + "savesett.set", TmpOpts);
+    return 1;
+}
+
+long OptionsFormDialogBox::onLoadSettings(FXObject *, FXSelector, void *)
+{
+    ReadSett(Engine.MainDir() + "savesett.set", TmpOpts);
+    //WriteSett(Engine.MainDir() + "savesett.set", SimOpts);
     return 1;
 }

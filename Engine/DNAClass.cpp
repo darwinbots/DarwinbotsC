@@ -1,3 +1,4 @@
+#include "RobotSysvars.h"
 #include "DNAClass.h"
 
 long DNA_Class::genenum()
@@ -125,4 +126,43 @@ bool DNA_Class::Mutate(bool reproducing) //returns wether we should mutate color
         return true; //mutate colors
 
     return false;
+}
+
+void DNA_Class::Occurrs(int *OccurrArray)
+{
+    int counter = 0;
+    
+    while(this->Code[counter] != DNA_END)
+    {
+        //myshoot
+        /*
+          If .DNA(t).tipo = 0 Then 'number
+            If .DNA(t).value < 8 And .DNA(t).value > 0 Then 'if we are dealing with one of the first 8 sysvars
+              If .DNA(t + 1).tipo = 7 Then 'DNA is going to store to this value, so it's probably a sysvar
+                .occurr(.DNA(t).value) = .occurr(.DNA(t).value) + 1 'then the occur listing for this fxn is incremented
+              End If
+            End If
+          End If
+          */
+
+        if(Code[counter].tipo == btPointer)
+        {
+            if(Code[counter].value >= EyeStart &&
+               Code[counter].value <= EyeEnd)
+               OccurrArray[8]++;
+
+            if(Code[counter].value == mtie)
+               OccurrArray[9]++;
+
+            if(Code[counter].value == mkpoison || 
+               Code[counter].value == poison)
+               OccurrArray[10]++;
+
+            if(Code[counter].value == mkvenom ||
+               Code[counter].value == venomsys)
+               OccurrArray[11]++;
+        }
+
+        counter++;
+    }
 }

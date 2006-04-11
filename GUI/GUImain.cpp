@@ -7,6 +7,42 @@
 #include "../GFX/Icons/icons.cpp" //I know this is unorthodox, but I get odd linker errors unless I
                                   //include the cpp file itself.
 
+void StatusBar(MainWindow *object)
+{
+    FXHorizontalFrame *statusbar;
+    statusbar = new FXHorizontalFrame(object, LAYOUT_SIDE_BOTTOM | FRAME_RAISED);
+    
+    new FXLabel(statusbar, "Cyc/Sec: ", NULL, FRAME_SUNKEN | JUSTIFY_LEFT);
+
+    new FXTextField(statusbar,5,new FXDataTarget(SimOpts.CycSec),
+            FXDataTarget::ID_VALUE,
+            TEXTFIELD_REAL|JUSTIFY_LEFT|LAYOUT_CENTER_Y|FRAME_SUNKEN|LAYOUT_CENTER_X|FRAME_THICK|LAYOUT_FILL_ROW);
+    
+    new FXLabel(statusbar, "Objects: ", NULL, FRAME_SUNKEN | JUSTIFY_LEFT);
+
+    new FXTextField(statusbar,4,new FXDataTarget((FXulong &) SimOpts.TotObjects),
+            FXDataTarget::ID_VALUE,
+            TEXTFIELD_REAL|JUSTIFY_LEFT|LAYOUT_CENTER_Y|FRAME_SUNKEN|LAYOUT_CENTER_X|FRAME_THICK|LAYOUT_FILL_ROW);
+
+    new FXLabel(statusbar, "Vegs: ", NULL, FRAME_SUNKEN | JUSTIFY_LEFT);
+
+    new FXTextField(statusbar,4,new FXDataTarget((FXulong &) SimOpts.TotVegsNow),
+            FXDataTarget::ID_VALUE,
+            TEXTFIELD_REAL|JUSTIFY_LEFT|LAYOUT_CENTER_Y|FRAME_SUNKEN|LAYOUT_CENTER_X|FRAME_THICK|LAYOUT_FILL_ROW);
+
+    new FXLabel(statusbar, "Bots: ", NULL, FRAME_SUNKEN | JUSTIFY_LEFT);
+
+    new FXTextField(statusbar,4,new FXDataTarget((FXulong &) SimOpts.TotBotsNow),
+            FXDataTarget::ID_VALUE,
+            TEXTFIELD_REAL|JUSTIFY_LEFT|LAYOUT_CENTER_Y|FRAME_SUNKEN|LAYOUT_CENTER_X|FRAME_THICK|LAYOUT_FILL_ROW);
+
+    new FXLabel(statusbar, "Cycles: ", NULL, FRAME_SUNKEN | JUSTIFY_LEFT);
+
+    new FXTextField(statusbar,9,new FXDataTarget((FXulong &) SimOpts.TotRunCycle),
+            FXDataTarget::ID_VALUE,
+            TEXTFIELD_REAL|JUSTIFY_LEFT|LAYOUT_CENTER_Y|FRAME_SUNKEN|LAYOUT_CENTER_X|FRAME_THICK|LAYOUT_FILL_ROW);
+}
+
 FXIMPLEMENT(MainWindow, FXMainWindow, MainWindowMap, ARRAYNUMBER(MainWindowMap))
 
 MainWindow::MainWindow(FXApp *app)
@@ -26,18 +62,8 @@ MainWindow::MainWindow(FXApp *app)
     new FXButton(toolbar,"\tPause",new FXGIFIcon(getApp(),PauseButtonGIF),
         this, MainWindow::ID_PauseEngine, BUTTON_NORMAL | LAYOUT_FIX_WIDTH | LAYOUT_FIX_HEIGHT, 0, 0, 22, 20);
 
-    //new FXToolBarGrip(menubar, menubar, FXMenuBar::ID_TOOLBARGRIP);
-    
-    FXHorizontalFrame *statusbar;
-    statusbar = new FXHorizontalFrame(this, LAYOUT_SIDE_BOTTOM | FRAME_RAISED);
-    
-    new FXLabel(statusbar, "Cyc/Sec: ", NULL, FRAME_SUNKEN | JUSTIFY_LEFT);
+    StatusBar(this);
 
-    FXfloat* pCycSec = &SimOpts.CycSec;
-    new FXTextField(statusbar,4,new FXDataTarget(*pCycSec),
-            FXDataTarget::ID_VALUE,
-            TEXTFIELD_REAL|JUSTIFY_LEFT|LAYOUT_CENTER_Y|FRAME_SUNKEN|LAYOUT_CENTER_X|FRAME_THICK|LAYOUT_FILL_ROW);
-    
     fileMenu = new FXMenuPane(this);
     new FXMenuCommand(fileMenu, "&New Simulation\tF1\tStart a new Simulation.", 0, this, ID_NewSimulation);
     new FXMenuCommand(fileMenu, "&Load Simulation\tF2\tLoad a old Simulation.", 0, this, ID_LoadSimulation);
@@ -80,7 +106,6 @@ MainWindow::MainWindow(FXApp *app)
     
     GLWindow();
 
-    BotDebug = NULL;
     OptionsForm = new OptionsFormDialogBox(this);
 }
 

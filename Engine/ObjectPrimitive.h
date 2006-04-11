@@ -10,8 +10,7 @@ class ObjectPrimitive
 	protected:
 	Vector4 pos, opos;
     Vector4 vel;
-    //bool Exist;
-	unsigned long age;
+    unsigned long age;
 	
     public:
     Vector4 color;

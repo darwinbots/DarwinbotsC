@@ -76,6 +76,7 @@ public: //stupid VC++ 6.0 doesn't handle friend functions
     string &text(); //parse into a string
     bool LoadDNA(string path);
     void Execute(Robot* bot);
+    void Occurrs(int *OccurrArray);
 };
 
 inline istream& operator>>(istream& input, DNA_Class& newDNA)

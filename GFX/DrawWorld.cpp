@@ -92,9 +92,6 @@ void DrawShots()
     {
         if (shots[x] != NULL)
         {
-            //load texture
-            //glColor3f(rob[x]->color.x(), rob[x]->color.y(), rob[x]->color.z());
-            
             glColor3f(shots[x]->color[0], shots[x]->color[1], shots[x]->color[2]);
             CreatePoint(shots[x]->findpos(), 2);
         }

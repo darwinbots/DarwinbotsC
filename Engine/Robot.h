@@ -141,18 +141,18 @@ private:
 	void RobShoot();
 	void DeltaBody(int value);
 	void Shock();
-	void DeathManagement();
+	bool DeathManagement();
 	bool KillRobot();
 	void Reproduction();
 	bool FireTie();
 	void removeAllTies();
 	void ShotManagement();
 	void SetMems();
-
+    
 	Robot *Robot::Split(float percentage);
 	void BasicRobotSetup();
 	void Setup(datispecie *myspecies);
-
+    
 	//SENSES
 	void FacingSun();
 	void Touch(Robot *other, float distance);
@@ -203,6 +203,8 @@ public:
                 virusshot(0),Vtimer(0),
                 View(false)
     {
+        pos = opos = vel = Vector4(0,0,0);
+        age = 0;
         memset(&mem[0], 0, sizeof(mem));
         memset(&occurr[0], 0, sizeof(occurr));
         init(myspecies);        
@@ -217,12 +219,13 @@ public:
 	
     void Integrate();
     void EdgeCollisions();
-    void BotCollisionsPos();
+    float BotCollisionsPos();
     void VelocityCap();
     
     void DuringTurn();
 	void PostTurn();
 	void TurnCleanup();
+    void Reproduce();
 	void TurnEnd();
 	__int16 &operator[](const unsigned int i)
 	{
@@ -258,6 +261,11 @@ public:
     const Vector4 &findpos() const
     {
         return this->pos;
+    }
+
+    const Vector4 &findopos() const
+    {
+        return this->opos;
     }
 
     const float &findaim() const

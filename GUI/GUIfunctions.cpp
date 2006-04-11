@@ -23,7 +23,7 @@ long MainWindow::onCmdLoadSimulation(FXObject *, FXSelector, void *){return 1;}
 long MainWindow::onCmdAutoSave(FXObject *, FXSelector, void *){return 1;}
 long MainWindow::onCmdAbout(FXObject *, FXSelector, void *)
 {
-	  FXDialogBox About(this, "About " PROJECT_NAME, DECOR_TITLE|DECOR_BORDER,
+    FXDialogBox About(this, "About " PROJECT_NAME, DECOR_TITLE|DECOR_BORDER,
  		  0,0,0,0, 0,0,0,0, 0,0);
  		
     FXVerticalFrame *Frame =

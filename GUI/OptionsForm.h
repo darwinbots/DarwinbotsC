@@ -31,6 +31,8 @@ class OptionsFormDialogBox : public FXDialogBox
     //Commands
     long onStartNew             (FXObject *, FXSelector, void *);
     long onChange               (FXObject *, FXSelector, void *);
+    long onSaveSettings         (FXObject *, FXSelector, void *);
+    long onLoadSettings         (FXObject *, FXSelector, void *);
 
     long onSelectNewSpecies     (FXObject *, FXSelector, void *);
     long onAddNewSpecies        (FXObject *, FXSelector, void *);
@@ -72,6 +74,8 @@ class OptionsFormDialogBox : public FXDialogBox
     {
         ID_STARTNEW = FXDialogBox::ID_LAST,
         ID_CHANGE,
+        ID_SAVESETTINGS,
+        ID_LOADSETTINGS,
 
         ID_SELECTSPECIES,
         ID_ADDSPECIES,
@@ -95,6 +99,9 @@ class OptionsFormDialogBox : public FXDialogBox
 FXDEFMAP(OptionsFormDialogBox) OptionsFormDialogBoxMap[] = {
     FXMAPFUNC(SEL_COMMAND, OptionsFormDialogBox::ID_STARTNEW,   OptionsFormDialogBox::onStartNew),
     FXMAPFUNC(SEL_COMMAND, OptionsFormDialogBox::ID_CHANGE,     OptionsFormDialogBox::onChange),
+    
+    FXMAPFUNC(SEL_COMMAND, OptionsFormDialogBox::ID_SAVESETTINGS,   OptionsFormDialogBox::onSaveSettings),
+    FXMAPFUNC(SEL_COMMAND, OptionsFormDialogBox::ID_LOADSETTINGS,   OptionsFormDialogBox::onLoadSettings),
     
     FXMAPFUNC(SEL_COMMAND, OptionsFormDialogBox::ID_SELECTSPECIES,     OptionsFormDialogBox::onSelectNewSpecies),
     FXMAPFUNC(SEL_COMMAND, OptionsFormDialogBox::ID_DELETESPECIES,     OptionsFormDialogBox::onDeleteSpecies),

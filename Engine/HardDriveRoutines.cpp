@@ -3,6 +3,7 @@
 #include <string>
 #include <cmath>
 #include <cstdlib>
+#include <fx.h>
 
 #include "SimOptions.h"
 #include "DNAClass.h"
@@ -14,6 +15,7 @@
 ofstream settingsout;
 
 void ReadSettPre2_4(istream &in, SimOptions &Options);
+void ReadSettPort(istream &in, SimOptions &Options);
 //bool VBTrue(ifstream &file);
 string GetLine(istream &in);
 
@@ -41,7 +43,7 @@ bool ReadSett(const string &path, SimOptions &Options)
 	}
 	else if (line == "-3")
 	{
-		//ReadSett2_4(settingsin);
+		ReadSettPort(settingsin, Options);
 	}		
 	else
 	{
@@ -54,9 +56,85 @@ bool ReadSett(const string &path, SimOptions &Options)
 	return true;
 }
 
+void ChopWhiteSpace(string &line)
+{
+    line = line.substr(line.find_first_not_of(" "), line.size());
+    line = line.substr(0, line.find_last_not_of(" ")+1);
+}
+
+string ChopOffComments(istream &in)
+{
+    string line;
+    while(line == "")
+        line = GetLine(in);
+    
+    line.append(";");
+    line = line.substr(0, line.find_first_of(";")); //chop off comments
+    ChopWhiteSpace(line);
+    
+    return line;
+}
+
+bool EndSpecies(string line)
+{
+    if(line == "End Species")
+        return true;
+    return false;
+}
+
+string EatWord(string &line)
+{
+    string word;
+
+    word = line.substr(0, line.find_first_of(" "));
+    line = line.substr(line.find_first_of(" ")+1, line.size());
+    return word;
+}
+
+#define GO line = ChopOffComments(in); if(EndSpecies(line)) continue;
+void ReadSettPort(istream &in, SimOptions &Options)
+{
+    string line;
+    
+    line = ChopOffComments(in);
+
+    Options.SpeciesNum = atoi(line.c_str());
+    for(unsigned int x = 0; x < Options.SpeciesNum; x++)
+    {
+        GO Options.Specie[x].Name = line;
+        GO Options.Specie[x].path = line;
+        GO
+        {
+            Options.Specie[x].qty = atoi(EatWord(line).c_str());
+            Options.Specie[x].nrg = atoi(EatWord(line).c_str());
+            Options.Specie[x].body = atoi(EatWord(line).c_str());
+        }
+
+        GO Options.Specie[x].color = FXRGBA(atoi(EatWord(line).c_str()),
+                                            atoi(EatWord(line).c_str()),
+                                            atoi(EatWord(line).c_str()),
+                                            255);
+        GO Options.Specie[x].Veg = ((line == "veg") ? true : false);
+        GO Options.Specie[x].PosLowRight.set((float)atof(EatWord(line).c_str()),
+                                             (float)atof(EatWord(line).c_str()),
+                                             (float)atof(EatWord(line).c_str()));
+
+        GO Options.Specie[x].PosTopLeft.set ((float)atof(EatWord(line).c_str()),
+                                             (float)atof(EatWord(line).c_str()),
+                                             (float)atof(EatWord(line).c_str()));
+
+        while(!EndSpecies(line))
+            line = ChopOffComments(in);
+    }
+}
+#undef GO
+
 bool WriteSett(const string &path, SimOptions &Options)
 {
     ofstream settingsout (path.c_str());
+    string END;
+
+    END.append("\n  ");
 
     if (settingsout.fail() == true)
     {
@@ -66,8 +144,39 @@ bool WriteSett(const string &path, SimOptions &Options)
         return false;
     }
 
-    //this is the new versioin of C++ settings file
-    settingsout << "-3";  
+    //this is the new version of C++ settings file
+    settingsout << "-3" << endl;
+
+    settingsout << Options.SpeciesNum << "; Species" << endl;
+    for(unsigned int x = 0; x < Options.SpeciesNum; x++)
+    {
+        settingsout << endl;
+        settingsout << Options.Specie[x].Name << " ;Species" << END;
+        settingsout << Options.Specie[x].path << " ;path" << END;
+
+        settingsout << Options.Specie[x].qty << " " <<
+                       Options.Specie[x].nrg << " " <<
+                       Options.Specie[x].body << " ;QTY NRG BODY" << END;
+
+        settingsout << (int)FXREDVAL(Options.Specie[x].color) << " " <<
+                       (int)FXGREENVAL(Options.Specie[x].color) << " " <<
+                       (int)FXBLUEVAL(Options.Specie[x].color) << " " << 
+                       ";Color (Red Green Blue) [0-255]" << END;
+
+        settingsout << ((Options.Specie[x].Veg == true) ? "veg" : "notveg") << END;
+
+        settingsout << Options.Specie[x].PosLowRight.x() << " " <<
+                       Options.Specie[x].PosLowRight.y() << " " <<
+                       Options.Specie[x].PosLowRight.z() << " " << 
+                       ";PosLowRight" << END;
+
+        settingsout << Options.Specie[x].PosTopLeft.x() << " " <<
+                       Options.Specie[x].PosTopLeft.y() << " " <<
+                       Options.Specie[x].PosTopLeft.z() << " " << 
+                       ";PosTopLeft" << endl;
+
+        settingsout << "End Species" << endl;
+    }
     
     return true;  
 }

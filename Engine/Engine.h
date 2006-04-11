@@ -24,6 +24,7 @@ class Engine_Class
 	void LoadRobots(void);
     void ExecuteDNA();
     void ExecuteShots();
+    void RepopulateVeggies();
     string maindir;
 };
 

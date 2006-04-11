@@ -26,8 +26,7 @@ int EngineThread_Class::run()
                 Flow.Add_Cycles(-1);
                 x++;
             }
-            this->sleep(0, 1000000000 / 36);
-        
+            
             //update cyc/sec calculation at most once every quarter second
             if(float(clock() - elapsed_time) / float(CLOCKS_PER_SEC) >= .25f)
             {
@@ -35,17 +34,23 @@ int EngineThread_Class::run()
                 elapsed_time = clock();
                 x = 0;
             }
+
+            //release control back to the simulation to execute GUI commands, etc. 
+            this->sleep(0, 0);
         }
 
         return 1;
     }
     catch(...)
     {
-        //if(MBOX_CLICKED_OK == FXMessageBox::warning(MainWindowHandle, MBOX_OK, "Error!", "Error!"))
-            throw;
+        //FXMessageBox::warning(MainWindowHandle, MBOX_OK, "Error!", "Error!");
+        throw;
+        //int a;
+
         
-        /*MaxRobs = 0;
-        MaxShots = 0;
+        
+        //MaxRobs = 0;
+        /*MaxShots = 0;
 
         for (unsigned int x = 0; x < 5000; x++)
         {

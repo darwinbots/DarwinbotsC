@@ -29,18 +29,7 @@ Does not even set up color, nrg, etc.
 ****************************************/
 void Robot::BasicRobotSetup()
 {
-    //I find mixed answers as to how valid memsetting a new structure to 0 is.
-    //barring any problems, or an easier, more correct way to do the below that's not setting each
-    //field manually, I'd like continue to do it this way.
-    
-    //DO NOT NOT NOT NOT NOT NOT NOT NOT NOT NOT NOT NOT NOT NOT NOT NOT NOT!
-    //get rid of this memset UNLESS you find some other way to initialize all the variables to
-    //all 0 bits.  DO NOT!  DON'T EVEN THINK IT!
-    //I'M WARNING YOU!
-    
-    //memset(this, 0, sizeof(*this)); //clear out the Robot structure
-
-	SimOpts.TotBorn++;
+    SimOpts.TotBorn++;
 	this->AbsNum = SimOpts.TotBorn;
 	
 	//set random aim
@@ -94,6 +83,7 @@ void Robot::Setup(datispecie *myspecies)
 
     this->DNA->LoadDNA(truePath + "\\" + myspecies->Name);
     this->DNA->Mutables = myspecies->Mutables;
+    this->occurrList();
     //this->DNA->contMutations.push_back(new cPointInsertion(.001));
     //this->DNA->contMutations.push_back(new cPointDeletion(.001));
     //this->DNA->contMutations.push_back(new cPointChange(.001));
@@ -119,7 +109,7 @@ void Robot::UpdateRadius()
 	if (Body < 1)
 		radius = 1;
 	else
-		radius = powf((Body * CUBICTWIPPERBODY * 3 / 4 / PI), .3333333333333333f);
+		radius = powf((Body * CUBICTWIPPERBODY * 3 / 4 / PI), 1.0f / 3.0f);
 }
 
 //be sure to call this when a bot is created and given stuff inside it
@@ -140,15 +130,6 @@ bool Robot::ChargeNRG(float amount)
     this->nrg = this->nrg - amount;
     this->Waste = this->Waste + amount / 10;
     
-    //conceptually it needs to be checked if killing a bot during the turn
-    //instead of at the end isn't fair to the bot
-    /*if (this->nrg < 0)
-    {
-        this->nrg = 0;
-        this->Dead = true;
-        return false;
-    }*/
-
     return true;
 }
 
@@ -389,22 +370,6 @@ void Robot::PoisonManagement()
 	}
 }
 
-/*Private Sub UpdateCounters(n As Integer)
-  With rob(n)
-    TotalRobots = TotalRobots + 1
-      If .Veg Then
-        totvegs = totvegs + 1
-      ElseIf .Corpse Then
-        totcorpse = totcorpse + 1
-        Decay n
-      ElseIf .Wall Then
-      Else
-        totnvegs = totnvegs + 1
-      End If
-  End With
-End Sub
-*/
-
 /*****************************************************************
 Function for the construction management of basic substances that
 aren't directly used in metabolism.  That is, slime goes here, but
@@ -473,7 +438,7 @@ void Robot::DeltaBody(int value)
 	{
 		value = abs(value);
 		if(Body > value * 10 && nrg + value <= 32000)//decrease body points only if there
-													 // is stuff to do it and room for the new nrg
+													 //is stuff to do it and room for the new nrg
 		{
 			nrg = nrg + value; //increase nrg
 			Body = Body - value / 10; //decrease body
@@ -494,9 +459,10 @@ void Robot::Shock()
 	}
 }
 
-void Robot::DeathManagement()
+//returns if we are still alive or not
+bool Robot::DeathManagement()
 {
-	if (nrg > 0 && Body > 0 && Dead == false) return; //cut out if we are still alive
+	if (nrg > 0 && Body > 0 && Dead == false) return true; //cut out if we are still alive
 
 	if (SimOpts.CorpseEnabled == false)
 	{
@@ -509,9 +475,9 @@ void Robot::DeathManagement()
 			Corpse = true;
 			fname = "Corpse";
 			removeAllTies();
-			//color = WHITE;
-			//delete DNA
-			//reset all occurr arrays			
+			this->color.set(1,1,1);
+            delete this->DNA;
+            memset(this->occurr, 0, sizeof(this->occurr));
 			Veg = false;
 			Fixed = false;
 		}
@@ -527,7 +493,12 @@ void Robot::DeathManagement()
 	}
 
 	if (Dead == true)
-		this->KillRobot();
+	{
+    	this->KillRobot();
+        return false;
+    }
+
+    return true;    
 }
 
 /*Returns false if some really really weird error is occurring*/
@@ -598,14 +569,9 @@ void Robot::Reproduction()
             if (baby != NULL)
             {
                 baby->DNA = new DNA_Class((*this->DNA));
-                /*baby->DNA->Mutables = this->DNA->Mutables;
-                baby->DNA->Mutations = this->DNA->Mutations;
-                baby->DNA->LastMutDetail = this->DNA->LastMutDetail;*/
-
-                //mutate DNA
-		        //mutate DNA in child bot
-		        //update sysvars etc. for new DNA
-		        //makeoccurrlist
+                baby->occurrList();
+                baby->DNA->Mutate(true);
+                baby->occurrList();
             }
             (*this)[Repro] = 0;
             (*this)[mrepro] = 0;
@@ -670,10 +636,6 @@ void Robot::PreTurn()
 	//readtie t 'reads all of the tref variables from a given tie number  <---  Need to be sure we do this for all bots before ties are fired
 }
 
-/************************************************************
-During their turn, impulses are applied to robots' positions,
-they turn, etc.
-*************************************************************/
 void Robot::DuringTurn()
 {
 	this->UpdateAim();
@@ -697,8 +659,12 @@ void Robot::PostTurn()
 void Robot::TurnCleanup()
 {
 	this->Shock();
-	this->DeathManagement();
-	this->Reproduction();
+	this->DeathManagement();        
+}
+
+void Robot::Reproduce()
+{
+    this->Reproduction();
 }
 
 void Robot::TurnEnd()
@@ -846,7 +812,7 @@ Robot* Robot::Split(float percentage)
 	//now we check for collision with other bots:
 	//with both the new babypos, radius and the new thispos, radius
 	//if there is a collision,
-	//return false;	
+	//return false;
 		
 	Robot *baby = new Robot();
 	
@@ -919,16 +885,17 @@ Robot* Robot::Split(float percentage)
 	this->opos = this->pos - vel;
 	baby->opos = baby->pos - vel;
 
+    baby->vel = this->vel;
+    baby->oldImpulse.set(0,0,0);
+    baby->Impulse.set(0,0,0);
+    baby->ImpulseStatic = 0.0f;
+    
 	baby->color = this->color;
 
 	(*baby)[timersys] = (*this)[timersys];//epigenetic timer
 
 	//make the birth tie
-	if (!Tie::MakeTie(this, baby, 0))
-    {
-        delete baby;
-        return NULL;
-    }
+	Tie::MakeTie(this, baby, 0);
 
     baby->fname = this->fname;
 

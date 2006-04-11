@@ -162,7 +162,7 @@ Robot *Robot::BasicProximity()
 void Robot::WriteSenses()
 {
 	FacingSun();
-	if (BasicProximity() != NULL)
+	if (this->View && BasicProximity() != NULL)
 		WriteRefVars(this->lastopp);
 
 	(*this)[energy] = iceil(this->nrg);
@@ -241,74 +241,27 @@ void Robot::occurrList()
 	for(x = 1; x<=12;x++)
 		this->occurr[x] = 0;
 
-	/********************************************
-	Go through DNA and increase the occurr list
-	*********************************************/
-
+	this->DNA->Occurrs(this->occurr);
 	
 	for(x = mystart; x<= myend; x++)
 		(*this)[x] = occurr[x - mystart + 1];
 }
 
-/*
-    While Not (.DNA(t).tipo = 10 And .DNA(t).value = 1)
-      
-      If .DNA(t).tipo = 0 Then 'number
-        If .DNA(t).value < 8 And .DNA(t).value > 0 Then 'if we are dealing with one of the first 8 sysvars
-          If .DNA(t + 1).tipo = 7 Then 'DNA is going to store to this value, so it's probably a sysvar
-            .occurr(.DNA(t).value) = .occurr(.DNA(t).value) + 1 'then the occur listing for this fxn is incremented
-          End If
-        End If
-      End If
-      
-      If .DNA(t).tipo = 1 Then '*number
-        If .DNA(t).value > 500 And .DNA(t).value < 510 Then 'the bot is referencing an eye
-          .occurr(8) = .occurr(8) + 1 'eyes
-        End If
-      
-        If .DNA(t).value = 330 Then 'the bot is referencing .tie
-          .occurr(9) = .occurr(9) + 1 'ties
-        End If
-      
-        If .DNA(t).value = 826 Or .DNA(t).value = 827 Then 'referencing either .strpoison or .poison
-          .occurr(10) = .occurr(10) + 1   'poison controls
-        End If
-      
-        If .DNA(t).value = 824 Or .DNA(t).value = 825 Then 'refencing either .strvenom or .venom
-          .occurr(10) = .occurr(11) + 1   'venom controls
-        End If
-      End If
-      
-      t = t + 1
-    Wend
-exitwhile:
-    
-    'this is for when two bots have identical eye values in the league
-    If n = 11 Then Record_11eyes .occurr(8)
-    If n >= 16 And n <= 20 And LeagueMode Then League_Eyefudge n, t
-    
-    'creates the "ownvars" our own readbacks as versions of the refvars seen by others
-  End With
-End Sub
-*/
+
 
 /********************************************
 field's default value is 12 from the VB days
 ********************************************/
 void Robot::CompareRobots(Robot *const other, const unsigned int field)
 {
-//the few lines below are the most performance-critical in the whole code
 
-    if (other == NULL) return; //must be first to avoid unnecessary inits
+    //the few lines below are the most performance-critical in the whole code
+        if (other == NULL) return; //must be first to avoid unnecessary inits
 
-    Vector4 RelativePosition = VectorSub2D(other->pos, this->pos);
-	float discheck = field * RobSize + other->radius;
-	if (fabs(RelativePosition.x())>discheck || fabs(RelativePosition.y())>discheck)
-        return;
-	
-//END extremely critical section
-
-    
+        Vector4 RelativePosition = VectorSub2D(other->pos, this->pos);
+	    float discheck = field * RobSize + other->radius;
+	    if (fabs(RelativePosition.x())>discheck || fabs(RelativePosition.y())>discheck)
+            return;
     
     float magsquare = LengthSquared3(RelativePosition);
     discheck = discheck * discheck;
@@ -320,9 +273,9 @@ void Robot::CompareRobots(Robot *const other, const unsigned int field)
 
     unsigned int eyecellD, eyecellC;
     Vector4 ac, ad;
-	//ac and ad are to either end of the bot, while ab is to the center
+	
+    //ac and ad are to either end of the bot, while ab is to the center
 	//|ac| = |ad| = |ab|
-
 	
 	//this vector fun below needs to be double checked for geometrical accuracy
 	ac = RelativePosition * mag;

@@ -1,12 +1,5 @@
 #include "DNA_Execution.h"
 
-#ifndef DB_NOGUI
-#include "../GUI/GUIMain.h"
-#include "../GUI/GUIBotDebug.h"
-#include "EngineThread.h"
-#endif
-
-
 /*****************************************
 TODO: be sure DNA costs are being exacted
 ******************************************/
@@ -76,16 +69,7 @@ __int32 PopIntStack(void)
         IntStack.pos = 0;
         IntStack.val[0] = 0;
     }
-#ifndef DB_NOGUI
-    if (MainWindowHandle->BotDebug &&
-        MainWindowHandle->BotDebug->DebugMode() &&
-        currbot == MainWindowHandle->BotDebug->ThatBot())
-    {
-        __int32 temp = IntStack.val[IntStack.pos];
-        IntStack.val[IntStack.pos] = 0;
-        return temp;
-    }
-#endif
+
     return IntStack.val[IntStack.pos];
 }
 
@@ -139,38 +123,6 @@ void DNA_Class::Execute(Robot* bot)
 
     while(this->Code[pointer] != DNA_END)
     {
-#ifndef DB_NOGUI
-        if (MainWindowHandle->BotDebug &&
-            MainWindowHandle->BotDebug->DebugMode() &&
-            currbot == MainWindowHandle->BotDebug->ThatBot() &&
-            (CurrentFlow != CLEAR || this->Code[pointer].tipo == btFlow))
-        {
-            //the below isn't thread safe, so there can be occassional display problems
-            
-            //1.  Tell the window where in the DNA we're executing
-            MainWindowHandle->BotDebug->BotTargetInfo.DNA_pos = pointer;
-            
-            //2.  Update any information the Bot Debug window
-            //      has about this bot
-
-            MainWindowHandle->BotDebug->BotTargetInfo.Initialize(currbot);
-            MainWindowHandle->BotDebug->BotTargetInfo.Update(currbot);
-            MainWindowHandle->BotDebug->Update();
-
-            //if this->Code[pointer].tipo == 0 || 1, we need to add that entry
-            //to the interesting sysvars list
-            if(this->Code[pointer].tipo == btPointer || 
-               (this->Code[pointer].tipo == btValue &&
-               this->Code[pointer+1].tipo == btStores))
-            {
-                MainWindowHandle->BotDebug->AddInterestingSysvars(
-                    this->Code[pointer].value);
-            }
-
-            //3.  Wait for user info on wether to continue or wait
-            EngineThread.sleep(0, 100000000);
-        }
-#endif
         switch (this->Code[pointer].tipo)
         {
             case btValue: //number
@@ -456,9 +408,9 @@ void findang()
     else
     {
         if (b < 0)
-            e = atanf(b/a) + float(PI);
+            e = atanf(float(b)/float(a)) + float(PI);
         else
-            e = atanf(b/a);        
+            e = atanf(float(b)/float(a));
     }
 
     if (e < 0)

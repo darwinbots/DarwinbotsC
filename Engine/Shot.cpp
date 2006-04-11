@@ -115,6 +115,7 @@ void Shot::CreateNRGStealingShot(Robot *parent)
     this->age = 0;
     this->shottype = -1;
     this->parent = parent->AbsNum;
+    this->color = parent->color;
 }
 
 void Shot::CreateNRGGivingShot(Robot *parent)
@@ -152,6 +153,7 @@ void Shot::CreateBodyShot(Robot *parent)
     this->age = 0;
     this->shottype = -6;
     this->parent = parent->AbsNum;
+    this->color = parent->color;
 }
 
 void Shot::CreateInfoShot(Robot *parent)
@@ -160,6 +162,7 @@ void Shot::CreateInfoShot(Robot *parent)
     this->shottype = (*parent)[shoot];
     this->value = (*parent)[shootval];
     this->parent = parent->AbsNum;
+    this->color = parent->color;
 }
 
 void Shot::UpdatePos()
