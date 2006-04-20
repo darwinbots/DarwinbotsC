@@ -47,7 +47,7 @@ void OptionsFormDialogBox::Veggy(FXTabBook *TabBook)
                 {
                     new FXLabel(LightIntensityMatrix, "Light Intensity");
                     new FXSeparator(LightIntensityMatrix, LAYOUT_FILL_ALL);
-                    new FXSpinner(LightIntensityMatrix, 4, new FXDataTarget(TmpOpts.LightIntensity), FXDataTarget::ID_VALUE,
+                    new FXTextField(LightIntensityMatrix, 6, new FXDataTarget(TmpOpts.LightIntensity), FXDataTarget::ID_VALUE,
                         FRAME_SUNKEN|FRAME_THICK);
                 }
 
@@ -58,7 +58,7 @@ void OptionsFormDialogBox::Veggy(FXTabBook *TabBook)
                 {
                     new FXLabel(SedimentLevelMatrix, "Sediment Level");
                     new FXSeparator(SedimentLevelMatrix, LAYOUT_FILL_ALL);
-                    new FXSpinner(SedimentLevelMatrix, 4, new FXDataTarget(TmpOpts.Gradient), FXDataTarget::ID_VALUE,
+                    new FXTextField(SedimentLevelMatrix, 6, new FXDataTarget(TmpOpts.Gradient), FXDataTarget::ID_VALUE,
                         FRAME_SUNKEN|FRAME_THICK | LAYOUT_SIDE_RIGHT);
                 }
             }
@@ -78,16 +78,20 @@ void OptionsFormDialogBox::Veggy(FXTabBook *TabBook)
             0,0,0,0,
             0,0,0,0);
         {
-            new FXSpinner(PopulationControlMatrix, 5, new FXDataTarget(TmpOpts.MaxPopulation), FXDataTarget::ID_VALUE, FRAME_SUNKEN | FRAME_THICK);
+            (new FXSpinner(PopulationControlMatrix, 5, new FXDataTarget(TmpOpts.MaxPopulation),
+                 FXDataTarget::ID_VALUE, FRAME_SUNKEN | FRAME_THICK))->setRange(0, 10000);
             new FXLabel(PopulationControlMatrix, "Maximum Vegetable Population");
             
-            new FXSpinner(PopulationControlMatrix, 5, new FXDataTarget(TmpOpts.MinVegs), FXDataTarget::ID_VALUE, FRAME_SUNKEN | FRAME_THICK);
+            (new FXSpinner(PopulationControlMatrix, 5, new FXDataTarget(TmpOpts.MinVegs),
+                 FXDataTarget::ID_VALUE, FRAME_SUNKEN | FRAME_THICK))->setRange(0, 10000);
             new FXLabel(PopulationControlMatrix, "Repopulation Threshold");
 
-            new FXSpinner(PopulationControlMatrix, 5, new FXDataTarget(TmpOpts.RepopAmount), FXDataTarget::ID_VALUE, FRAME_SUNKEN | FRAME_THICK);
+            (new FXSpinner(PopulationControlMatrix, 5, new FXDataTarget(TmpOpts.RepopAmount),
+                 FXDataTarget::ID_VALUE, FRAME_SUNKEN | FRAME_THICK))->setRange(0, 10000);
             new FXLabel(PopulationControlMatrix, "Vegetables per Repopulation Event");
 
-            new FXSpinner(PopulationControlMatrix, 5, new FXDataTarget(TmpOpts.RepopCooldown), FXDataTarget::ID_VALUE, FRAME_SUNKEN | FRAME_THICK);
+            (new FXSpinner(PopulationControlMatrix, 5, new FXDataTarget(TmpOpts.RepopCooldown),
+                 FXDataTarget::ID_VALUE, FRAME_SUNKEN | FRAME_THICK))->setRange(0, 10000);
             new FXLabel(PopulationControlMatrix, "Repopulation Cooldown Period");
         }
 
@@ -151,7 +155,9 @@ void OptionsFormDialogBox::Veggy(FXTabBook *TabBook)
 
             new FXLabel(DayNightSubMatrix,"Period",NULL,LAYOUT_RIGHT|JUSTIFY_RIGHT);
             new FXSeparator(DayNightSubMatrix, LAYOUT_FILL_COLUMN);
-            new FXSpinner(DayNightSubMatrix,6,new FXDataTarget(TmpOpts.CycleLength),FXDataTarget::ID_VALUE,FRAME_SUNKEN | FRAME_THICK);
+            (new FXSpinner(DayNightSubMatrix,6,new FXDataTarget(TmpOpts.CycleLength),
+                FXDataTarget::ID_VALUE,FRAME_SUNKEN | FRAME_THICK))->
+                setRange(0, 100000);
         }
     }
 }

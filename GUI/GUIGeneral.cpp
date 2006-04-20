@@ -105,8 +105,7 @@ void OptionsFormDialogBox::General(FXTabBook *TabBook)
         0,0,0,0,
         0,0,0,0);
     new FXLabel(DRMatrix,"Size",NULL);
-    new FXSpinner(DRMatrix,4,new FXDataTarget(TmpOpts.DecaySize),FXDataTarget::ID_VALUE,
-        SPIN_CYCLIC|FRAME_SUNKEN|FRAME_THICK|LAYOUT_CENTER_Y|LAYOUT_FILL_ROW);
+    new FXTextField(DRMatrix,6,new FXDataTarget(TmpOpts.DecaySize),FXDataTarget::ID_VALUE);
     new FXLabel(DRMatrix,"Period",NULL);
     new FXSpinner(DRMatrix,4,new FXDataTarget(TmpOpts.DecayDelay),FXDataTarget::ID_VALUE,
         SPIN_CYCLIC|FRAME_SUNKEN|FRAME_THICK|LAYOUT_CENTER_Y|LAYOUT_FILL_ROW);

@@ -21,10 +21,12 @@
 #include "RobotSysvars.h"
 #include "SimOptions.h"
 #include "Shots.h"
+#include "CommandQueue.h"
+#include "Engine.h"
 
 //#include "../GUI/GUIBotDebug.h"
 class BotDebug_Window;
-typedef std::list<Tie*> TieList; //we may have to change this later
+typedef vector<Tie *> TieList;
 
 using namespace std;
 
@@ -36,12 +38,14 @@ class Robot : public ObjectPrimitive
 {
     friend class Tie; //tie class has access to bot memory among other things
     friend class Shot;
-    friend struct tempBot_typ;
-
+        
     #ifdef _MSC_VER
     friend class Robot; //instances of the Robot class can access each other
                         //please do not unfriend Robot class with itself.
     #endif
+
+    friend void DrawTies(bool Perimeter);
+    friend void Engine_Class::ExecuteDNA();
 
 private:
 
@@ -49,16 +53,18 @@ private:
 	float radius;
     
 	float aim;								// aim angle
-	Vector4 aimvector;                      // the unit vector for aim
+    float AngularMomentum;
+    Vector4 aimvector;                      // the unit vector for aim
 
 	TieList Ties;                           //linked list of ties
+    __int16 currtie;                        //current port or phase that the bot is set to
 	
 	//Physics
 	Vector4 ovel;
     Vector4 Impulse;                        // impulses that get divided by mass to get forces
     Vector4 oldImpulse;
 	float ImpulseStatic;					// static force scalar (always opposes current forces)
-
+    
 public:
 
 	bool Veg;								// is it a vegetable?
@@ -103,10 +109,12 @@ private:
 
 	// virtual machine
 	__int16 mem[1000];       				// memory array
+    public: CommandQueueClass DNACommands;
+    private:
 	DNA_Class *DNA;        					// the DNA
 
-	class Robot *lastopp;         	// pointer to const (last robot in eye5)
-	unsigned long AbsNum;             				// absolute robot number
+	Robot *lastopp;         	            // pointer to robot in eye5
+	unsigned long AbsNum;             		// absolute robot number
 
 	//console; Consoleform    				// console object;sociated to the robot
 
@@ -144,8 +152,7 @@ private:
 	bool DeathManagement();
 	bool KillRobot();
 	void Reproduction();
-	bool FireTie();
-	void removeAllTies();
+	
 	void ShotManagement();
 	void SetMems();
     
@@ -176,6 +183,9 @@ private:
     void BotCollisionsVel();
     void PlanetEaters();
     void UpdateAddedMass();
+    void Friction();
+    void FulfillTieConstraints();
+    void Robot::SpringForces();
     
     //veg controls
     void FeedVegSun();
@@ -184,9 +194,11 @@ public:
     bool View;
 
     Robot::Robot(datispecie *myspecies = NULL):radius(60.0f),
-                aim(0.0f),aimvector(cosf(aim),sinf(aim)),
+                aim(0.0f),AngularMomentum(0.0f), 
+                aimvector(cosf(aim),sinf(aim)),
                 Ties(),
-                Impulse(), ImpulseStatic(0.0f), oldImpulse(0.0f,0.0f,0.0f),
+                Impulse(0,0,0), ImpulseStatic(0.0f), oldImpulse(0.0f,0.0f,0.0f),
+                ovel(0,0,0),
                 Veg(false),Wall(false),Corpse(false),Fixed(false),
                 Dead(false),Multibot(false),NewMove(false),
                 nrg(1000.0f),onrg(nrg),
@@ -201,13 +213,15 @@ public:
                 SonNumber(0),parent(0),BirthCycle(0),genenum(0),generation(0),
                 LastOwner(""),fname(""),DnaLen(0),
                 virusshot(0),Vtimer(0),
-                View(false)
+                View(false),
+                currtie(0)
     {
         pos = opos = vel = Vector4(0,0,0);
         age = 0;
         memset(&mem[0], 0, sizeof(mem));
         memset(&occurr[0], 0, sizeof(occurr));
-        init(myspecies);        
+        init(myspecies);
+        DNACommands.SetBase(this);
     }
 
     void init(datispecie *myspecies = NULL);      //be called whenever a bot is created
@@ -280,12 +294,25 @@ public:
 
     void Robot::DrawRobotEye();
     
-    bool canTie();
-    void addTie(Tie* tie);
-    void removeTie(Tie* tie);
+    void Robot::UpdateTies();
+    bool FireTie();
+    bool CanTie();
+    void AddTie(Tie* tie);
+    void RemoveTie(Robot *other); //remove ties to other if such ties exist
+    void RemoveTie(Tie* tie);
+    void RemoveAllTies();
+    void SetTie(__int16 a)
+    {
+        currtie = (a > 0) ? ((a - 1)% 200) + 1 : a;
+    }
+    Tie *CurrTie();
+    __int16 NextTie();
+    void Robot::WriteTie(__int16 location, __int16 number, __int16 tienum = 0);
+    __int16 Robot::ReadTie(__int16 loc, __int16 tienum = 0);
+    void Robot::ApplyNewTieSysvars();
 };
 
-extern Robot *rob[5000];  //an array of pointers to Robots.
-extern int MaxRobs; //how far into the robot array to go
+extern vector<Robot *> rob;  //an array of pointers to Robots.
+extern int MaxRobs; //how far into the robot array to go (we use this instead of downsizing the Robot array to save time)
 
 #endif

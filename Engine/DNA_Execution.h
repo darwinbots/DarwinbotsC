@@ -3,26 +3,22 @@
 
 #include "DNAClass.h"
 #include "Robot.h"
-#include <deque>
+#include <stack>
 
 //the conditions stack
 class BoolStack
 {
-    std::deque<bool> val;
-    static const int BOOLSTACK_MAX;
-public:
+    stack<bool> val;
+    
+    public:
     bool pop();
-    bool Addup();   //empties the stack and ANDs everything together
     void push(const bool& value);
+    bool Addup();   //empties the stack and ANDs everything together    
 };
 
-
 //the integer stack
-struct intstack_type
-{
-    __int32 val[21];
-    int pos;
-}extern IntStack;
+typedef stack<__int32> intstack_type;
+extern intstack_type IntStack;
 
 enum FlowType
 {
@@ -35,7 +31,5 @@ enum FlowType
 extern bool CurrentCondFlag;
 const bool NEXTBODY = true;
 const bool NEXTELSE = false;
-
-extern bool DEBUGMODE;
 
 #endif

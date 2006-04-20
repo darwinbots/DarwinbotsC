@@ -9,14 +9,14 @@
 #include "DNAClass.h"
 #include "Engine.h"
 #include "HardDriveRoutines.h"
-
-
+#include "block.h"
+#include "..\GUI\OptionsForm.h"
+#include "..\GUI\GUIMain.h"
 
 ofstream settingsout;
 
 void ReadSettPre2_4(istream &in, SimOptions &Options);
 void ReadSettPort(istream &in, SimOptions &Options);
-//bool VBTrue(ifstream &file);
 string GetLine(istream &in);
 
 bool ReadSett(const string &path, SimOptions &Options)
@@ -26,7 +26,7 @@ bool ReadSett(const string &path, SimOptions &Options)
 	if (settingsin.fail() == true)
 	{
 		//this isn't a valid settings file
-		std::cout << "Settings file " << path.c_str() << " not found." << endl;
+		cout << "Settings file " << path.c_str() << " not found." << endl;
 		settingsin.close();
 		return false;
 	}
@@ -65,33 +65,32 @@ void ChopWhiteSpace(string &line)
 string ChopOffComments(istream &in)
 {
     string line;
-    while(line == "")
-        line = GetLine(in);
+    while(line == "" || line == "  ")
+    {
+        while(line == "" || line == "  ")
+            line = GetLine(in);
     
-    line.append(";");
-    line = line.substr(0, line.find_first_of(";")); //chop off comments
+        line.append(";");
+        line = line.substr(0, line.find_first_of(";")); //chop off comments        
+    }
     ChopWhiteSpace(line);
     
     return line;
-}
-
-bool EndSpecies(string line)
-{
-    if(line == "End Species")
-        return true;
-    return false;
 }
 
 string EatWord(string &line)
 {
     string word;
 
+    line += " ";
+    line.c_str();
     word = line.substr(0, line.find_first_of(" "));
+    word.c_str();
     line = line.substr(line.find_first_of(" ")+1, line.size());
+    line.c_str();
     return word;
 }
 
-#define GO line = ChopOffComments(in); if(EndSpecies(line)) continue;
 void ReadSettPort(istream &in, SimOptions &Options)
 {
     string line;
@@ -99,10 +98,12 @@ void ReadSettPort(istream &in, SimOptions &Options)
     line = ChopOffComments(in);
 
     Options.SpeciesNum = atoi(line.c_str());
+    #define GO line = ChopOffComments(in); if(line=="End Species") continue;
     for(unsigned int x = 0; x < Options.SpeciesNum; x++)
     {
         GO Options.Specie[x].Name = line;
         GO Options.Specie[x].path = line;
+
         GO
         {
             Options.Specie[x].qty = atoi(EatWord(line).c_str());
@@ -123,11 +124,190 @@ void ReadSettPort(istream &in, SimOptions &Options)
                                              (float)atof(EatWord(line).c_str()),
                                              (float)atof(EatWord(line).c_str()));
 
-        while(!EndSpecies(line))
+        while(line != "End Species")
             line = ChopOffComments(in);
     }
+    #undef GO
+
+    #define GO line = ChopOffComments(in); if(line=="End General") break;
+    while(line != "End General")
+    {
+        GO Options.FieldSize = atoi(EatWord(line).c_str());
+        GO
+        {
+            Options.FieldDimensions(0) = (float)atof(EatWord(line).c_str());
+            Options.FieldDimensions(1) = (float)atof(EatWord(line).c_str());
+            Options.FieldDimensions(2) = (float)atof(EatWord(line).c_str());
+        }
+
+        GO
+        {
+            Options.UserSeedToggle = (EatWord(line) == "true" ? true : false);
+            Options.UserSeedNumber = atoi(EatWord(line).c_str());
+        }
+
+        GO
+        {
+            Options.Dxsxconnected = (EatWord(line) == "true" ? true : false);
+            Options.Updnconnected = (EatWord(line) == "true" ? true : false);
+        }
+
+        GO Options.BadWasteLevel = atoi(EatWord(line).c_str());
+        GO Options.CorpseEnabled = (EatWord(line) == "corpse" ? true : false);
+
+        GO
+        {
+            Options.DecayType  = atoi(EatWord(line).c_str());
+            Options.DecaySize  = (float)atof(EatWord(line).c_str());
+            Options.DecayDelay = atoi(EatWord(line).c_str());
+        }
+
+        while(line != "End General")
+            line = ChopOffComments(in);
+    }
+    #undef GO
+
+    #define GO line = ChopOffComments(in); if(line=="End Veggies") break;
+    while(line != "End Veggies")
+    {
+        GO Options.PondMode = (EatWord(line) == "PondOn" ? true : false);
+        GO
+        {
+            Options.LightIntensity = (float)atof(EatWord(line).c_str());
+            Options.Gradient       = (float)atof(EatWord(line).c_str());
+        }
+
+        GO
+        {
+            Options.MaxPopulation  = atoi(EatWord(line).c_str());
+            Options.MinVegs        = atoi(EatWord(line).c_str());
+            Options.RepopAmount    = atoi(EatWord(line).c_str());
+            Options.RepopCooldown  = atoi(EatWord(line).c_str());
+        }
+
+        GO
+        {
+            Options.VegFeedingMethod = atoi(EatWord(line).c_str());
+            Options.VegFeedingToBody = (float)atof(EatWord(line).c_str());
+        }
+
+        GO
+        {
+            Options.DayNight = (EatWord(line) == "DayOn" ? true : false);
+            Options.CycleLength = atoi(EatWord(line).c_str());
+        }
+
+        while(line != "End Veggies")
+            line = ChopOffComments(in);
+    }
+    #undef GO
+
+    #define GO line = ChopOffComments(in); if(line=="End Physics") break;
+    while(line != "End Physics")
+    {
+        GO
+        {
+            Options.Density = atof(EatWord(line).c_str());
+            Options.Viscosity = atof(EatWord(line).c_str());            
+        }
+
+        GO
+        {
+            Options.ZGravity = (float)atof(EatWord(line).c_str());
+            Options.CoefficientStatic = (float)atof(EatWord(line).c_str());
+            Options.CoefficientKinetic = (float)atof(EatWord(line).c_str());
+        }
+
+        GO
+        {
+            Options.MovingEfficiency = (float)atof(EatWord(line).c_str());
+            Options.YGravity = (float)atof(EatWord(line).c_str());
+            Options.Brownian = (float)atof(EatWord(line).c_str());
+        }
+
+        GO Options.ZeroMomentum = (EatWord(line) == "ZMon" ? true : false);
+        GO
+        {
+            Options.PlanetEaters = (EatWord(line) == "PEon" ? true : false);
+            Options.PlanetEatersG = (float)atof(EatWord(line).c_str());
+        }
+
+        GO
+        {
+            Options.EnergyExType = (EatWord(line) == "PropShot" ? true : false);
+            Options.EnergyFix =  atoi(EatWord(line).c_str());
+            Options.EnergyProp = atoi(EatWord(line).c_str());
+        }
+
+        GO Options.MaxSpeed = atoi(EatWord(line).c_str());
+        
+        while(line != "End Physics")
+            line = ChopOffComments(in);
+    }
+    #undef GO
+
+    #define GO line = ChopOffComments(in); if(line=="End Costs") break;
+    while(line != "End Costs")
+    {
+        GO
+        {
+            Options.Costs[btValue] = (float)atof(EatWord(line).c_str());
+            Options.Costs[btPointer] = (float)atof(EatWord(line).c_str());
+        }
+
+        GO
+        {
+            Options.Costs[btBasicCommand] = (float)atof(EatWord(line).c_str());
+            Options.Costs[btBitwiseCommand] = (float)atof(EatWord(line).c_str());
+            Options.Costs[btAdvancedCommand] = (float)atof(EatWord(line).c_str());
+        }
+
+        GO
+        {
+            Options.Costs[btLogic] = (float)atof(EatWord(line).c_str());
+            Options.Costs[btCondition] = (float)atof(EatWord(line).c_str());
+        }
+
+        GO
+        {
+            Options.Costs[btStores] = (float)atof(EatWord(line).c_str());
+            Options.Costs[btFlow] = (float)atof(EatWord(line).c_str());
+        }
+
+        GO
+        GO
+        {
+            Options.Costs[MOVECOST] = (float)atof(EatWord(line).c_str());
+            Options.Costs[TURNCOST] = (float)atof(EatWord(line).c_str());
+        }
+
+        GO
+        {
+            Options.Costs[SHOTCOST] = (float)atof(EatWord(line).c_str());
+            Options.Costs[TIECOST] = (float)atof(EatWord(line).c_str());
+        }
+
+        GO
+        {
+            Options.Costs[BPCYCCOST] = (float)atof(EatWord(line).c_str());
+            Options.Costs[BPCOPYCOST] = (float)atof(EatWord(line).c_str());
+        }
+
+        GO Options.Costs[BODYUPKEEP] = (float)atof(EatWord(line).c_str());
+
+        GO
+        {
+            Options.Costs[VENOMCOST] = (float)atof(EatWord(line).c_str());
+            Options.Costs[SLIMECOST] = (float)atof(EatWord(line).c_str());
+            Options.Costs[POISONCOST] = (float)atof(EatWord(line).c_str());
+            Options.Costs[SHELLCOST] = (float)atof(EatWord(line).c_str());
+        }
+        
+        while(line != "End Costs")
+            line = ChopOffComments(in);
+    }
+    #undef GO
 }
-#undef GO
 
 bool WriteSett(const string &path, SimOptions &Options)
 {
@@ -165,18 +345,144 @@ bool WriteSett(const string &path, SimOptions &Options)
 
         settingsout << ((Options.Specie[x].Veg == true) ? "veg" : "notveg") << END;
 
-        settingsout << Options.Specie[x].PosLowRight.x() << " " <<
+        settingsout << Options.Specie[x].PosLowRight.z() << " " <<
                        Options.Specie[x].PosLowRight.y() << " " <<
-                       Options.Specie[x].PosLowRight.z() << " " << 
-                       ";PosLowRight" << END;
+                       Options.Specie[x].PosLowRight.x() << " " << 
+                       ";PosLowRight z y x" << END;
 
-        settingsout << Options.Specie[x].PosTopLeft.x() << " " <<
+        settingsout << Options.Specie[x].PosTopLeft.z() << " " <<
                        Options.Specie[x].PosTopLeft.y() << " " <<
-                       Options.Specie[x].PosTopLeft.z() << " " << 
-                       ";PosTopLeft" << endl;
+                       Options.Specie[x].PosTopLeft.x() << " " << 
+                       ";PosTopLeft z y x" << endl;
 
         settingsout << "End Species" << endl;
     }
+
+    settingsout << endl << "; General Settings" << END;
+    {
+        settingsout << Options.FieldSize << "; Field Size" << END;
+        settingsout << Options.FieldDimensions.x() << " " <<
+                       Options.FieldDimensions.y() << " " <<
+                       Options.FieldDimensions.z() << "; Field Dimensions" << END;
+
+        settingsout << (Options.UserSeedToggle ? "true" : "false") << " " << 
+                        Options.UserSeedNumber << "; User Seed toggle and number" << END;
+
+        settingsout << (Options.Dxsxconnected ? "true" : "false") << " "
+                    << (Options.Updnconnected ? "true" : "false") << "; left/right up/dn connected" << END;
+
+        settingsout << Options.BadWasteLevel << "; Bad Waste Level" << END;
+        settingsout << (Options.CorpseEnabled ? "corpse" : "nocorpse") << END;
+        settingsout << Options.DecayType << " " <<
+                       Options.DecaySize << " " <<
+                       Options.DecayDelay << " " <<
+                       ";Decay type/size/delay" << endl;
+
+        settingsout << "End General" << endl << endl;
+    }
+
+    settingsout << "; Veggy Settings" << END;
+    {
+        settingsout << (Options.PondMode ? "PondOn" : "PondOff") << END;
+        settingsout << Options.LightIntensity << " " <<
+                       Options.Gradient << ";Light Intensity / Gradient" << END;
+        settingsout << Options.MaxPopulation << " " <<
+                       Options.MinVegs << " " <<
+                       Options.RepopAmount << " " <<
+                       Options.RepopCooldown << " " <<
+                       "; Max Min Amt Cooldown" << END;
+        settingsout << Options.VegFeedingMethod << " " <<
+                       Options.VegFeedingToBody << " " <<
+                       "; Method ToBody" << END;
+        settingsout << (Options.DayNight ? "DayOn" : "DayOff") << " "
+                    << Options.CycleLength << " " <<
+                    ";Day On/Off / Day Length";
+        
+        settingsout << endl << "End Veggies" << endl << endl;        
+    }
+
+    settingsout << ";Physics Settings" << END;
+    {
+        settingsout << Options.Density << " " <<
+                       Options.Viscosity << " " <<
+                       ";Density Viscosity" << END;
+
+        settingsout << Options.ZGravity << " " <<
+                       Options.CoefficientStatic << " " <<
+                       Options.CoefficientKinetic << " " <<
+                       ";ZGravity Static Kinetic" << END;
+
+        settingsout << Options.MovingEfficiency << " " <<
+                       Options.YGravity << " " <<
+                       Options.Brownian << " " <<
+                       "; Efficiency YGravity Brownian" << END;
+
+        settingsout << (Options.ZeroMomentum ? "ZMon" : "ZMoff") << " " <<
+                       "; Zero Momentum" << END;
+
+        settingsout << (Options.PlanetEaters ? "PEon" : "PEoff") << " " <<
+                       Options.PlanetEatersG << " " <<
+                       "; Planet Eaters" << END;
+
+        settingsout << (Options.EnergyExType ? "PropShot" : "FixedShot") << " " <<
+                       Options.EnergyFix << " " <<
+                       (int)Options.EnergyProp << " " <<
+                       "; Energy hit type / fixed return value / proportional shot power" << END;
+
+        settingsout << Options.MaxSpeed << " ;Max Speed";
+        
+        settingsout << endl << "End Physics" << endl << endl;
+
+    }
+
+    settingsout << ";Costs Settings" << END;
+    {
+        settingsout << ";DNA Costs" << END;
+        
+        settingsout << Options.Costs[btValue] << " " <<
+                       Options.Costs[btPointer] << " " <<
+                       "; Value Pointer" << END;
+
+        settingsout << Options.Costs[btBasicCommand] << " " <<
+                       Options.Costs[btBitwiseCommand] << " " <<
+                       Options.Costs[btAdvancedCommand] << " " <<
+                       ";Basic Bitwise Advanced Commands" << END;
+
+        settingsout << Options.Costs[btLogic] << " " <<
+                       Options.Costs[btCondition] << " " <<
+                       ";Logic Conditions" << END;
+
+        settingsout << Options.Costs[btStores] << " " <<
+                       Options.Costs[btFlow] << " " <<
+                       ";Stores Flow" << END;
+
+        for(x = btMAX; x <= 20; x++)
+            settingsout << "0 ";
+
+        settingsout << END;
+        settingsout << Options.Costs[MOVECOST] << " " <<
+                       Options.Costs[TURNCOST] <<
+                       "; Move Turn" << END;
+
+        settingsout << Options.Costs[SHOTCOST] << " " <<
+                       Options.Costs[TIECOST]  << " " <<
+                       "; Shot Tie" << END;
+
+        settingsout << Options.Costs[BPCYCCOST] << " " <<
+                       Options.Costs[BPCOPYCOST] << " " <<
+                       "; DNA upkeep / copy cost" << END;
+
+        settingsout << Options.Costs[BODYUPKEEP] << " " <<
+                       ";Body Upkeep" << END;
+
+        settingsout << Options.Costs[VENOMCOST] << " " <<
+                       Options.Costs[SLIMECOST] << " " <<
+                       Options.Costs[POISONCOST] << " " <<
+                       Options.Costs[SHELLCOST] << " " <<
+                       ";Venom Slime Poison Shell" << END;
+        
+        settingsout << endl << "End Costs" << endl << endl;
+    }    
     
     return true;  
 }
@@ -245,7 +551,7 @@ void ReadSettPre2_4(istream &in, SimOptions &Options)
 		/////////////////////////////////////////
 
 		
-		Options.Specie[x].Mutables.mutarray[0] = GrabNumber(in);
+		/*Options.Specie[x].Mutables.mutarray[0] =*/ GrabNumber(in);
 		Options.Specie[x].path =				 GrabString(in);
 		Options.Specie[x].qty =					 GrabNumber(in);
 		Options.Specie[x].Name =				 GrabString(in);
@@ -258,7 +564,7 @@ void ReadSettPre2_4(istream &in, SimOptions &Options)
 
 		for (unsigned int k = 0; k <= 13; k++)
 		{
-			Options.Specie[x].Mutables.mutarray[k] = GrabNumber(in);
+			/*Options.Specie[x].Mutables.mutarray[k] =*/ GrabNumber(in);
 		}
 
 		for (unsigned int l = 0; l <= 12; l++)
@@ -343,11 +649,11 @@ void ReadSettPre2_4(istream &in, SimOptions &Options)
 		for (int k = 14; k <= 20; k++)
 		{
 			if (!in.eof())
-				Options.Specie[x].Mutables.mutarray[k] = GrabNumber(in);
+				/*Options.Specie[x].Mutables.mutarray[k] =*/ GrabNumber(in);
 		}
 
 		if (!in.eof())
-				Options.Specie[x].Mutables.Mutations = GrabBool(in);
+				/*Options.Specie[x].Mutables.Mutations =*/ GrabBool(in);
 	}
 	
 	if (!in.eof()) Options.VegFeedingMethod =	GrabNumber(in);
@@ -366,13 +672,13 @@ void ReadSettPre2_4(istream &in, SimOptions &Options)
 
 	for (x = 0; x < Options.SpeciesNum ; x++)
 	{
-		if (!in.eof()) Options.Specie[x].Mutables.CopyErrorWhatToChange = GrabNumber(in);
-		if (!in.eof()) Options.Specie[x].Mutables.PointWhatToChange = GrabNumber(in);
+		if (!in.eof()) /*Options.Specie[x].Mutables.CopyErrorWhatToChange =*/ GrabNumber(in);
+		if (!in.eof()) /*Options.Specie[x].Mutables.PointWhatToChange =*/ GrabNumber(in);
 
 		for (int k = 0; k <= 20; k++)
 		{
-			if (!in.eof()) Options.Specie[x].Mutables.Mean[k] = GrabNumber(in);
-			if (!in.eof()) Options.Specie[x].Mutables.StdDev[k] = GrabNumber(in);
+			if (!in.eof()) /*Options.Specie[x].Mutables.Mean[k] =*/ GrabNumber(in);
+			if (!in.eof()) /*Options.Specie[x].Mutables.StdDev[k] =*/ GrabNumber(in);
 		}
 	}
 
@@ -418,8 +724,8 @@ bool BuildSysvars()
 {
     string line;
 
-    std::string path = Engine.MainDir() + "\\sysvars2.4.txt";
-	ifstream in(path.c_str() );
+    string path = Engine.MainDir() + "\\sysvars2.5.txt";
+	ifstream in(path.c_str());
 
     if (in.fail() == true)
     {
@@ -429,17 +735,17 @@ bool BuildSysvars()
 		return false;
     }
 
-    maxsysvar = 0;
-
     while (!in.eof())
     {
+        var temp;
+
         in >> line;
-        sysvar[maxsysvar].value = atoi(line.c_str());
+        temp.value = atoi(line.c_str());
         
         in >> line;
-        sysvar[maxsysvar].name = line;
+        temp.name = line;
 
-        maxsysvar++;
+        sysvar.push_back(temp);
     }
 
     in.close();
@@ -453,7 +759,7 @@ bool DNA_Class::LoadDNA(string path)
 	if (DNAfile.fail() == true)
 	{
 		//this isn't a valid settings file
-		std::cout << "Robot file " << path.c_str() << " not found." << endl;
+		cout << "Robot file " << path.c_str() << " not found." << endl;
 		DNAfile.close();
 		return false;
 	}
@@ -464,49 +770,54 @@ bool DNA_Class::LoadDNA(string path)
     return true;
 }
 
-//none below is used yet
-
+/*
 // This is an all purpose tokenizer respecting Darwinbots' conventions
 // Spaces and linebreaks count as delimiters and everything after "'" is
 // ignored till end of line.
-vector<string> tokenize(std::istream& inputStream) {
-  int pos;
-  vector<string> tokenList;
-  string lineBuf,token;
+vector<string> tokenize(istream& inputStream)
+{
+    int pos;
+    vector<string> tokenList;
+    string lineBuf,token;
 
-  while(!inputStream.eof()){
-    getline(inputStream,lineBuf);
-    //DEBUG: myNotify("Line : "+lineBuf);
-    pos=lineBuf.find("'");
-    if (pos!=string::npos) lineBuf.erase(pos);
-    std::stringstream ssLineBuf(lineBuf,std::stringstream::in);
-    while( !ssLineBuf.eof() ){
-      while (isspace(ssLineBuf.peek()))
-        ssLineBuf.get();
-      if( ssLineBuf.eof()) break;
-      ssLineBuf>>token;
-      tokenList.push_back(token);
+    while(!inputStream.eof())
+    {
+        getline(inputStream,lineBuf);
+        pos = lineBuf.find("'");
+        if (pos != string::npos)
+            lineBuf.erase(pos);
+        stringstream ssLineBuf(lineBuf,std::stringstream::in);
+        while( !ssLineBuf.eof() )
+        {
+            while (isspace(ssLineBuf.peek()))
+                ssLineBuf.get();
+
+            if( ssLineBuf.eof())
+                break;
+
+            ssLineBuf>>token;
+            tokenList.push_back(token);
+        }
     }
-  }
-  return tokenList;
+
+    return tokenList;
 };
 
 bool LoadSysvars() {
-    std::string path;
-    path = Engine.MainDir() + "\\sysvars2.4.txt";
+    string path = Engine.MainDir() + "\\sysvars2.4.txt";
     return LoadSysvars(path);
 };
 
-bool LoadSysvars(std::string path) {
+bool LoadSysvars(string path) {
     vector<string> tokenList;
     ifstream in(path.c_str() );
 
     if (in.fail() == true)
     {
         //can't find sysvars file
-        std::cout << "Sysvars file " << path.c_str() << " not found." << endl;
-		    in.close();
-		    return false;
+        cout << "Sysvars file " << path.c_str() << " not found." << endl;
+		in.close();
+		return false;
     }
     tokenList=tokenize(in);
     if (tokenList.size() % 2 == 1) return false;
@@ -535,3 +846,4 @@ bool LoadSysvars(std::string path) {
   maxsysvar=vSysvars.size();
   return true;
 };
+*/

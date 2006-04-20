@@ -10,60 +10,56 @@
 #include "Block.h"
 #include "Mutations.h"
 class Robot;
-//#include "Robot.h"
 
 using namespace std;
 
-
-template <class T>
-bool from_string(T &t,
-                 const std::string &s,
-                 std::ios_base & (*f)(std::ios_base&))
+struct MutationDetails
 {
-   std::istringstream iss(s);
-   return !(iss>>f>>t).fail();
-}
-
-
-typedef vector<cMutationBase*> cMutList;
+    int type;
+    unsigned long cycle;
+    unsigned long start, stop, location;
+    vector<block> Inserted; //holds the DNA added if DNA was added
+    float Magnitude;
+};
 
 class DNA_Class
 {
-	friend istream& operator>>(istream& input, DNA_Class& newDNA);
-	friend ostream& operator<<(ostream& output, DNA_Class& DNA);
-    friend class cPointDeletion;
-    friend class cPointInsertion;
-    friend class cPointChange;
-private:
-	vector<block> Code;
+	friend istream& operator>>(istream& input, DNA_Class& newDNA); //Load DNA from an input source
+	friend ostream& operator<<(ostream& output, DNA_Class& DNA);   //Output DNA into a Text File
+    
+    private:
+    vector<block> Code;
 	vector<var>   Private_Variables;
 	long DNAgenenum; //number of genes in the genome
-	long DNAlength;
-public: //temporarily
-    cMutList contMutations;
-    cMutList reproMutations;
-  public:
-    //Mutation related
-	mutationprobs Mutables;
+	
+    public:
+    mutationprobs Mutables;
 
-	long PointMutCycle;      				// Next cycle to point mutate (expressed in cycles since birth.  ie: age)
-	long PointMutBP;         				// the base pair to mutate
-
-    //later we'll replace the below with pointers to a tree structure to save memory
-    string LastMutDetail;    				// description of last mutations
+	//later we'll replace the below with pointers to a tree structure to save memory
+    vector<MutationDetails> LastMutDetail;  // description of last mutations
     
     unsigned int Mutations;       			// total mutations
 	unsigned int LastMut;         			// last mutations
 
-  private:
+    private:
     //functions
     
-	
-    bool Delete(int start, int end); //deletes blocks from start (inclusive) to end (exclusive)
-#ifdef _MSC_VER
-public: //stupid VC++ 6.0 doesn't handle friend functions
-#endif
-    std::istream& LoadDNA(std::istream &input);
+    bool Delete(int start, int end); //deletes blocks from start (inclusive) to end (inclusive)
+    bool Reverse(unsigned int start, unsigned int end);
+    bool Translocate(unsigned int start, unsigned int end);
+    MutatePoint(float multiplier);
+    MutateDelta(float multiplier);
+    MutateCopyError(float multiplier);
+    MutateReversal(float multiplier);
+    MutateTranslocation(float multiplier);
+    MutateInsertion(float multiplier);
+    MutateAmplification(float multiplier);
+    MutateDeletion(float multiplier);    
+
+    string &SysvarDetok(__int16 number);
+    __int16 SysvarTok(const string &in);
+    block ParseCommand(const string &Command);
+    string &UnparseCommand(const block &Command, bool converttosysvar);
     
 	public:
     DNA_Class(); //constructor
@@ -71,17 +67,18 @@ public: //stupid VC++ 6.0 doesn't handle friend functions
     ~DNA_Class();
 	long length();
     long genenum();
-    bool Mutate(bool reproducing);
+    bool Mutate(bool reproducing, float multiplier = 1.0f);    
 
     string &text(); //parse into a string
     bool LoadDNA(string path);
+    istream& LoadDNA(istream &input);
     void Execute(Robot* bot);
     void Occurrs(int *OccurrArray);
 };
 
-inline istream& operator>>(istream& input, DNA_Class& newDNA)
+inline istream& operator>>(istream& input, DNA_Class& DNA)
 {
-    return newDNA.LoadDNA(input);
+    return DNA.LoadDNA(input);
 }
 
 inline ostream& operator>>(ostream& output, DNA_Class& DNA)

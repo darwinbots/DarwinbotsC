@@ -17,5 +17,3 @@ class ObjectPrimitive
 };
 
 #endif
-
-

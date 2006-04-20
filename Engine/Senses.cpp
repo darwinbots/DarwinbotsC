@@ -131,16 +131,9 @@ void Robot::EraseSenses()
 	(*this)[HitAngsys] = 0;
 	(*this)[shangsys] = 0;
 	(*this)[shflav] = 0;
-
+    
 	(*this)[edgesys] = 0;
-	for (x = 0; x < 10; x++)
-	{
-		(*this)[456 + x] = 0;
-		(*this)[trefxpos + x] = 0;
-	}
-	(*this)[trefxpos] = 0;
-    (*this)[trefbody] = 0;
-
+	    
 	for (x = EyeStart; x <= EyeEnd; x++)
 		(*this)[x] = 0;
 	
@@ -195,7 +188,13 @@ void Robot::WriteRefVars(const Robot *lastopp)
 	(*this)[in3] = (*lastopp)[out3];
 	(*this)[in4] = (*lastopp)[out4];
 	(*this)[in5] = (*lastopp)[out5];
-	(*this)[refaim] = (*lastopp)[Aimsys];
+    (*this)[in6] = (*lastopp)[out6];
+    (*this)[in7] = (*lastopp)[out7];
+    (*this)[in8] = (*lastopp)[out8];
+    (*this)[in9] = (*lastopp)[out9];
+    (*this)[in10] = (*lastopp)[out10];
+	
+    (*this)[refaim] = (*lastopp)[Aimsys];
 	(*this)[reftie] = lastopp->occurr[9];
 	(*this)[refshell] = iceil(lastopp->Shell);
 	(*this)[refbody] = iceil(lastopp->Body);
@@ -269,8 +268,8 @@ void Robot::CompareRobots(Robot *const other, const unsigned int field)
 	if (magsquare >= discheck)
 		return; //too far away to see
 		
-    float mag = 1.0f / sqrtf(magsquare);
-
+    float mag = sqrtf(magsquare);
+    
     unsigned int eyecellD, eyecellC;
     Vector4 ac, ad;
 	
@@ -278,7 +277,7 @@ void Robot::CompareRobots(Robot *const other, const unsigned int field)
 	//|ac| = |ad| = |ab|
 	
 	//this vector fun below needs to be double checked for geometrical accuracy
-	ac = RelativePosition * mag;
+	ac = RelativePosition / mag;
 	
 	ad.set(ac.y(), -ac.x());
 	ad = RelativePosition + ad * other->radius;
@@ -299,7 +298,7 @@ void Robot::CompareRobots(Robot *const other, const unsigned int field)
 	if (eyecellD == 0)
 		eyecellD = EyeStart;
 
-	discheck = RobSize * 100 * mag;
+	discheck = RobSize * 100 / (mag - this->rad() - other->rad() + RobSize);
     for (unsigned int x = eyecellD; x <= eyecellC; x++)
 	{		
 		if ((*this)[x] < discheck)

@@ -15,7 +15,7 @@ Class containing all the info for robots
 using namespace std;
 using namespace Math3D;
 
-Robot *rob[5000];     // (1000, NULL);  //an array of pointers to Robots.  Default: let's create room for 1000 pointers
+vector<Robot *> rob(5000, (Robot *)NULL);
 int MaxRobs; //how far into the robot array to go
 
 inline Robot::~Robot()
@@ -34,6 +34,7 @@ void Robot::BasicRobotSetup()
 	
 	//set random aim
 	aim = DBrand() * PI * 2;
+    AngularMomentum = 0.0f;
 	aimvector.set(cosf(aim), sinf(aim));
 
 	this->BirthCycle = SimOpts.TotRunCycle;
@@ -45,6 +46,7 @@ void Robot::BasicRobotSetup()
 void Robot::Setup(datispecie *myspecies)
 {
 	this->Veg = myspecies->Veg;
+    this->Fixed = myspecies->Fixed;
 	
 	this->fname = myspecies->Name;
 
@@ -65,10 +67,13 @@ void Robot::Setup(datispecie *myspecies)
 	this->UpdateRadius();
 	this->UpdateMass();
 
-    this->pos.set((const float)frnd(long(myspecies->PosTopLeft[0] + this->radius),
-                                    long(myspecies->PosLowRight[0] - this->radius)),
-				  (const float)frnd(long(myspecies->PosTopLeft[1] + this->radius),
-                                    long(myspecies->PosLowRight[1] - this->radius)));
+    float x = (const float)frnd(long(myspecies->PosLowRight[0] * SimOpts.FieldDimensions[0] - this->radius),
+                                long(myspecies->PosTopLeft[0]  * SimOpts.FieldDimensions[0] + this->radius));
+
+    float y = (const float)frnd(long(myspecies->PosLowRight[1] * SimOpts.FieldDimensions[1] - this->radius),
+                                long(myspecies->PosTopLeft[1]  * SimOpts.FieldDimensions[1] + this->radius));
+    
+    this->pos.set(x, y, 0);
 	this->opos = this->pos;
     
 	this->Dead = false;
@@ -78,15 +83,12 @@ void Robot::Setup(datispecie *myspecies)
     this->DNA = new DNA_Class;
     
     string truePath(myspecies->path);
-    if (truePath.substr(0,2)=="&#") //apparently, vB uses "&#" to represent app's directory
-      truePath.replace(0,2,Engine.MainDir(),0,(Engine.MainDir()).length());
+    if (truePath.substr(0,2)=="&#") //apparently, VB uses "&#" to represent app's directory
+        truePath.replace(0,2,Engine.MainDir(),0,(Engine.MainDir()).length());
 
     this->DNA->LoadDNA(truePath + "\\" + myspecies->Name);
     this->DNA->Mutables = myspecies->Mutables;
     this->occurrList();
-    //this->DNA->contMutations.push_back(new cPointInsertion(.001));
-    //this->DNA->contMutations.push_back(new cPointDeletion(.001));
-    //this->DNA->contMutations.push_back(new cPointChange(.001));
 }
 
 void Robot::init(datispecie *myspecies)
@@ -135,7 +137,10 @@ bool Robot::ChargeNRG(float amount)
 
 void Robot::UpdateAim()
 {
-	float Aim;
+	float W, NewW, Aim, DeltaW;
+    float Force;
+    float I;
+    float Cost;
 
 	if ((*this)[SetAim] == (*this)[Aimsys])
 	{
@@ -145,14 +150,32 @@ void Robot::UpdateAim()
 	{
 		Aim = (*this)[SetAim];
 	}
-	
-	if (Aim > 1256)
-		Aim = float(int(Aim) % 1256);
-	if (Aim < 0)
-		Aim = Aim + 1256;
 
-	Aim = Aim / 200;
-	this->aim = Aim;
+    Aim /= 200.0f;
+    
+    I = this->mass * this->radius * this->radius * 2.0f/5.0f;
+    W = AngularMomentum / I; //in bot angles
+    
+    NewW = Aim - this->aim;
+
+    DeltaW = (NewW - W);
+    DeltaW = (float)fmod(DeltaW, 2.0f * PI);
+    Force = I * (float)fabs(DeltaW) / this->radius;
+    Cost = Force * SimOpts.Costs[TURNCOST];
+    
+	Aim = (float)fmod(Aim, 2.0f * PI);
+    
+    if(Aim < 0)
+        Aim += 2.0f * PI;
+
+    this->aim = Aim;
+    this->AngularMomentum = NewW * I;
+
+    //I'm not sure if costs are being done right
+    //for cases when it going in the oposite direction
+    //would be cheaper
+    if(Cost > 0)
+        this->ChargeNRG(Cost);
 	
 	aimvector.set(cosf(aim), sinf(aim));
 
@@ -474,9 +497,10 @@ bool Robot::DeathManagement()
 		{
 			Corpse = true;
 			fname = "Corpse";
-			removeAllTies();
+			RemoveAllTies();
 			this->color.set(1,1,1);
-            delete this->DNA;
+            //delete this->DNA;
+            //this->DNA = NULL;
             memset(this->occurr, 0, sizeof(this->occurr));
 			Veg = false;
 			Fixed = false;
@@ -528,6 +552,10 @@ bool Robot::KillRobot()
 			}
 		}
 	}
+
+    for(int x = 0; x <= MaxRobs; x++)
+        if(rob[x] && rob[x]->lastopp == this)
+            rob[x]->lastopp = NULL;
     
     if (this->DNA != NULL)
     {
@@ -536,7 +564,7 @@ bool Robot::KillRobot()
     }
     rob[counter] = NULL;
     
-	removeAllTies();
+	RemoveAllTies();
 	
     //remember that shots may still exist that think of us as the parents
 	//make poff
@@ -550,66 +578,46 @@ bool Robot::KillRobot()
 void Robot::Reproduction()
 {
 	Robot *baby=NULL;
+    float mutmult, costmult;
     
-    if ((*this)[Repro] > 0 || (*this)[mrepro] > 0)
+    if ((*this)[Repro] > 0)
 	{
 		if ((*this)[Repro] >= 100)
 			(*this)[Repro] = 99;
-		if ((*this)[Repro] < 0)
-			(*this)[Repro] = 0;
 		
-		if ((*this)[mrepro] >= 100)
-			(*this)[mrepro] = 99;
-		if ((*this)[mrepro] < 0)
-			(*this)[mrepro] = 0;
-        
-        if ( (*this)[Repro] + (*this)[mrepro] > 0)
+        if((*this)[mrepro] == 0)
         {
-            baby = this->Split( ( (*this)[Repro] + (*this)[mrepro] )/100.0f);
+            mutmult = 1;
+            costmult = 1;
+        }
+        else if((*this)[mrepro] < 0)
+        {
+            costmult = 1.0f + abs((*this)[mrepro]) / 100;
+            mutmult = float (log(35000 / fabs((*this)[mrepro])) / log(2) / 15.1);
+        }
+        else
+        {
+            mutmult = 1.0f + abs((*this)[mrepro]) / 100;
+            costmult = float (log(35000 / fabs((*this)[mrepro])) / log(2) / 15.1);
+        }
+        
+        float percentage = (*this)[Repro]/100.0f;
+        if (this->nrg > SimOpts.Costs[BPCOPYCOST] * (float)this->DNA->length() * costmult)
+        {
+            baby = this->Split(percentage);
             if (baby != NULL)
             {
                 baby->DNA = new DNA_Class((*this->DNA));
                 baby->occurrList();
-                baby->DNA->Mutate(true);
+                //still need to program code for mrepro
+                baby->DNA->Mutate(true, mutmult);
                 baby->occurrList();
-            }
-            (*this)[Repro] = 0;
-            (*this)[mrepro] = 0;
+                this->ChargeNRG(SimOpts.Costs[BPCOPYCOST] * (float)this->DNA->length() * (1 - percentage) * costmult);
+                baby->ChargeNRG(SimOpts.Costs[BPCOPYCOST] * (float)this->DNA->length() * percentage * costmult);
+                (*this)[Repro] = 0;
+            }            
         }    
     }
-}
-
-bool Robot::FireTie()
-{
-	int tieport = (*this)[mtie];
-
-	(*this)[mtie] = 0;	
-	if (tieport > 0 && this->lastopp != NULL)
-	{
-		return Tie::MakeTie(this, lastopp, tieport);
-	}
-	return false;
-}
-
-bool Robot::canTie()
-{
-    return !Corpse && this != NULL;
-};
-
-void Robot::addTie(Tie *tie)
-{
-    this->Ties.push_back(tie);
-}
-    
-void Robot::removeTie(Tie* tie)
-{
-    delete tie; //the Tie's destructor takes care of the tieLists
-}
-
-void Robot::removeAllTies()
-{
-    while(!this->Ties.empty())
-        removeTie( *( Ties.begin()) );
 }
     
 
@@ -640,7 +648,7 @@ void Robot::DuringTurn()
 {
 	this->UpdateAim();
     this->UpdatePosition();
-	//Update_Ties t ' Carries out all tie routines (but not physics)
+	this->UpdateTies(); //Carries out all tie routines (but not physics)
 }
 
 void Robot::PostTurn()
@@ -676,87 +684,6 @@ void Robot::TurnEnd()
 /////////////////////////////////
 ********************************/
 
-void Robot::ShotManagement()
-{
-	int type, value;
-	float multiplier;
-
-	value = (*this)[shootval] + 1;  //since a value of 1 needs to be 2 to make equations below work
-	type = (*this)[shoot];
-	
-	(*this)[shoot] = 0;
-	(*this)[shootval] = 0;
-
-    //mod values to be in the right range
-    if (type > 1000)
-        type = (type - 1) % 1000 + 1;
-
-    if (type < -10)
-        type = (type + 1) % 10 - 1;
-	
-	//range is invalid for creating a shot
-	if (type == 0 || type < -6 || type == -5)
-		return;
-
-	//set the multiplier given the expense
-	if (abs(value) >= 2) multiplier = logf(float(abs(value))) / logf(2.0f);
-	else multiplier = 1.0f;
-
-	/////////////////////////////////////////////////////
-	////   CHARGE FOR THE SHOT                       ////
-	/////////////////////////////////////////////////////
-	if (type == -1 || type == -6)
-	{
-		float cost;
-
-		cost = (powf(2, multiplier) - 1) * SimOpts.Costs[SHOTCOST];
-		if (cost <= this->nrg)
-		{
-			this->ChargeNRG(cost);
-		}
-		else
-		{
-			multiplier = logf((nrg / SimOpts.Costs[SHOTCOST]) + 1) / logf(2.0f);
-			this->ChargeNRG(this->nrg);
-		}
-	}
-	else
-	{
-		this->ChargeNRG(SimOpts.Costs[SHOTCOST]);
-	}
-	//////////////////////////////////////////////////////
-
-	
-    Shot *temp = new Shot(this);
-    switch(type)
-	{
-		//basic feeding shot
-		case -1:
-            temp->CreateNRGStealingShot(this);
-		break;
-		//give nrg shot
-		case -2:
-            temp->CreateNRGGivingShot(this);
-		break;
-		//Venom shot
-		case -3:
-            temp->CreateVenomShot(this);
-		break;
-		//Waste Shot
-		case -4:
-            temp->CreateWasteShot(this);
-		break;
-		//Body Shot
-		case -6:
-            temp->CreateBodyShot(this);
-		break;
-		//"Info" shots
-		default:
-            temp->CreateInfoShot(this);
-		break;
-	}
-}
-
 //sharing functions go here!
 
 //Reproduce
@@ -770,13 +697,9 @@ void Robot::ShotManagement()
 Robot* Robot::Split(float percentage)
 {
 	long sondist;
-	float babyradius;
-	float thisradius;
-	float Length;
 	Vector4 babypos;
 	Vector4 thispos;
 
-	//walls can't reproduce
 	if( Wall == true || Corpse == true || Dead == true)
 		return NULL;
 	
@@ -791,29 +714,6 @@ Robot* Robot::Split(float percentage)
 	if (percentage > .99f)
 		percentage = .99f;
 	
-	/*****************************************************************
-	Check for space for baby and parent.
-
-	this's new pos = pos0 - percentage * Length * this->aimvector
-	baby's pos = this's new pos + L * this->aimvector
-
-	where L is the final length between baby and this, = radius of baby + radius of this after birth
-	pos0 is the position of the birthing bot before birth
-	radius of baby = radius of birthing bot before birth * percentage^(1/3)
-	radius of this after birth = radius before birth * (1.0f - percentage) ^ (1/3)
-	******************************************************************/
-	babyradius = this->radius * powf(percentage, (1.0f/3.0f));
-	thisradius = this->radius * powf((1.0f - percentage), (1.0f/3.0f));
-	Length = babyradius + thisradius;
-
-	thispos = this->pos - (percentage * Length * this->aimvector);
-	babypos = thispos + (Length * this->aimvector);
-
-	//now we check for collision with other bots:
-	//with both the new babypos, radius and the new thispos, radius
-	//if there is a collision,
-	//return false;
-		
 	Robot *baby = new Robot();
 	
 	baby->obody = baby->Body = this->Body * percentage;
@@ -823,7 +723,8 @@ Robot* Robot::Split(float percentage)
 	this->onrg = this->nrg = this->nrg * (1.0f - percentage);
 	
 	baby->aim = this->aim - PI;
-	if (baby->aim < 0)
+    baby->AngularMomentum = 0;
+    if (baby->aim < 0)
 		baby->aim += 2 * PI;
 
 	baby->aimvector.set(cosf(baby->aim), sinf(baby->aim));
@@ -860,9 +761,6 @@ Robot* Robot::Split(float percentage)
 	baby->PoisonCount = baby->PoisonCount = this->PoisonCount * percentage;
 	this->PoisonCount = this->PoisonCount *= (1.0f - percentage);
 
-	//memcpy(baby->vars, this->vars, sizeof(var) * 50);
-	//baby->vnum = this->vnum;
-
 	this->SonNumber++;
 	
     baby->parent = this->AbsNum;
@@ -880,7 +778,7 @@ Robot* Robot::Split(float percentage)
 	Vector4 vel = this->pos - this->opos;
     
     this->pos = this->pos - percentage * sondist * this->aimvector;
-	baby->pos = this->pos + Length * this->aimvector;
+	baby->pos = this->pos + float(sondist) * this->aimvector;
 
 	this->opos = this->pos - vel;
 	baby->opos = baby->pos - vel;
@@ -895,7 +793,7 @@ Robot* Robot::Split(float percentage)
 	(*baby)[timersys] = (*this)[timersys];//epigenetic timer
 
 	//make the birth tie
-	Tie::MakeTie(this, baby, 0);
+	Tie::MakeTie(this, baby, -1);
 
     baby->fname = this->fname;
 

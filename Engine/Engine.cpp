@@ -1,20 +1,28 @@
+#include <direct.h>
+#include <time.h>
+
 #include "SimOptions.h"
 #include "HardDriveRoutines.h"
 #include "Shots.h"
+#include "Block.h"
 
 #include "Engine.h"
 
 Engine_Class Engine;
+
+int counter;
+#define FORALLROBOTS \
+    for(counter = 0; counter <= MaxRobs; counter++) \
+        if(rob[counter] != NULL)
 
 void Engine_Class::UpdateSim(void)
 {
     //the order of functions here is very important.
     //don't idley add or (re)move functions without
     //_really_ thinking about how it changes the
-    //order of other functions
+    //order of other functions	
 
-	int counter;
-	this->ExecuteDNA();
+    this->ExecuteDNA();
     this->ExecuteShots();
 
     ////////////////////
@@ -24,26 +32,18 @@ void Engine_Class::UpdateSim(void)
 	//update counters
 
 	//Before anything else...
-	for(counter = 0; counter<=MaxRobs; counter++)
-		if (rob[counter] != NULL)
-			rob[counter]->TurnGenesis();
+	FORALLROBOTS rob[counter]->TurnGenesis();
 
-	for(counter = 0; counter<=MaxRobs; counter++)
-		if (rob[counter] != NULL)
-			rob[counter]->PreTurn();
+	FORALLROBOTS rob[counter]->PreTurn();
 
 	//Physics Steps:    
-    for(counter = 0; counter<=MaxRobs; counter++)
-		if (rob[counter] != NULL)
-			rob[counter]->Integrate();
+    FORALLROBOTS rob[counter]->Integrate();
 
     //CONSTRAINTS (done after movement)
 
     //max tie length and rigid ties (if ties are hardened)
 
-    for(counter = 0; counter<=MaxRobs; counter++)
-		if (rob[counter] != NULL)
-            rob[counter]->VelocityCap();
+    FORALLROBOTS rob[counter]->VelocityCap();
 
     //More iterations decreases overlap between bots when stacking, but
     //it hardly seems practical.  A better solution must exist, which
@@ -59,47 +59,33 @@ void Engine_Class::UpdateSim(void)
     do
     {
         maxoverlap = 0.0f;
-        for(counter = 0; counter<=MaxRobs; counter++)
-		    if (rob[counter] != NULL)
-            {
-                float overlap = rob[counter]->BotCollisionsPos();
-                if (overlap > maxoverlap)
-                    maxoverlap = overlap;
-            }
+        FORALLROBOTS
+        {
+            float overlap = rob[counter]->BotCollisionsPos();
+            maxoverlap = max(maxoverlap, overlap);
+        }
 
-        for(counter = 0; counter<=MaxRobs; counter++)
-		    if (rob[counter] != NULL)
-                rob[counter]->EdgeCollisions();
+        FORALLROBOTS rob[counter]->EdgeCollisions();
 
-        counter++;
+        loopcounter++;
     
-    }while(maxoverlap > 0.01f && loopcounter <= 4);
+    }while(maxoverlap > 0.1f && loopcounter <= 5);
 
     //END CONSTRAINTS
     //END Physics steps
     
-    for(counter = 0; counter<=MaxRobs; counter++)
-		if (rob[counter] != NULL)
-			rob[counter]->DuringTurn();
+    FORALLROBOTS rob[counter]->DuringTurn();
 
-	for(counter = 0; counter<=MaxRobs; counter++)
-		if (rob[counter] != NULL)
-			rob[counter]->PostTurn();
+	FORALLROBOTS rob[counter]->PostTurn();
 
-	for(counter = 0; counter<=MaxRobs; counter++)
-		if (rob[counter] != NULL)
-			rob[counter]->TurnCleanup();
+	FORALLROBOTS rob[counter]->TurnCleanup();
 
-    for(counter = 0; counter<=MaxRobs; counter++)
-		if (rob[counter] != NULL)
-			rob[counter]->Reproduce();
+    FORALLROBOTS rob[counter]->Reproduce();
 
 	RepopulateVeggies();
 	
 	//Write senses
-	for(counter = 0; counter<=MaxRobs; counter++)
-		if (rob[counter] != NULL)
-			rob[counter]->TurnEnd();
+	FORALLROBOTS rob[counter]->TurnEnd();
 
     //update cycle count
 	SimOpts.TotRunCycle++;
@@ -107,8 +93,9 @@ void Engine_Class::UpdateSim(void)
 
 void Engine_Class::ProgramInitialize(void)
 {
-    ReadSett("c:\\DarwinbotsII\\settings\\lastexit.set", SimOpts);
-    this->maindir = "C:\\DarwinbotsII\\";
+    char buffer[1028];
+    this->maindir = getcwd(buffer, 1028);
+    ReadSett(this->maindir + "\\settings\\lastexit.set", SimOpts);
 
     BuildSysvars();
 
@@ -121,11 +108,16 @@ void Engine_Class::ProgramInitialize(void)
 
 	MaxRobs = -1;
     MaxShots = -1;
+
+    SetDNAMutationsBounds();
 }
 
 void Engine_Class::SetupSim(void)
 {	
-	DBsrand(800741);
+	if(SimOpts.UserSeedToggle)
+        DBsrand(SimOpts.UserSeedNumber);
+    else
+        DBsrand(time(NULL));
 	
     //Load script Lists
 
@@ -165,9 +157,12 @@ void Engine_Class::LoadRobots(void)
 
 void Engine_Class::ExecuteDNA()
 {
-    for (int x = 0; x <= MaxRobs; x++)
-        if (rob[x] != NULL)
-            rob[x]->ExecuteDNA();
+    FORALLROBOTS rob[counter]->ExecuteDNA();
+    FORALLROBOTS for(unsigned int x = 0; x < rob[counter]->Ties.size(); x++)
+        if(rob[counter]->Ties[x] != NULL)
+            rob[counter]->Ties[x]->ApplyCQ();
+
+    FORALLROBOTS rob[counter]->DNACommands.Apply();
 }
 
 void Engine_Class::ExecuteShots()
@@ -177,9 +172,10 @@ void Engine_Class::ExecuteShots()
             shots[counter]->UpdateShot();
 }
 
+int cooldown = 0;
 void Engine_Class::RepopulateVeggies()
 {
-    static int cooldown=0;
+    vector<int> VegSpeciesList;
     unsigned long veggcount=0;
     unsigned long notveggcount=0;
 
@@ -201,12 +197,26 @@ void Engine_Class::RepopulateVeggies()
     if(--cooldown <= 0)
         cooldown = 0;
 
-    if(SimOpts.MinVegs > veggcount && cooldown <= 0)
+    if(SimOpts.TotVegsNow < SimOpts.MinVegs &&
+       SimOpts.RepopAmount > 0 && cooldown == 0)
     {
-        for(unsigned int x = 0; x < SimOpts.MinVegs - veggcount; x++)
+        unsigned int x;
+
+        for(x = 0; x < SimOpts.SpeciesNum; x++)
+            if(SimOpts.Specie[x].Veg)
+            {
+                VegSpeciesList.push_back(x);
+            }
+
+        if(VegSpeciesList.size() == 0)
+            return;
+        
+        for(x = 0; x < SimOpts.RepopAmount; x++)
         {
             //this needs to be changed later into something that uses all species with vegs turned on
-            new Robot(&SimOpts.Specie[0]);            
+            unsigned int spec = frnd(0, VegSpeciesList.size() - 1);            
+            
+            new Robot(&SimOpts.Specie[spec]);            
             SimOpts.TotVegsNow++;
         }
         cooldown = SimOpts.RepopCooldown;
@@ -221,6 +231,16 @@ void FindOpenSpace(Robot *me) //finds spot for robot in array, returns pointer t
 	{
 		firstopenspot++;
 	}
+
+    if(firstopenspot >= (int)rob.capacity())
+    {
+        unsigned int oldcapacity = rob.capacity();
+        rob.reserve(oldcapacity + 10);
+        for(unsigned int x = oldcapacity; x < oldcapacity + 10; x++)
+        {
+            rob[x] = NULL;
+        }
+    }
 
 	//push back MaxRobs if we need to
 	if (firstopenspot > MaxRobs)

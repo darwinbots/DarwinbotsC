@@ -2,6 +2,7 @@
 #include "..\GUI\GUIMain.h"
 #include "EngineThread.h"
 #include "Engine.h"
+#include "SimOptions.h"
 
 EngineThread_Class EngineThread;
 

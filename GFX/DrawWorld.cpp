@@ -9,7 +9,7 @@
 
 void DrawRobots(bool Perimeter = true);
 void DrawShots();
-void DrawTies();
+void DrawTies(bool Perimeter);
 void DrawEyeField(Robot *me);
 
 void DrawWorld(bool SelectionDraw)
@@ -28,31 +28,23 @@ void DrawWorld(bool SelectionDraw)
                -MainCamera.pos().y() - 6928/2,
                MainCamera.pos().z() - 9000);
   
-    
-    //can we use display lists for the spheres for teh bots and just scale them?  Is that faster?
     DrawRobots(!SelectionDraw);
+    DrawTies(true);    
+    DrawTies(false);    
     if(!SelectionDraw)
     {        
         DrawShots();
 
-        //Draw Ties
-
-	    glBegin(GL_LINES);
+        glBegin(GL_LINE_LOOP);
             glColor3f(1.0f,1.0f,1.0f);
             glVertex3f(0,0,0);
             glVertex3f(SimOpts.FieldDimensions.x(),0,0);
-            glVertex3f(SimOpts.FieldDimensions.x(),0,0);
-            glVertex3f(SimOpts.FieldDimensions.x(), SimOpts.FieldDimensions.y(),0);
             glVertex3f(SimOpts.FieldDimensions.x(), SimOpts.FieldDimensions.y(),0);
             glVertex3f(0, SimOpts.FieldDimensions.y(), 0);
-            glVertex3f(0, SimOpts.FieldDimensions.y(), 0);
-            glVertex3f(0,0,0);
         glEnd();
 
-        DrawEyeField(rob[1]);
+        //DrawEyeField(rob[1]);
     }
-
-    
 }
 
 void DrawRobots(bool Perimeter)
@@ -67,20 +59,15 @@ void DrawRobots(bool Perimeter)
     {
         if (rob[x] != NULL)
         {
-            //load texture
+            glColor3f(rob[x]->color.x() / 3,rob[x]->color.y() / 3,rob[x]->color.z() / 3);
+            glPushMatrix();
+            glTranslatef(rob[x]->findpos().x(), rob[x]->findpos().y(), rob[x]->findpos().z());
+            gluDisk(quadratic, 0, rob[x]->rad() * 0.9f, 32, 1);
+            glPopMatrix();                
+
             glColor3f(rob[x]->color.x(), rob[x]->color.y(), rob[x]->color.z());
-
-            if(Perimeter)
-                CreateCircle(rob[x]->findpos(), rob[x]->rad(), 4);
-            else
-            {            
-                glLoadName(x);                
-                glPushMatrix();
-                glTranslatef(rob[x]->findpos().x(), rob[x]->findpos().y(), rob[x]->findpos().z());
-                gluPartialDisk(quadratic, 0, rob[x]->rad(), 32, 1, 0, 360);
-                glPopMatrix();                
-            }
-
+            CreateCircle(rob[x]->findpos(), rob[x]->rad(), 8);
+            
             rob[x]->DrawRobotEye();            
         }
     }
@@ -98,14 +85,74 @@ void DrawShots()
     }
 }
 
-void DrawTies()
+void DrawTies(bool Perimeter)
 {
     for (int x = 0; x <= MaxRobs; x++)
     {
         if (rob[x] != NULL)
         {
-            //draw all ties this bot has that haven't been
-            //drawn already
+            for(unsigned int y = 0; y < rob[x]->Ties.size(); y++)
+            {
+                if(rob[x]->Ties[y] != NULL &&
+                   rob[x]->Ties[y]->FindOther(rob[x])->AbsNum < rob[x]->AbsNum)
+                {
+                    
+                    Vector4 otherpos = rob[x]->Ties[y]->FindOther(rob[x])->findpos();
+                    Vector4 AntiAB = rob[x]->findpos() - otherpos;
+                    AntiAB /= Length3(AntiAB);
+                    AntiAB.set(AntiAB.y(), -AntiAB.x(), 0);
+                    Vector4 point;
+
+                    float myrad=15, yourrad=15;
+
+                    if(rob[x]->Ties[y]->Phase < 0) //birth tie
+                    {
+                        myrad = rob[x]->rad() * 0.9f;
+                        yourrad = rob[x]->Ties[y]->FindOther(rob[x])->rad() * 0.9f;
+                    }
+                    
+                    if(!Perimeter)
+                    {
+                        Vector4 color = (rob[x]->color + 
+                                         rob[x]->Ties[y]->FindOther(rob[x])->color + 
+                                         Vector4(1,1,1)) / 3;
+                        glColor3f(color.x(), color.y(), color.z());
+
+                        glBegin(GL_QUADS);
+                        point = rob[x]->findpos() + myrad * AntiAB;
+                        glVertex3f(point.x(), point.y(), point.z());
+                        point = rob[x]->findpos() - myrad * AntiAB;
+                        glVertex3f(point.x(), point.y(), point.z());
+                        point = otherpos - yourrad * AntiAB;
+                        glVertex3f(point.x(), point.y(), point.z());
+                        point = otherpos + yourrad * AntiAB;
+                        glVertex3f(point.x(), point.y(), point.z());                    
+                        glEnd();
+                    }
+                    else
+                    {
+
+                        Vector4 color = (rob[x]->color + 
+                                         rob[x]->Ties[y]->FindOther(rob[x])->color) / 3;
+                        glColor3f(color.x(), color.y(), color.z());
+
+                        glBegin(GL_LINES);
+                        
+                        point = rob[x]->findpos() + myrad * AntiAB;
+                        glVertex3f(point.x(), point.y(), point.z());
+                        point = otherpos + yourrad * AntiAB;
+                        glVertex3f(point.x(), point.y(), point.z());                    
+                        
+                        point = rob[x]->findpos() - myrad * AntiAB;
+                        glVertex3f(point.x(), point.y(), point.z());
+                        point = otherpos - yourrad * AntiAB;
+                        glVertex3f(point.x(), point.y(), point.z());
+                        
+                        glEnd();
+                    }
+                }
+            }
+            
         }
     }
 }

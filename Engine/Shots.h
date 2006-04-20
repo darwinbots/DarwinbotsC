@@ -47,13 +47,13 @@ class Shot : public ObjectPrimitive
     Robot *ShotColl();
 
     public:
-    void CreatePoisonShot(Robot *parent);
+    void Shot::CreatePoisonShot(Robot *parent, __int16 power);
     void CreateNRGStealingShot(Robot *parent);
     void CreateNRGGivingShot(Robot *parent);
     void CreateVenomShot(Robot *parent);
     void CreateWasteShot(Robot *parent);
     void CreateBodyShot(Robot *parent);
-    void Shot::CreateInfoShot(Robot *parent);
+    void CreateInfoShot(Robot *parent);
     
     private:
     void CollideInfoShot(Robot *collide);
@@ -65,7 +65,7 @@ class Shot : public ObjectPrimitive
     void CollideBodyShot(Robot *collide);
 };
 
-extern Shot *shots[5000];
+extern vector<Shot *> shots;
 extern int MaxShots; //how far into the shot array to go
 
 #endif //SHOTS_H

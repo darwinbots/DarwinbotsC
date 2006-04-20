@@ -106,7 +106,7 @@ void BotDebug_Window::SetupSideBar()
 void BotDebug_Window::SetupIntStackFrame()
 {
     //the frame
-    IntStackFrame = new FXGroupBox(LayoutMatrix,
+    /*IntStackFrame = new FXGroupBox(LayoutMatrix,
         "Bot Stack",GROUPBOX_TITLE_LEFT|FRAME_RIDGE|LAYOUT_FILL_X|LAYOUT_FILL_Y | LAYOUT_FILL_COLUMN);
 
     FXMatrix *StackMatrix=new FXMatrix(IntStackFrame,2,MATRIX_BY_COLUMNS|LAYOUT_SIDE_LEFT|LAYOUT_FILL_X|LAYOUT_FILL_Y);
@@ -126,7 +126,7 @@ void BotDebug_Window::SetupIntStackFrame()
         IntStackTextField[x-11] = new FXTextField(StackMatrix,10,&BotTargetInfo.datatargets.stack[x-11],
             FXDataTarget::ID_VALUE,
             TEXTFIELD_REAL|JUSTIFY_RIGHT|LAYOUT_CENTER_Y|FRAME_SUNKEN|LAYOUT_CENTER_X|FRAME_THICK|LAYOUT_FILL_ROW);*/
-    }    
+    //}   
 }
 
 void BotDebug_Window::SetupDNAFrame()
@@ -170,9 +170,9 @@ void BotDebug_Window::SetupSysvarsFrame()
 
 void BotDebug_Window::AddInterestingSysvars(int number)
 {
-    char buffer[256];
+    //char buffer[256];
 
-    for(int x = 0; x < BotTargetInfo.lastmem; x++)
+    /*for(int x = 0; x < BotTargetInfo.lastmem; x++)
     {
         if (BotTargetInfo.memory[x] == number)
             return;
@@ -193,7 +193,7 @@ void BotDebug_Window::AddInterestingSysvars(int number)
 
 void BotDebug_Window::SetupDetailsFrame()
 {
-    DetailsFrame=new FXGroupBox(LayoutMatrix,
+    /*DetailsFrame=new FXGroupBox(LayoutMatrix,
         "Bot Details",GROUPBOX_TITLE_LEFT|FRAME_RIDGE|LAYOUT_FILL_X|LAYOUT_FILL_Y | LAYOUT_FILL_COLUMN);
 
     FXMatrix *DetailsMatrix=new FXMatrix(DetailsFrame,4,MATRIX_BY_COLUMNS|LAYOUT_SIDE_LEFT|LAYOUT_FILL_X|LAYOUT_FILL_Y);
@@ -253,12 +253,12 @@ void BotDebug_Window::SetupDetailsFrame()
 
     new FXLabel(DetailsMatrix,"PWaste",NULL,LAYOUT_RIGHT|JUSTIFY_RIGHT);
     new FXTextField(DetailsMatrix,10,&BotTargetInfo.datatargets.pwaste,FXDataTarget::ID_VALUE,
-        TEXTFIELD_REAL|JUSTIFY_RIGHT|LAYOUT_CENTER_Y|FRAME_SUNKEN|LAYOUT_CENTER_X|FRAME_THICK|LAYOUT_FILL_ROW);
+        TEXTFIELD_REAL|JUSTIFY_RIGHT|LAYOUT_CENTER_Y|FRAME_SUNKEN|LAYOUT_CENTER_X|FRAME_THICK|LAYOUT_FILL_ROW);*/
 }
 
 void BotDebug_Window::LinkBotTarget()
 {
-    BotTargetInfo.Linkup();
+    //BotTargetInfo.Linkup();
     
     
     //for (int y = 0; y < BotTargetInfo.stack.
@@ -320,8 +320,8 @@ void BotDebug_Window::Update()
         IntStackTextField[x]->setBackColor(0xFFFFFF);
     
     //color in the stack boxes that are currently on top
-    if (BotTargetInfo.IntStack_pos > 0)    
-        IntStackTextField[BotTargetInfo.IntStack_pos-1]->setBackColor(0xFFAAAA);
+    //if (BotTargetInfo.IntStack_pos > 0)    
+    //    IntStackTextField[BotTargetInfo.IntStack_pos-1]->setBackColor(0xFFAAAA);
 }
 
 long MainWindow::onBotDebug()
@@ -362,95 +362,4 @@ int NextWord(string &text, unsigned int pos = 0)
         pos++;
 
     return pos;
-}
-
-void tempBot_typ::Update(Robot *bot)
-{
-    age = bot->age;
-    nrg = bot->nrg;
-    body = bot->Body;
-    newmutations = bot->DNA->LastMut;
-    mutations    = bot->DNA->Mutations;
-    shell = bot->Shell;
-    slime = bot->Slime;
-    poison = bot->Poison;
-    venom = bot->Venom;
-    waste = bot->Waste;
-    pwaste = bot->Pwaste;
-
-    dnalength = bot->DNA->length();
-    //numgenes
-
-    for (int x = 0; x < 20; x++)
-        stack[x] = IntStack.val[x];
-
-    //char buffer[256];
-    
-    //for (int y = 0; y < lastmem; y++)
-    //    MainWindowHandle->BotDebug->SysvarsTextField[y]->setText(itoa( (*bot)[memory[y]], buffer, 10));
-
-    //string text = MainWindowHandle->BotDebug->DNATextBox->getText().text();
-    
-    int text_position = 0;
-    
-    //if(iswhitespace(text.at(0)))
-    //    text_position = NextWord(text);
-    
-    //for(unsigned int z = 0; z < this->DNA_pos; z++)
-    //    text_position = NextWord(text, text_position);
-    
-    //while(MainWindowHandle->BotDebug->DNATextBox->
-    
-    //unsigned int length = NextWord(text, text_position) - text_position;
-
-    //while(iswhitespace(text.at(length + text_position - 1)))
-    //    length--;
-    
-    //MainWindowHandle->BotDebug->DNATextBox->killSelection();
-    //MainWindowHandle->BotDebug->DNATextBox->setSelection(text_position, length);
-
-    this->IntStack_pos = IntStack.pos;
-}
-
-void tempBot_typ::Initialize(Robot *bot)
-{
-    this->DNA.assign(bot->DNA_Text().c_str());
-    this->generation = bot->generation;
-    this->name.assign(bot->fname.c_str());
-}
-
-void tempBot_typ::Linkup()
-{
-    datatargets.age.connect(age);
-    datatargets.body.connect(body);
-    datatargets.DNA.connect(DNA);
-    datatargets.dnalength.connect(dnalength);
-    datatargets.generation.connect(generation);
-    datatargets.mutations.connect(mutations);
-    datatargets.name.connect(name);
-    datatargets.newmutations.connect(newmutations);
-    datatargets.nrg.connect(nrg);
-    datatargets.numgenes.connect(numgenes);
-    datatargets.poison.connect(poison);
-    datatargets.pwaste.connect(pwaste);
-    datatargets.shell.connect(shell);
-    datatargets.slime.connect(slime);
-    datatargets.venom.connect(venom);
-    datatargets.waste.connect(waste);
-
-    lastmem = 0;
-    
-    
-    age = 50;
-
-    for (int x = 0; x < 20; x++)
-    {
-        datatargets.stack[x].connect(stack[x]);
-        stack[x] = 0;
-    }
-
-    for(int y = 0; y < 20; y ++)
-    {
-        memory[y] = 0;
-    }
 }

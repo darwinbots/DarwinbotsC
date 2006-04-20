@@ -21,7 +21,8 @@ OptionsFormDialogBox::OptionsFormDialogBox(FXComposite *parent) :
     General(tabbook);
     Veggy(tabbook);
     PhysicsAndCosts(tabbook);
-    Mutations(tabbook);
+    CostsOptions(tabbook);
+    //Mutations(tabbook);
     //ReststartAndL(tabbook);
     //InternetOptions(tabbook);
     //Recording(tabbook);
@@ -72,6 +73,11 @@ long OptionsFormDialogBox::onSaveSettings(FXObject *, FXSelector, void *)
 long OptionsFormDialogBox::onLoadSettings(FXObject *, FXSelector, void *)
 {
     ReadSett(Engine.MainDir() + "savesett.set", TmpOpts);
-    //WriteSett(Engine.MainDir() + "savesett.set", SimOpts);
+    SpeciesList->clearItems(true);
+    for(int x = 0; x < (int)TmpOpts.SpeciesNum; x++)
+        SpeciesList->appendItem(TmpOpts.Specie[x].Name.c_str());
+
+    SpeciesList->setCurrentItem(0);
+    onSelectNewSpecies(NULL, 0, NULL);
     return 1;
 }

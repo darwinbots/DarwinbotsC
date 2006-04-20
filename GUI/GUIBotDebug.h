@@ -5,7 +5,7 @@
 #include "../Engine/Robot.h"
 #include "../Engine/DNA_Execution.h"
 
-struct PairOInts
+/*struct PairOInts
 {
     int value;
     int location;
@@ -73,13 +73,13 @@ struct tempBot_typ
     void Update(Robot *bot);
     void Linkup();
     void Initialize(Robot *bot);
-};
+};*/
 
 class BotDebug_Window : public FXDialogBox
 {
     FXDECLARE(BotDebug_Window)
 
-    friend tempBot_typ;
+    //friend tempBot_typ;
 
     private:
     bool DEBUGMODE;
@@ -96,7 +96,7 @@ class BotDebug_Window : public FXDialogBox
     FXTextField *IntStackTextField[20];
 
     public:
-    tempBot_typ BotTargetInfo;
+    //tempBot_typ BotTargetInfo;
 
     private:
     void SetupToolbar();

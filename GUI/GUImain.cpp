@@ -4,6 +4,7 @@
 #include "../Engine/SimOptions.h"
 #include "../Engine/Engine.h"
 #include "../Engine/EngineThread.h"
+#include "../Engine/HardDriveRoutines.h"
 #include "../GFX/Icons/icons.cpp" //I know this is unorthodox, but I get odd linker errors unless I
                                   //include the cpp file itself.
 
@@ -61,6 +62,10 @@ MainWindow::MainWindow(FXApp *app)
         this, MainWindow::ID_StepEngine, BUTTON_NORMAL | LAYOUT_FIX_WIDTH | LAYOUT_FIX_HEIGHT, 0, 0, 22, 20);
     new FXButton(toolbar,"\tPause",new FXGIFIcon(getApp(),PauseButtonGIF),
         this, MainWindow::ID_PauseEngine, BUTTON_NORMAL | LAYOUT_FIX_WIDTH | LAYOUT_FIX_HEIGHT, 0, 0, 22, 20);
+
+    new FXButton(toolbar,"\tTurn Off Graphics",new FXGIFIcon(getApp(),MonitorGIF),
+        this, MainWindow::ID_TurnOffGraphics, BUTTON_NORMAL | LAYOUT_FIX_WIDTH | LAYOUT_FIX_HEIGHT, 0, 0, 22, 20);
+    GraphicsOn = true;
 
     StatusBar(this);
 
@@ -149,6 +154,10 @@ MainWindow *MainWindowHandle;
                 
     EngineThread.start();
     
-    return app.run();
+    app.run();
+    
+    //WriteSett(Engine.MainDir() + "\\settings\\lastexit.set", TmpOpts);
+
+    return 0;
 }
 #endif

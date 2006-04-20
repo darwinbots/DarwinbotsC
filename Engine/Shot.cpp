@@ -29,7 +29,7 @@ Presently, shots have the following physical characteristics:
 #define SHOTCONST 40 //defines how fast shots decay
 
 int MaxShots; //how far into the robot array to go
-Shot *shots[5000];
+vector<Shot *> shots(5000, (Shot *) NULL);
 
 void FindOpenSpace(Shot *me) //finds spot for robot in array, returns pointer to said robot
 {
@@ -56,7 +56,7 @@ void Shot::CreateShotBasic()
 {
     parent = 0;
 
-    range = 20;
+    range = 9;
     age = 0;
     pos.set(0,0);
     opos.set(0,0);
@@ -79,7 +79,7 @@ Shot::Shot(Robot *parent)
     //this->color  = parent->color;
     
     this->pos = parent->pos + parent->rad() * parent->aimvector;
-    float angle = (parent->aim * 200 + frnd(-20, 20)) / 200;
+    float angle = (parent->aim * 200 + frnd(-35, 35)) / 200;
     this->vel = parent->vel + Vector4(cosf(angle), sinf(angle)) * 40;
     this->opos = this->pos;
 }
@@ -110,12 +110,96 @@ Shot::~Shot()
 	}
 }
 
+/**********************************
+***********************************
+***********************************/
+
+void Robot::ShotManagement()
+{
+	int type;
+	
+	type = (*this)[shoot];
+
+    //mod values to be in the right range
+    if (type > 1000)
+        type = (type - 1) % 1000 + 1;
+
+    if (type < -10)
+        type = (type + 1) % 10 - 1;
+	
+	//range is invalid for creating a shot
+	if (type == 0 || type < -6 || type == -5)
+		return;
+
+    (*this)[shoot] = type;
+
+	this->ChargeNRG(SimOpts.Costs[SHOTCOST]);
+	//////////////////////////////////////////////////////
+
+    Shot *temp = new Shot(this);
+    switch(type)
+	{
+		//basic feeding shot
+		case -1:
+            temp->CreateNRGStealingShot(this);
+		break;
+		//give nrg shot
+		case -2:
+            temp->CreateNRGGivingShot(this);
+		break;
+		//Venom shot
+		case -3:
+            temp->CreateVenomShot(this);
+		break;
+		//Waste Shot
+		case -4:
+            temp->CreateWasteShot(this);
+		break;
+		//Body Shot
+		case -6:
+            temp->CreateBodyShot(this);
+		break;
+		//"Info" shots
+		default:
+            temp->CreateInfoShot(this);
+		break;
+	}
+
+    (*this)[shoot] = 0;
+	(*this)[shootval] = 0;
+}
+
 void Shot::CreateNRGStealingShot(Robot *parent)
 {
     this->age = 0;
     this->shottype = -1;
     this->parent = parent->AbsNum;
     this->color = parent->color;
+
+    float rangemultiplier = 1.0f;
+    float powermultiplier = 1.0f;
+    float extracost = 0.0f;
+
+    if((*parent)[shootval] > 2)
+    {
+        powermultiplier = logf((*parent)[shootval]) / logf(2);
+        extracost = float((*parent)[shootval] - 2);
+    }
+    else if((*parent)[shootval] < -2)
+    {
+        (*parent)[shootval] = abs((*parent)[shootval]);
+        rangemultiplier = logf((*parent)[shootval]) / logf(2);
+        extracost = float((*parent)[shootval] - 2);
+    }
+
+    parent->ChargeNRG(extracost);
+
+    this->range *= rangemultiplier;
+    
+    if(parent->Body > 1000)
+        this->value = iceil(powermultiplier * (logf(parent->Body / 100 - 8) / logf(2) * 200.0f));
+    else
+        this->value = iceil(powermultiplier * (parent->Body / 5));
 }
 
 void Shot::CreateNRGGivingShot(Robot *parent)
@@ -124,6 +208,9 @@ void Shot::CreateNRGGivingShot(Robot *parent)
     this->shottype = -2;
     this->parent = parent->AbsNum;
     this->color.set(1.0f,1.0f, 1.0f);
+
+    this->value = min((__int16)parent->nrg, (*parent)[shootval]);
+    parent->nrg -= this->value;
 }
 
 void Shot::CreateVenomShot(Robot *parent)
@@ -131,21 +218,32 @@ void Shot::CreateVenomShot(Robot *parent)
     this->age = 0;
     this->shottype = -3;
     this->parent = parent->AbsNum;
+    this->color.set(1, 0, 0);
+
+    this->value = min((__int16)parent->Venom, (*parent)[shootval]);
+    parent->Venom -= this->value;
 }
 
 void Shot::CreateWasteShot(Robot *parent)
 {
     this->age = 0;
     this->shottype = -4;
-    this->color.set(0,0,0);
+    this->color.set(0,0,0); //waste is black
     this->parent = parent->AbsNum;
+
+    this->value = min((__int16)parent->Waste, (*parent)[shootval]);
+    parent->Waste -= this->value;
 }
 
-void Shot::CreatePoisonShot(Robot *parent)
+void Shot::CreatePoisonShot(Robot *parent, __int16 power)
 {
     this->age = 0;
     this->shottype = -5;
     this->parent = parent->AbsNum;
+    this->color.set(0, 1, 1);
+
+    this->value = min((__int16)parent->Poison, power);
+    parent->Poison -= this->value;
 }
 
 void Shot::CreateBodyShot(Robot *parent)
@@ -154,6 +252,31 @@ void Shot::CreateBodyShot(Robot *parent)
     this->shottype = -6;
     this->parent = parent->AbsNum;
     this->color = parent->color;
+
+    float rangemultiplier = 1.0f;
+    float powermultiplier = 1.0f;
+    float extracost = 0.0f;
+
+    if((*parent)[shootval] > 2)
+    {
+        powermultiplier = logf((*parent)[shootval]) / logf(2);
+        extracost = float((*parent)[shootval] - 2);
+    }
+    else if((*parent)[shootval] < -2)
+    {
+        (*parent)[shootval] = abs((*parent)[shootval]);
+        rangemultiplier = logf((*parent)[shootval]) / logf(3);
+        extracost = float((*parent)[shootval] - 2);
+    }
+
+    parent->ChargeNRG(extracost);
+
+    this->range *= rangemultiplier;
+    
+    if(parent->Body > 1000)
+        this->value = iceil(powermultiplier * (logf(parent->Body / 100 - 8) / logf(2) * 200.0f));
+    else
+        this->value = iceil(powermultiplier * (parent->Body / 5));
 }
 
 void Shot::CreateInfoShot(Robot *parent)
@@ -162,7 +285,7 @@ void Shot::CreateInfoShot(Robot *parent)
     this->shottype = (*parent)[shoot];
     this->value = (*parent)[shootval];
     this->parent = parent->AbsNum;
-    this->color = parent->color;
+    this->color.set(0, 1, 0); //Green
 }
 
 void Shot::UpdatePos()
@@ -202,7 +325,7 @@ void Shot::UpdateShot()
         //taste shot
 
         //Infoshots
-        if (this->shottype > 0 && this->shottype != DelgeneSys)
+        if (this->shottype > 0)// && this->shottype != DelgeneSys)
             this->CollideInfoShot(collide);
 
         //negative shots
@@ -298,7 +421,7 @@ void Shot::CollideInfoShot(Robot *collide)
         this->value = 100;
     
     nrg = atanf((this->age - 1)/ this->range * SHOTCONST - SHOTCONST) / atanf(-SHOTCONST);
-    nrg *= this->value;
+    nrg *= 100;//this->value;
 
     if (nrg < collide->Poison * 2)
     {
@@ -319,7 +442,7 @@ void Shot::CollideFeedingShot(Robot *collide)
     this->vel = -this->vel;
     
     if(SimOpts.EnergyExType == true) power = this->value * 
-        POWERMULTIPLIER(this->age, this->range) * SimOpts.EnergyProp;
+        POWERMULTIPLIER(this->age, this->range) * SimOpts.EnergyProp / 100;
     else power = (float)SimOpts.EnergyFix;
 
     if(collide->Corpse)
@@ -330,7 +453,7 @@ void Shot::CollideFeedingShot(Robot *collide)
 
     if(collide->Poison > power)//create poison shot
     {
-        CreatePoisonShot(collide);
+        CreatePoisonShot(collide, (__int16)power);
         
         collide->Poison -= power * 0.9f;
         if(collide->Poison < 0) collide->Poison = 0;
@@ -463,7 +586,7 @@ void Shot::CollideBodyShot(Robot *collide)
     float power;
 
     if(SimOpts.EnergyExType == true) power = this->value * 
-        POWERMULTIPLIER(this->age, this->range) * SimOpts.EnergyProp;
+        POWERMULTIPLIER(this->age, this->range) * SimOpts.EnergyProp / 100;
     else power = (float)SimOpts.EnergyFix;
 
     float Shell = collide->Shell * SHELLEFFECTIVENESS;

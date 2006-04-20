@@ -21,7 +21,8 @@ void SimOptions::AddSpecies(string path, string name)
 
     this->Specie[x].Veg = false;
 
-    this->Specie[x].color = FXRGB(frnd(0, 255), frnd(0, 255), frnd(0, 255));
+    this->Specie[x].color = FXRGBA(frnd(0, 255), frnd(0, 255), frnd(0, 255), 255);
+    this->SpeciesNum++;
 }
 
 void SimOptions::DeleteSpecies(string path, string name)

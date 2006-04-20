@@ -20,6 +20,7 @@ const int POISONCOST = 28;
 const int SLIMECOST = 29;
 const int SHELLCOST = 30;
 const int BODYUPKEEP = 31;
+const int COSTMAX = 32;
 
 /*********************************
 Contains all the constants for physics (obviously)
@@ -120,7 +121,7 @@ struct SimOptions: PhysicsConstants
     unsigned int DecayType;		//unsigned int
     
     //how shots return energy
-    float EnergyProp;			//float
+    unsigned int EnergyProp;	//unsigned int
     unsigned int EnergyFix;		//unsigned int
     bool EnergyExType;			//bool
 

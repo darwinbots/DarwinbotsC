@@ -7,5 +7,5 @@ void DBsrand(long seed);
 inline float DBrand();
 inline float Gauss();
 float Gauss(float StdDev);
-inline float Gauss(const float &StdDev,const float &Mean);
+float Gauss(const float &StdDev,const float &Mean);
 long frnd(long low, long hi);

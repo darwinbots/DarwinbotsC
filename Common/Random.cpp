@@ -373,7 +373,7 @@ float Gauss(float StdDev)
 	return gasdev() * StdDev;	
 }
 
-inline float Gauss(const float &StdDev, const float &Mean)
+float Gauss(float const &StdDev, float const &Mean)
 {
 	return gasdev() * StdDev + Mean;	
 }

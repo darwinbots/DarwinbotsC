@@ -59,3 +59,9 @@ long MainWindow::onPause(FXObject *, FXSelector, void *)
 {
     return EngineThread.Flow.Pause();
 }
+
+long MainWindow::onTurnOffGraphics(FXObject *, FXSelector, void *)
+{
+    GraphicsOn = !GraphicsOn;    
+    return 1;
+}

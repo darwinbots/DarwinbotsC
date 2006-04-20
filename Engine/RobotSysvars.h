@@ -1,6 +1,8 @@
 #ifndef ROBOTSYSVARS_H
 #define ROBOTSYSVARS_H
 
+#define SETSYSVAR(location, name) const int name = location
+
 //
 //robot system locations constant integers
 //
@@ -12,12 +14,16 @@ const int aimdx = 5;
 const int aimsx = 6;
 const int shoot = 7;
 const int shootval = 8;
-const int robage = 9;
-const int masssys = 10;
-const int maxvelsys = 11;
-const int timersys = 12;
+const int backshot = 9;
+const int aimshoot = 10;
+
+const int robage = 14;
+const int masssys = 15;
+const int maxvelsys = 16;
+const int timersys = 17;
 const int Aimsys = 18;
 const int SetAim = 19;
+
 const int bodgain = 194;
 const int bodloss = 195;
 const int velscalar = 196;
@@ -49,40 +55,43 @@ const int fdbody = 312;
 const int strbody = 313;
 const int setboy = 314;
 const int rdboy = 315;
-const int mtie = 330;
-const int stifftie = 331;
+
 const int mkvirus = 335;
 const int DnaLenSys = 336;
 const int Vtimer = 337;
 const int VshootSys = 338;
 const int GenesSys = 339;
-const int DelgeneSys = 340;
+
 const int thisgene = 341;
 const int SUNsys = 400;
-const int trefbody = 437;
-const int trefxpos = 438;
-const int trefypos = 439;
-const int trefvelmysx = 440;
-const int trefvelmydx = 441;
-const int trefvelmydn = 442;
-const int trefvelmyup = 443;
-const int trefvelscalar = 444;
-const int trefvelyoursx = 445;
-const int trefvelyourdx = 446;
-const int trefvelyourdn = 447;
-const int trefvelyourup = 448;
-const int trefshell = 449;
-const int tieport1 = 450;
-const int tieloc = 452;
-const int tieval = 453;
-const int tienum = 455;
-const int trefnrg = 456;
+
 const int memval = 473;
 const int memloc = 474;
+
 const int reffixed = 477;
+
 const int EyeStart = 501;
 const int EyeMid = 505;
 const int EyeEnd = 509;
+
+const int mtie = 550;
+const int deltie = 551;
+const int currtiesys = 552;
+const int readtielen = 553;
+const int writetielen = 554;
+const int tieangle = 555;
+SETSYSVAR(556, tieK);
+SETSYSVAR(556, tiek);
+SETSYSVAR(557, tieB);
+SETSYSVAR(557, tieb);
+SETSYSVAR(558, tietype);
+SETSYSVAR(559, settietype);
+SETSYSVAR(560, numties);
+SETSYSVAR(561, birthtietype);
+SETSYSVAR(562, lastport);
+SETSYSVAR(563, lastphase);
+
+
 const int refmulti = 686;
 const int refshell = 687;
 const int refbody = 688;
@@ -106,11 +115,22 @@ const int out2 = 801;
 const int out3 = 802;
 const int out4 = 803;
 const int out5 = 804;
+const int out6 = 805;
+const int out7 = 806;
+const int out8 = 807;
+const int out9 = 808;
+const int out10= 809;
 const int in1 = 810;
 const int in2 = 811;
 const int in3 = 812;
 const int in4 = 813;
 const int in5 = 814;
+const int in6 = 815;
+const int in7 = 816;
+const int in8 = 817;
+const int in9 = 818;
+const int in10= 819;
+
 const int mkslime = 820;
 const int slimesys = 821;
 const int mkshell = 822;
@@ -123,9 +143,5 @@ const int wastesys = 828;
 const int pwastesys = 829;
 const int paralyzed = 837;
 const int poisoned = 838;
-const int backshot = 900;
-const int aimshoot = 901;
 
 #endif
-
-

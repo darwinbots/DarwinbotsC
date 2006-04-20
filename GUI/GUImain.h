@@ -24,19 +24,10 @@ class MainWindow : public FXMainWindow
 
 protected:
     MainWindow(){}
-    FXDataTarget   ZGravity_Tar;
-    FXDataTarget   YGravity_Tar;
-    FXDataTarget   CoefficientKinetic_Tar;
-    FXDataTarget   CoefficientStatic_Tar;
-    FXDataTarget   Density_Tar;
-    FXDataTarget   Viscosity_Tar;
-    FXDataTarget   Brownian_Tar;
-    FXDataTarget   MovingEfficiency_Tar;
-    FXDataTarget   PlanetEaters_Tar;
-    FXDataTarget   PlanetEatersG_Tar;
     
     FXGLVisual     *glvisual;
     FXGLCanvas     *canvas;
+    bool GraphicsOn;
 
     FXMDIClient *mdiclient;
 
@@ -65,8 +56,6 @@ public:
         ID_About,
         ID_ShowOptions,
         ID_ShowLog,
-        ID_PAndCAdv,
-        ID_PCAdvancedControls,
         ID_GLV,
         ID_NewViewer,
         ID_Viewer,
@@ -75,6 +64,8 @@ public:
         ID_PauseEngine,
         ID_StepEngine,
         ID_PlayEngine,
+
+        ID_TurnOffGraphics,
 
         ID_LAST
     };
@@ -87,9 +78,7 @@ public:
     long onCmdAbout             (FXObject *, FXSelector, void *);
     long onCmdShowOptions       (FXObject *, FXSelector, void *);
     long onCmdShowLog           (FXObject *, FXSelector, void *);
-    long onCmdPAndCAdv          (FXObject *, FXSelector, void *);
     
-    long onCmdPCAdvancedControls(FXObject *, FXSelector, void *);
     long onCmdNewViewer         (FXObject*,FXSelector,void*);
     long onUpdGfx               (FXObject*,FXSelector,void*);
     
@@ -111,6 +100,8 @@ public:
     long onPlay                 (FXObject *, FXSelector, void *);
     long onPause                (FXObject *, FXSelector, void *);
 
+    long onTurnOffGraphics      (FXObject *, FXSelector, void *);
+
     long GLWindow               ();
 
 
@@ -130,8 +121,6 @@ FXDEFMAP(MainWindow) MainWindowMap[] = {
   FXMAPFUNC(SEL_COMMAND,   MainWindow::ID_About,            MainWindow::onCmdAbout),
   FXMAPFUNC(SEL_COMMAND,   MainWindow::ID_ShowOptions,      MainWindow::onCmdShowOptions),
   FXMAPFUNC(SEL_COMMAND,   MainWindow::ID_ShowLog,          MainWindow::onCmdShowLog),
-  FXMAPFUNC(SEL_COMMAND,   MainWindow::ID_PAndCAdv,         MainWindow::onCmdPAndCAdv),
-  FXMAPFUNC(SEL_COMMAND,   MainWindow::ID_PCAdvancedControls,MainWindow::onCmdPCAdvancedControls),
   FXMAPFUNC(SEL_COMMAND,   MainWindow::ID_NewViewer,        MainWindow::onCmdNewViewer),
   FXMAPFUNC(SEL_KEYPRESS,  0,			                    MainWindow::onKeyPress),
   FXMAPFUNC(SEL_TIMEOUT,   MainWindow::ID_UpdGfx,           MainWindow::onUpdGfx),
@@ -147,7 +136,8 @@ FXDEFMAP(MainWindow) MainWindowMap[] = {
   
   FXMAPFUNC(SEL_COMMAND, MainWindow::ID_StepEngine, MainWindow::onCycle),
   FXMAPFUNC(SEL_COMMAND, MainWindow::ID_PlayEngine, MainWindow::onPlay),
-  FXMAPFUNC(SEL_COMMAND, MainWindow::ID_PauseEngine, MainWindow::onPause)
+  FXMAPFUNC(SEL_COMMAND, MainWindow::ID_PauseEngine, MainWindow::onPause),
+  FXMAPFUNC(SEL_COMMAND, MainWindow::ID_TurnOffGraphics, MainWindow::onTurnOffGraphics)
 };
 
 #endif

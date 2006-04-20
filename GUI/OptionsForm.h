@@ -11,24 +11,28 @@ class OptionsFormDialogBox : public FXDialogBox
 {
     FXDECLARE(OptionsFormDialogBox)
 
-    private:
+    public:
     FXList *SpeciesList;
+
+    private:    
     void BottomToolbar(FXMatrix *LayoutMatrix);
     void Species                (FXTabBook *TabBook);
     void Veggy                  (FXTabBook *TabBook);
     void General                (FXTabBook *TabBook);
     void PhysicsAndCosts        (FXTabBook *TabBook);
+    void CostsOptions           (FXTabBook *TabBook);
     void Mutations              (FXTabBook *TabBook);
     void ReststartAndL          (FXTabBook *TabBook);
     void InternetOptions        (FXTabBook *TabBook);
     void Recording              (FXTabBook *TabBook);
 
-    long ReConnectToSpecies(unsigned int SpeciesNumber);
+    long ReConnectToSpecies(unsigned int SpeciesNumber);    
 
     public:
     OptionsFormDialogBox(FXComposite *parent = NULL);
 
     //Commands
+    
     long onStartNew             (FXObject *, FXSelector, void *);
     long onChange               (FXObject *, FXSelector, void *);
     long onSaveSettings         (FXObject *, FXSelector, void *);
@@ -49,6 +53,12 @@ class OptionsFormDialogBox : public FXDialogBox
     long onBodyButton30K        (FXObject *, FXSelector, void *);
 
     long onWorldDimensionSlider (FXObject *, FXSelector, void *);
+
+    long onAdvancedPhysics     (FXObject *, FXSelector, void *);
+
+    long onClearCosts           (FXObject *, FXSelector, void *);
+    long onCostsF1Default       (FXObject *, FXSelector, void *);
+    long onCostsDecentGuess     (FXObject *, FXSelector, void *);
 
 
     void hide()
@@ -91,6 +101,11 @@ class OptionsFormDialogBox : public FXDialogBox
         ID_BODY_30K,
 
         ID_WORLDDIMENSIONSLIDER,
+        ID_ADVANCEDPHYSICS,
+
+        ID_CLEARCOSTS,
+        ID_COSTSF1DEFAULT,
+        ID_COSTSGUESS,
 
         ID_LAST
     };
@@ -116,5 +131,11 @@ FXDEFMAP(OptionsFormDialogBox) OptionsFormDialogBoxMap[] = {
     FXMAPFUNC(SEL_COMMAND, OptionsFormDialogBox::ID_BODY_15K,     OptionsFormDialogBox::onBodyButton15K),
     FXMAPFUNC(SEL_COMMAND, OptionsFormDialogBox::ID_BODY_30K,     OptionsFormDialogBox::onBodyButton30K),
 
-    FXMAPFUNC(SEL_COMMAND, OptionsFormDialogBox::ID_WORLDDIMENSIONSLIDER,     OptionsFormDialogBox::onWorldDimensionSlider)
+    FXMAPFUNC(SEL_COMMAND, OptionsFormDialogBox::ID_WORLDDIMENSIONSLIDER,     OptionsFormDialogBox::onWorldDimensionSlider),
+
+    FXMAPFUNC(SEL_COMMAND, OptionsFormDialogBox::ID_ADVANCEDPHYSICS,     OptionsFormDialogBox::onAdvancedPhysics),
+    
+    FXMAPFUNC(SEL_COMMAND, OptionsFormDialogBox::ID_CLEARCOSTS,     OptionsFormDialogBox::onClearCosts),
+    FXMAPFUNC(SEL_COMMAND, OptionsFormDialogBox::ID_COSTSF1DEFAULT,     OptionsFormDialogBox::onCostsF1Default),
+    FXMAPFUNC(SEL_COMMAND, OptionsFormDialogBox::ID_COSTSGUESS,     OptionsFormDialogBox::onCostsDecentGuess)
 };

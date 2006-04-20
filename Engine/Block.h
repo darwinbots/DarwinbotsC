@@ -1,23 +1,38 @@
 #ifndef BLOCK_H
 #define BLOCK_H
 
-#ifdef _MSC_VER
-#pragma warning(disable : 4786)
-#endif
-
 #include <string>
 #include <vector>
 #include <utility>
 #include "../Common/Random.h"
 
-//' var structure, to store the correspondance name<->value
+using namespace std;
+
+struct BlockValueBounds
+{
+    __int16 Min, Max;
+    BlockValueBounds::BlockValueBounds(int min = 0, int max = 0)
+    {
+        Min = min;
+        Max = max;
+    };
+
+    void BlockValueBounds::set(int min = 0, int max = 0)
+    {
+        Min = min;
+        Max = Max;
+    };
+}extern ValueBounds[20];
+void SetDNAMutationsBounds();
+
 struct var
 {
     std::string name;
     __int16 value;
 };
 
-enum tBlockType {
+enum BlockType
+{
     btNONE = -1 ,
     btValue,              //0
     btPointer,            //1
@@ -27,7 +42,7 @@ enum tBlockType {
     btCondition,          //5
     btLogic,              //6
     btStores,             //7
-    btReserved,           //8
+    btTies,               //8
     btFlow,               //9
     btMasterFlow,         //10
     btMAX
@@ -35,12 +50,12 @@ enum tBlockType {
 
 struct block
 {
-	tBlockType tipo;
+	BlockType tipo;
     __int16 value;
 
-  public:
     block():tipo(btNONE), value(0) {};
-    block(const tBlockType &a, const __int16 &b): tipo(a), value(b){};
+    block(const BlockType &a, const __int16 &b): tipo(a), value(b){};
+    
     const bool operator == (const block &other) const
     {
         return tipo == other.tipo && value == other.value;
@@ -48,7 +63,7 @@ struct block
 
     const bool operator != (const block &other) const
     {
-        return !(tipo == other.tipo && value == other.value);
+        return !(tipo == other.tipo && value == other.value);        
     }
 
     void erase()
@@ -56,7 +71,12 @@ struct block
         this->tipo = btNONE;
         this->value = -1;
     }
-    std::string& text(bool converttosysvar=false) const;
+
+    block *ParseCommand(const string &Command);
+    string &UnparseCommand(bool converttosysvar = true);
+
+    void RandomizeValue();
+    void RandomizeTipo();
 };
 
 const block DNA_END  (btMasterFlow,1 );
@@ -64,11 +84,8 @@ const block DNA_START(btFlow ,2 );
 const block DNA_ELSE (btFlow ,3 );
 const block DNA_STOP (btFlow ,4 );
 
-
-block ParseCommand(const std::string &Command);
 block RandomBlock();
+block ParseCommand(const string &Command);
 
-extern var sysvar[1000]; //all possible sysvars
-extern int maxsysvar;
-extern std::vector<std::pair<std::string,__int16> > vSysvars;
+extern vector<var> sysvar; //all possible sysvars
 #endif

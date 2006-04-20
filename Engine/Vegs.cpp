@@ -71,19 +71,19 @@ void Robot::FeedVegSun()
         {
             case 0: //per veg
             {
-                this->nrg += tok * (1 - SimOpts.VegFeedingToBody);
-                this->Body += tok * (SimOpts.VegFeedingToBody) / 10;
+                this->nrg += tok * (1 - SimOpts.VegFeedingToBody / 100);
+                this->Body += tok * (SimOpts.VegFeedingToBody / 100) / 10;
             }break;
             case 1: //per kilobody
             {
-                this->nrg += tok * (1 - SimOpts.VegFeedingToBody) * this->Body / 1000;
-                this->Body += tok * (SimOpts.VegFeedingToBody) / 10 * this->Body / 1000;
+                this->nrg += tok * (1 - SimOpts.VegFeedingToBody / 100) * this->Body / 1000;
+                this->Body += tok * (SimOpts.VegFeedingToBody / 100) / 10 * this->Body / 1000;
             }break;
             case 2: //quadtratically based on body.  Close to type 0 near 1000 body points, but quickly diverges at about 5K body points
             {
                 tok *= ((this->Body * this->Body * QuadConstant) + (1 - QuadConstant * 1000 * 1000));
-                this->nrg += tok * (1 - SimOpts.VegFeedingToBody);
-                this->Body += tok * (SimOpts.VegFeedingToBody) / 10;
+                this->nrg += tok * (1 - SimOpts.VegFeedingToBody / 100);
+                this->Body += tok * (SimOpts.VegFeedingToBody / 100) / 10;
             }break;
         }
 

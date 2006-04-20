@@ -6,7 +6,6 @@ TODO: be sure DNA costs are being exacted
 
 //the conditions stack
 BoolStack condStack;
-const int BoolStack::BOOLSTACK_MAX = 20;
 
 //the integer stack
 intstack_type IntStack;
@@ -27,6 +26,7 @@ void ExecuteBasicCommand(int n);
 void ExecuteAdvancedCommand(int n);
 void ExecuteBitwiseCommand(int n);
 void ExecuteStores(int n);
+void ExecuteTies(int n);
 void ExecuteConditions(int n);
 void ExecuteLogic(int n);
 
@@ -47,30 +47,18 @@ __int32 StackCeil(float value)
 //intstack.pos points to the Least Upper Bound element of the stack
 void PushIntStack(__int32 value)
 {
-    if (IntStack.pos >= 21) //next push will overfill
-    {
-        for (int a = 0; a < 20; a++)
-            IntStack.val[a] = IntStack.val[a+1];
-
-        IntStack.val[20] = 0;
-        IntStack.pos = 20;
-    }
-
-    IntStack.val[IntStack.pos] = value;
-    IntStack.pos++;
+    IntStack.push(value);
 }
 
 __int32 PopIntStack(void)
 {
-    IntStack.pos--;
-
-    if (IntStack.pos < 0)
-    {
-        IntStack.pos = 0;
-        IntStack.val[0] = 0;
+    if(IntStack.empty())
+        return 0;
+    else
+    {    __int32 returnme = IntStack.top();
+        IntStack.pop();
+        return returnme;
     }
-
-    return IntStack.val[IntStack.pos];
 }
 
 //////////////////////////////////////////////
@@ -78,31 +66,28 @@ __int32 PopIntStack(void)
 //////////////////////////////////////////////
 void BoolStack::push(const bool& value)
 {
-    val.push_front(value);
-    if(val.size() > BOOLSTACK_MAX)
-        val.pop_back();
+    val.push(value);
 }
 
 bool BoolStack::pop()
 {
-    if ( this->val.empty() )
-        return true;
+    if(val.empty())
+        return true; //this should never happen
     else
-    {
-        bool res = val.front();
-        val.pop_front();
-        return res;
+    {   bool returnme = val.top();
+        val.pop();
+        return returnme;
     }
 }
 
 bool BoolStack::Addup()
 {
     bool returnme = true;
-    for(deque<bool>::iterator ptr=val.begin();ptr!=val.end();++ptr)
+    while(!val.empty())
     {
-        returnme = returnme && *ptr;
+        returnme = returnme && val.top();
+        val.pop();
     }
-    val.clear();
     return returnme;
 }
 
@@ -115,13 +100,14 @@ void DNA_Class::Execute(Robot* bot)
     currbot=bot;
     currgene = 0;
     CurrentCondFlag = NEXTBODY;
+    CurrentFlow = CLEAR;
 
-    IntStack.pos = 0;
-    IntStack.val[0] = 0;
+    while(!IntStack.empty())
+        IntStack.pop();
     
     unsigned long pointer=0;
 
-    while(this->Code[pointer] != DNA_END)
+    while(this->Code[pointer] != DNA_END )
     {
         switch (this->Code[pointer].tipo)
         {
@@ -129,6 +115,7 @@ void DNA_Class::Execute(Robot* bot)
             {
                 if (CurrentFlow != CLEAR)
                     PushIntStack (this->Code[pointer].value);
+                bot->ChargeNRG(SimOpts.Costs[btValue]);
                 break;
             }
             case btPointer:
@@ -136,10 +123,11 @@ void DNA_Class::Execute(Robot* bot)
                 if (CurrentFlow != CLEAR && this->Code[pointer].value > 0 &&
                                             this->Code[pointer].value <= 1000)
                 {
-                    PushIntStack ((*currbot)[this->Code[pointer].value]);
+                    PushIntStack(currbot->DNACommands.FilterRead(this->Code[pointer].value));
                     if (this->Code[pointer].value > EyeStart && 
                         this->Code[pointer].value < EyeEnd)
                             currbot->View = true;
+                    bot->ChargeNRG(SimOpts.Costs[btPointer]);
                 }
                 break;
             }
@@ -147,48 +135,70 @@ void DNA_Class::Execute(Robot* bot)
             case btBasicCommand:
             {
                 if (CurrentFlow != CLEAR)
+                {
                     ExecuteBasicCommand(this->Code[pointer].value);
+                    bot->ChargeNRG(SimOpts.Costs[btBasicCommand]);
+                }
                 break;
             }
             
             case btAdvancedCommand:
             {
                 if (CurrentFlow != CLEAR)
+                {
                     ExecuteAdvancedCommand(this->Code[pointer].value);
+                    bot->ChargeNRG(SimOpts.Costs[btAdvancedCommand]);
+                }
                 break;
             }
             
             case btBitwiseCommand:
             {
                 if (CurrentFlow != CLEAR)
+                {
                     ExecuteBitwiseCommand(this->Code[pointer].value);
+                    bot->ChargeNRG(SimOpts.Costs[btBitwiseCommand]);
+                }
                 break;
             }
 
             case btCondition:
             {
                 if (CurrentFlow == COND)
+                {
                     ExecuteConditions(this->Code[pointer].value);
+                    bot->ChargeNRG(SimOpts.Costs[btCondition]);
+                }
                 break;
             }
 
             case btLogic:
             {
                 if (CurrentFlow == COND)
+                {
                     ExecuteLogic(this->Code[pointer].value);
+                    bot->ChargeNRG(SimOpts.Costs[btLogic]);
+                }
                 break;
             }
 
             case btStores:
             {
                 if (CurrentFlow == BODY || CurrentFlow == ELSEBODY)
+                {
+                    //costs calculated inside
                     ExecuteStores(this->Code[pointer].value);
+                }
                 break;
             }
 
-            case btReserved:
+            case btTies:
             {
-                //reserved for later type
+                if (CurrentFlow == BODY || CurrentFlow == ELSEBODY)
+                {
+                    ExecuteTies(Code[pointer].value);
+                    currbot->ChargeNRG(SimOpts.Costs[btTies]);
+                }
                 break;
             }
 
@@ -197,11 +207,8 @@ void DNA_Class::Execute(Robot* bot)
                 //execute flow command seeks forward until it finds executable DNA
                 ExecuteFlowCommands(this->Code[pointer].value);
 
-                //'If .VirusArray(currgene) > 1 Then 'next gene is busy, so clear flag
-                //'  CurrentFlow = CLEAR
-                //'End If
-
-                (*currbot)[thisgene] = (__int16)currgene;
+                currbot->ChargeNRG(SimOpts.Costs[btFlow]);
+                currbot->DNACommands.Add(thisgene, (__int16)currgene);
 
                 break;
             }
@@ -217,11 +224,7 @@ void DNA_Class::Execute(Robot* bot)
         }
         
         pointer++;
-    }
-
-    for(int x = 0; x < 20; x++)
-        IntStack.val[x] = 0;
-    
+    }    
 }
 
 
@@ -284,7 +287,7 @@ void DNAderef()
         currbot->View = true;
 
     if (b >= 1 && b <= 1000)
-        PushIntStack((*currbot)[b]);
+        PushIntStack(currbot->DNACommands.FilterRead((__int16)b));
     else
         PushIntStack(0);
 }
@@ -697,29 +700,38 @@ void DNAstore()
 
     b = PopIntStack();
     if (b > 0 && b <= 1000)
-        (*currbot)[b] = __int16(PopIntStack());
+    {
+        currbot->DNACommands.Add((__int16)b, (__int16)PopIntStack());
+        currbot->ChargeNRG(SimOpts.Costs[btStores]); 
+    }
     else
         PopIntStack();
 }
 
 void DNAinc()
 {
-    long a;
+    __int16 a;
 
-    a = PopIntStack();
+    a = (__int16)PopIntStack();
 
     if (a > 0 && a <= 1000)
-        (*currbot)[a]++;
+    {
+        currbot->DNACommands.Add((__int16)a, currbot->DNACommands.FilterRead(a) + 1);
+        currbot->ChargeNRG(SimOpts.Costs[btStores] / 10); 
+    }
 }
 
 void DNAdec()
 {
-    long a;
+    __int16 a;
 
-    a = PopIntStack();
+    a = (__int16)PopIntStack();
 
     if (a > 0 && a <= 1000)
-        (*currbot)[a]--;
+    {
+        currbot->DNACommands.Add((__int16)a, currbot->DNACommands.FilterRead(a) - 1);
+        currbot->ChargeNRG(SimOpts.Costs[btStores] / 10); 
+    }
 }
 
 void ExecuteStores(int n)
@@ -744,86 +756,112 @@ void ExecuteStores(int n)
 //'''''''''''''''''''''''''''''''''''''''''''
 //'''''''''''''''''''''''''''''''''''''''''''
 
-bool ExecuteFlowCommands(int n)
+void DNAsettie()
 {
-    //'returns true if a stop command was found (start, stop, or else)
-    //'returns false if cond was found
+    long a;
 
+    a = PopIntStack();
+
+    if (a != 0)
+        currbot->SetTie((__int16)a);
+}
+
+void DNAnexttie()
+{
+    PushIntStack(currbot->NextTie());
+}
+
+void DNAwritetie()
+{
+    if(currbot->CurrTie() != NULL)
+    {
+        long a, b;
+
+        a = PopIntStack(); //location
+        b = PopIntStack(); //number;
+
+        currbot->WriteTie((__int16)a, (__int16)b);
+    }
+    else
+    {
+        long a, b, c;
+
+        a = PopIntStack();
+        b = PopIntStack();
+        c = PopIntStack();
+
+        currbot->WriteTie((__int16)a, (__int16)b, (__int16)c);
+    }
+}
+
+void DNAreadtie()
+{
+    if(currbot->CurrTie() != NULL)
+    {
+        __int16 a;
+
+        a = __int16(PopIntStack()); //location
+        
+        
+    }
+    else
+    {
+        long a, b, c;
+
+        a = PopIntStack();
+        b = PopIntStack();
+        c = PopIntStack();
+
+        currbot->WriteTie((__int16)a, (__int16)b, (__int16)c);
+    }
+}
+
+void ExecuteTies(int n)
+{
     switch(n)
     {
         case 1:
-        {
-            CurrentFlow = COND;
-            return false;
-        }
+            DNAsettie(); break;
         case 2:
+            DNAnexttie(); break;
         case 3:
+            break;
         case 4:
-        {
-            //'assume a stop command, or it really is a stop command
-            //'this is supposed to come before case 2 and 3, since these commands
-            //'must be executed before start and else have a chance to go
-            if (CurrentFlow == COND)
-                CurrentCondFlag = condStack.Addup();
-            CurrentFlow = CLEAR;
-
-            switch(n)
-            {
-                case 2:
-                {
-                    if (CurrentCondFlag == NEXTBODY)
-                        CurrentFlow = BODY;
-                    currgene++;
-                }break;
-                case 3:
-                {
-                    if (CurrentCondFlag == NEXTELSE)
-                        CurrentFlow = ELSEBODY;
-                    currgene++;
-                }break;
-            }
-            return true;
-        }
-        default:
             break;
     }
-
-    return false;
 }
 
-/*'''''''''''''''''''''''''''''''''''''''''''
-'''''''''''''''''''''''''''''''''''''''''''
-'''''''''''''''''''''''''''''''''''''''''''
+//'''''''''''''''''''''''''''''''''''''''''''
+//'''''''''''''''''''''''''''''''''''''''''''
+//'''''''''''''''''''''''''''''''''''''''''''
 
-'
-'   L O A D I N G   A N D   P A R S I N G
-'
+bool ExecuteFlowCommands(int n)
+{
+    //returns true if a stop command was found (start, stop, or else)
+    //returns false if cond was found
 
-' root of the dna execution part
-' takes each robot and passes it to the interpreter
-' with some variations for console debug and genes activation
-Public Sub ExecRobs()
-  Dim t As Integer
-  For t = 1 To MaxRobs
-    If rob(t).Exist And Not rob(t).Wall And Not rob(t).Corpse Then
-      ExecuteDNA t
-    'rob(t).pntr = 1
-    'If Not (rob(t).console Is Nothing) Then
-    '  rob(t).console.textout ""
-    '  rob(t).console.textout "robot genes execution: - =not executed"
-    '  eseguidebug t
-    'Else
-    '  If t = robfocus Then
-    '    If ActivForm.Visible Then
-    '      exechighlight t
-    '    Else
-    '      eseguirob2 t
-    '    End If
-    '  Else
-    '    eseguirob2 t
-    '  End If
-    'End If
-    End If
-  Next t
-End Sub
-*/
+    if(n == 1)
+    {
+        CurrentFlow = COND;
+        return false;
+    }
+
+    //assume a stop command, or it really is a stop command
+    //this is supposed to come before case 2 and 3, since these commands
+    //must be executed before start and else have a chance to go
+    if (CurrentFlow == COND)
+        CurrentCondFlag = condStack.Addup();
+    CurrentFlow = CLEAR;
+
+    if (n == 4) //stop
+        return false;
+
+    if (n == 2 && CurrentCondFlag == NEXTBODY)
+        CurrentFlow = BODY;
+
+    if (n == 3 && CurrentCondFlag == NEXTELSE)
+        CurrentFlow = ELSEBODY;
+
+    currgene++;
+    return true;
+}

@@ -10,6 +10,7 @@ class Tie;
 #include "../Common/Math3D.h"
 #include "Robot.h"
 class Robot;
+#include "CommandQueue.h"
 
 enum substance_ID
 {
@@ -31,9 +32,13 @@ left hanging around, unaccessible and wasting precious memory.*/
 //remember to have ties being updated check for if port = 0 and age >= 100 (then we need to cut the tie, it's a birth tie)
 class Tie
 {
-	int Port;  //the phase number the tie can be accessed with.  1 to 200
+    friend void DrawTies(bool Perimeter);
+
+	int Phase;  //the phase number the tie can be accessed with.  1 to 200 -1 == birth tie
 	Robot *sender; //robot that fired the tie
 	Robot *receiver; //robot that received the tie
+
+    CommandQueueClass SenderCQ, ReceiverCQ;
 	
 	long age;  //used for birth ties dissolving and regular ties hardening
 	
@@ -59,17 +64,32 @@ class Tie
 	//class Tie *next; //for linked list use with robots
 
 	//Functions
-public:
-	static bool Tie::MakeTie(Robot* _sender, Robot* _receiver, int _port);
+    public:
+	static bool MakeTie(Robot* _sender, Robot* _receiver, int _port);
 	~Tie();
-private:
-    Tie(Robot* _sender, Robot* _receiver, int _port,
-                float _k = 0.005f, float _b = 0.01f, int _type=0);
-
-    Robot *Tie::FindOther(Robot *me);
-    __int16 Tie::ReadMem(Robot *me, __int16 loc);
+    const Robot *Sender() { return sender; }
+    const Robot *Receiver() { return receiver; }
+    Robot *FindOther(Robot *me);
+    CommandQueueClass &FindOtherCQ(Robot *me);
+    Vector4 Tie::SpringForces(Robot *caller);
+    void Tie::UpdateTie();
     void Tie::WriteMem(Robot *me, __int16 loc, __int16 value);
     void Tie::ShareSubstance(Robot *me, substance_ID ID, float amount);
+    __int16 Tie::ReadMem(Robot *me, __int16 loc);
+    const __int16 FindPhase()
+    {
+        return Phase;
+    }
+
+    Vector4 FindVector();
+    __int16 Tie::FindAngle(Robot *me);
+
+    void ApplyCQ();
+           
+    private:
+    Tie(Robot* _sender, Robot* _receiver, int _port,
+                float _k = 0.005f, float _b = 0.01f, int _type=0);    
+        
 };
 
 #endif

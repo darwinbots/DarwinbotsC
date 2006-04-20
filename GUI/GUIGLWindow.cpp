@@ -8,8 +8,6 @@
 #include "../GFX/Camera.h"
 #include "../Engine/Engine.h"
 
-using Math3D::Vector4;
-
 const unsigned char winapp[]={
   0x47,0x49,0x46,0x38,0x37,0x61,0x10,0x00,0x10,0x00,0xf2,0x00,0x00,0xb2,0xc0,0xdc,
   0x80,0x80,0x80,0xc0,0xc0,0xc0,0x00,0x00,0x00,0x00,0x00,0x80,0xff,0xff,0xff,0x00,
@@ -55,9 +53,17 @@ long MainWindow::GLWindow()
 
 long MainWindow::onUpdGfx(FXObject *, FXSelector, void *)
 {    
-    this->DrawScene();
+    static int counter;
+    
+    if(GraphicsOn)
+        this->DrawScene();
+    else if(++counter > 16 || counter < 0)
+    {
+        this->DrawScene();
+        counter = 0;
+    }
 
-    getApp()->addTimeout(this, ID_UpdGfx, 1);
+    getApp()->addTimeout(this, ID_UpdGfx, 32);
     return 1;
 }
 
@@ -68,11 +74,10 @@ long MainWindow::DrawScene()
 
 long MainWindow::DrawScene(FXObject *, FXSelector, void *)
 {    
+    // Make context current
+    canvas->makeCurrent();
 
-  // Make context current
-  canvas->makeCurrent();
-
-  GLdouble width = canvas->getWidth();
+    GLdouble width = canvas->getWidth();
     GLdouble height = canvas->getHeight();
     GLdouble aspect = height>0 ? width/height : 1.0;
 
@@ -87,18 +92,17 @@ long MainWindow::DrawScene(FXObject *, FXSelector, void *)
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
     gluPerspective(45.,aspect,.1,1000000);
-  
-  DrawWorld();
 
-  // Swap if it is double-buffered
-  if(glvisual->isDoubleBuffer()){
-    canvas->swapBuffers();
-    }
+    DrawWorld();
 
-  // Make context non-current
-  canvas->makeNonCurrent();
+    // Swap if it is double-buffered
+    if(glvisual->isDoubleBuffer())
+        canvas->swapBuffers();
 
-  return 1;
+    // Make context non-current
+    canvas->makeNonCurrent();
+
+    return 1;
 }
 
 

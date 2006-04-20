@@ -3,7 +3,7 @@
 
 #include <iostream>
 #include <string>
-#include "Robot.h"
+class Robot;
 
 using namespace std;
 
@@ -18,7 +18,10 @@ class Engine_Class
     {
         return maindir;    
     }    
-	void SetMainDir(std::string newDir){maindir=newDir;};
+	void SetMainDir(string newDir)
+    {
+        maindir=newDir;
+    };
 	
 	private:
 	void LoadRobots(void);
@@ -26,10 +29,9 @@ class Engine_Class
     void ExecuteShots();
     void RepopulateVeggies();
     string maindir;
-};
+}extern Engine;
 
 void FindOpenSpace(Robot *me); //finds spot for robot in array, returns pointer to said robot
 Robot *FindSerialNumber(unsigned long serial);  //find a robot with this serial number or return NULL
 
-extern Engine_Class Engine;
 #endif

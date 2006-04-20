@@ -5,6 +5,8 @@ FXDataTarget *Speciesqty =   new FXDataTarget;//(TmpOpts.Specie[0].qty);
 FXDataTarget *Speciesnrg =   new FXDataTarget;//(TmpOpts.Specie[0].nrg);
 FXDataTarget *Speciesbody =  new FXDataTarget;//(TmpOpts.Specie[0].body);
 FXDataTarget *Speciescolor = new FXDataTarget;//(TmpOpts.Specie[0].color);
+FXDataTarget *Speciesveggy = new FXDataTarget;
+FXDataTarget *Speciesfixed = new FXDataTarget;
 
 void OptionsFormDialogBox::Species(FXTabBook *TabBook)
 {
@@ -49,6 +51,7 @@ void OptionsFormDialogBox::Species(FXTabBook *TabBook)
                 FXButton *DeleteSpeciesButton = new FXButton(SpeciesListButtonMatrix, "Delete Species", BUTTON_STUFF(this->ID_DELETESPECIES));
                 new FXSeparator(SpeciesListButtonMatrix, LAYOUT_FILL_ALL);
                 FXButton *DeleteAllSpeciesButton = new FXButton(SpeciesListButtonMatrix, "Clear List", BUTTON_STUFF(this->ID_DELETEALLSPECIES) | LAYOUT_BOTTOM);
+                #undef BUTTON_STUFF
             }
         }
         /////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -196,6 +199,11 @@ void OptionsFormDialogBox::Species(FXTabBook *TabBook)
 
         //////////
         ///////////////////////////////////////////////////////////////////
+
+        new FXSeparator(SpeciesInitializationFrame);
+        new FXLabel(SpeciesInitializationFrame, "Misc Species Details:");
+        new FXCheckButton(SpeciesInitializationFrame, "Autotroph", Speciesveggy, FXDataTarget::ID_VALUE);
+        new FXCheckButton(SpeciesInitializationFrame, "Fixed", Speciesfixed, FXDataTarget::ID_VALUE);
     }
 }
 
@@ -205,7 +213,9 @@ long OptionsFormDialogBox::ReConnectToSpecies(unsigned int SpeciesNumber)
     Speciesnrg->connect(TmpOpts.Specie[SpeciesNumber].nrg);
     Speciesbody->connect(TmpOpts.Specie[SpeciesNumber].body);
     Speciescolor->connect(TmpOpts.Specie[SpeciesNumber].color);
-
+    Speciesveggy->connect((FXbool &)TmpOpts.Specie[SpeciesNumber].Veg);
+    Speciesfixed->connect((FXbool &)TmpOpts.Specie[SpeciesNumber].Fixed);
+    
     return 1;
 }
 

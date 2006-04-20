@@ -7,17 +7,40 @@
 using namespace std;
 using namespace Math3D;
 
+struct MutationTypeInformationHolder
+{
+    unsigned long Prob;
+    bool On;
+    float Mean, StdDev;
+    float DeltaValue; //used for Point and Copy Error
+
+    MutationTypeInformationHolder::MutationTypeInformationHolder()
+    {
+        Prob = 1000000; // 1 in a million
+        On = false;
+        Mean = 0;
+        StdDev = 1;
+        DeltaValue = 80;
+    }
+};
+
 struct mutationprobs
 {
-    public:
-    bool Mutations; //mutations on or off
-    long mutarray[20];  //probs of different mutations
-    float Mean[20];
-    float StdDev[20];
+    MutationTypeInformationHolder
+        Point,
+        Delta,
+        CopyError,
+        Reversal,
+        Translocation,
+        Insertion,
+        Amplification,
+        Deletion;
+    bool On; //Are Global Mutations On or Off?
 
-    //Extras
-    int PointWhatToChange;
-    int CopyErrorWhatToChange;
+    mutationprobs::mutationprobs(bool on = false)
+    {
+        On = on;
+    }
 };
 
 struct datispecie
@@ -34,6 +57,7 @@ struct datispecie
     unsigned int body;
     
     bool Veg;
+    bool Fixed;
     
     Vector4 PosTopLeft, PosLowRight;
     
@@ -43,4 +67,3 @@ struct datispecie
 };
 
 #endif
-

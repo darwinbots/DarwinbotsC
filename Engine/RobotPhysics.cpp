@@ -31,25 +31,28 @@ void Robot::NetForces()
     this->UpdateMass();
 
     if (mass + AddedMass == 0)  // a catch to be sure that we don't have 0 mass
-		mass = 0.1f - AddedMass;
+		mass = 0.1f;
+    
+    if(SimOpts.ZeroMomentum)
+        this->vel.set(0,0,0);
     
     //INDEPENDANT FORCES
     this->VoluntaryForces();
     this->GravityForces();
     this->BouyancyForces();
     this->BrownianForces();
-    if(SimOpts.PlanetEaters) this->PlanetEaters();
+    if(SimOpts.PlanetEaters && SimOpts.PlanetEatersG > 0) this->PlanetEaters();
 
-    //tie springs for elastic ties (ie: young ties)
+    this->SpringForces();
     //tie angles
-    //drag from tie
+    
         
     //RESISTIVE FORCES
     this->BotCollisionsVel();
+    //drag from tie
     //drag from bot
-    //friction on bots (no friction on ties)
+    this->Friction();
     //gate forces
-    //edge spring forces if edge springs enabled
 }
 
 void Robot::Integrate()
@@ -57,11 +60,27 @@ void Robot::Integrate()
     opos = pos;
     ovel = vel;
 
+    /*if(ImpulseStatic > 0)
+    {
+        Vector4 olddir = Impulse / Length3(Impulse);
+        Vector4 newdir;
+        Vector4 Static = ImpulseStatic * olddir;
+        Impulse -= Static;
+        newdir = Impulse / Length3(Impulse);
+        if(newdir.x() != olddir.x() ||
+           newdir.y() != olddir.y() ||
+           newdir.z() != olddir.z())
+            Impulse.set(0,0,0);
+    }*/
+    
     //velocity verlet integration
     pos = opos + vel + 0.5f * oldImpulse / (mass + AddedMass);
     vel += (oldImpulse + Impulse) / (2 * (mass + AddedMass));
+
+    
     oldImpulse = Impulse;
     Impulse.set(0,0,0);
+    ImpulseStatic = 0;
 }
 
 //sets a hard constraint that pulls bots that are too close to each other apart
@@ -72,12 +91,8 @@ float Robot::BotCollisionsPos()
     {
         if(rob[x] != NULL && rob[x]->AbsNum < this->AbsNum)
         {
-            if(rob[x]->pos == this->pos)
-            {
-                continue;
-            }
-
             Vector4 normal = rob[x]->pos - this->pos;
+            
             float mindist = this->radius + rob[x]->radius;
             mindist *= mindist;
                         
@@ -85,7 +100,16 @@ float Robot::BotCollisionsPos()
             
             if(currdist < mindist)
             {
+                if(currdist < 1)
+                {
+                    currdist = 1;
+                    normal.set(1, 1);
+                }
+
                 float overlap = sqrtf(mindist / currdist) - 1.0f;
+                
+                //this below would be faster if we didn't do more than one iteration of position collision a cycle
+                //float overlap = (mindist) / (currdist + mindist) - 0.5f;
                 
                 if(overlap > maxoverlap)
                     maxoverlap = overlap;
@@ -93,8 +117,8 @@ float Robot::BotCollisionsPos()
                 //UPDATE POSITIONS
                 normal *= overlap;
                 
-                //these need to be modified to deal with differences in mass
-                //and fixed/unfixed pairs
+                //these need to be modified to deal with
+                //fixed/unfixed pairs
                 rob[x]->pos += normal * 0.5f;
                 this->pos -= normal * 0.5f;
             }
@@ -132,7 +156,7 @@ void Robot::EdgeCollisions()
     }
 
     if(this->pos.y() < this->radius ||
-       this->pos.y() > SimOpts.FieldDimensions.x() - this->radius)
+       this->pos.y() > SimOpts.FieldDimensions.y() - this->radius)
     {
         vel(1) = -ovel.y();
         vel *= CoefficientRestitution;            
@@ -143,6 +167,13 @@ void Robot::EdgeCollisions()
     //rolling or something like that
     
     this->pos = dist;
+}
+
+void Robot::FulfillTieConstraints()
+{
+
+
+
 }
 
 /*Collisions are modified by a slider
@@ -248,8 +279,8 @@ void Robot::VoluntaryForces()
     //NewAccel is the impulse vector formed by the robot's internal "engine".
     //Impulse is the integral of Force over time.
 
-    this->Impulse += NewAccel * SimOpts.MovingEfficiency;
-    EnergyCost = Length3(NewAccel) * SimOpts.Costs[MOVECOST];
+    this->Impulse += NewAccel * SimOpts.MovingEfficiency / 100.0f;
+    EnergyCost = Length3(dir) * SimOpts.Costs[MOVECOST];
     this->ChargeNRG(EnergyCost);
 
     (*this)[dirup] =
@@ -314,4 +345,57 @@ void Robot::UpdateAddedMass()
     const double AddedMassCoefficientForASphere = 0.5;
     AddedMass = float(AddedMassCoefficientForASphere * SimOpts.Density * 
                 4.0 / 3.0 * double(PI) * CUBE(double(radius)));
+}
+
+void Robot::Friction()
+{
+    //the below uses the min of vel and ZGravity * CoefficientKinetic for
+    //stability.  Bots that begin to reach 0 will still overjump 0 a little
+    //bit, but it's a stable oscillation which approaches 0.
+    if(LengthSquared3(vel) > 0)
+    {
+        float length = Length3(vel);
+        if(SimOpts.ZGravity * SimOpts.CoefficientKinetic <= length)
+            vel -= SimOpts.ZGravity * SimOpts.CoefficientKinetic * (vel / length);
+        else
+            vel.set(0,0,0);
+        
+    }
+    else
+    {
+        this->ImpulseStatic = SimOpts.ZGravity *
+                              this->mass *
+                              SimOpts.CoefficientStatic;
+    }
+}
+
+void Robot::SpringForces()
+{
+    for(unsigned int x = 0; x < Ties.size(); x++)
+        if(Ties[x] != NULL)
+        {
+            if(Ties[x]->FindOther(this)->AbsNum < AbsNum)
+            {
+                Vector4 Imp = Ties[x]->SpringForces(this);
+                Impulse += Imp;
+                Ties[x]->FindOther(this)->Impulse -= Imp;
+            }
+        }
+}
+
+Vector4 Tie::SpringForces(Robot *caller)
+{
+    Vector4 dist = sender->pos - receiver->pos;
+
+    NaturalLength = max(sender->rad() + receiver->rad(), NaturalLength);
+
+    if(LengthSquared3(dist) == NaturalLength * NaturalLength)
+        return Vector4(0,0,0);
+
+    float length = Length3(dist);
+    dist /= length;
+
+    Vector4 Impulse = -(k * (NaturalLength - length) + dist * (caller->vel - FindOther(caller)->vel) * b) * dist;
+
+    return Impulse;
 }
