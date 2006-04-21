@@ -20,4 +20,6 @@ void CameraClass::Translate(float xvalue, float yvalue)
 void CameraClass::Zoom(float value)
 {
     this->POS(2) += value;
+    //if(POS[2] < 0)
+    //    POS(2) = 0;
 }

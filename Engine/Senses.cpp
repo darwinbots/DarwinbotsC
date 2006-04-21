@@ -221,7 +221,6 @@ void Robot::WriteRefVars(const Robot *lastopp)
 	//these should be double checked
     Vector4 vel = lastopp->vel - this->vel;
     Vector4 aim = aimvector;
-    aim.set(aim.x(), -aim.y());
 	(*this)[refvelup] = iceil(vel * this->aimvector);
 	(*this)[refveldn] = -iceil(float((*this)[refvelup]));
 	
@@ -255,35 +254,38 @@ void Robot::CompareRobots(Robot *const other, const unsigned int field)
 {
 
     //the few lines below are the most performance-critical in the whole code
+    
         if (other == NULL) return; //must be first to avoid unnecessary inits
 
         Vector4 RelativePosition = VectorSub2D(other->pos, this->pos);
 	    float discheck = field * RobSize + other->radius;
-	    if (fabs(RelativePosition.x())>discheck || fabs(RelativePosition.y())>discheck)
+	    //below checks the bounding square
+        if (fabs(RelativePosition.x())>discheck || fabs(RelativePosition.y())>discheck)
             return;
     
     float magsquare = LengthSquared3(RelativePosition);
     discheck = discheck * discheck;
 
-	if (magsquare >= discheck)
+	//check circle distance
+    if (magsquare >= discheck)
 		return; //too far away to see
 		
     float mag = sqrtf(magsquare);
     
     unsigned int eyecellD, eyecellC;
-    Vector4 ac, ad;
+    Vector4 ac, ad, PerpindicularLeft, PerpindicularRight;
 	
-    //ac and ad are to either end of the bot, while ab is to the center
+    //ac and ad are to either end of the bot, while RelativePosition (ab) is to the center
 	//|ac| = |ad| = |ab|
 	
 	//this vector fun below needs to be double checked for geometrical accuracy
-	ac = RelativePosition / mag;
-	
-	ad.set(ac.y(), -ac.x());
-	ad = RelativePosition + ad * other->radius;
 
-	ac.set(-ac.y(), ac.x());
-	ac = RelativePosition + ac * other->radius;
+    PerpindicularLeft = PerpindicularRight = RelativePosition / mag;
+    PerpindicularLeft.set(-PerpindicularLeft.y(), PerpindicularLeft.x(), 0);
+    PerpindicularRight.set(PerpindicularRight.y(), -PerpindicularRight.x(), 0);    
+
+	ad = RelativePosition + PerpindicularRight * other->rad();
+    ac = RelativePosition + PerpindicularLeft * other->rad();
 
 	eyecellD = EyeCells(ad);
 	eyecellC = EyeCells(ac);
@@ -293,13 +295,13 @@ void Robot::CompareRobots(Robot *const other, const unsigned int field)
 		return;
 	
 	if (eyecellC == 0)
-		eyecellC = EyeEnd;
+		eyecellC = EyeStart;
 
 	if (eyecellD == 0)
-		eyecellD = EyeStart;
+		eyecellD = EyeEnd;
 
 	discheck = RobSize * 100 / (mag - this->rad() - other->rad() + RobSize);
-    for (unsigned int x = eyecellD; x <= eyecellC; x++)
+    for (unsigned int x = eyecellC; x <= eyecellD; x++)
 	{		
 		if ((*this)[x] < discheck)
 		{
@@ -309,9 +311,6 @@ void Robot::CompareRobots(Robot *const other, const unsigned int field)
 			(*this)[x] = iceil(discheck);
 		}
 	}
-
-    for(x = 0; x < 5; x++)
-        swap((*this)[EyeStart + x], (*this)[EyeEnd - x]);
 }
 
 unsigned int Robot::EyeCells(const Vector4 &ab)
@@ -343,7 +342,7 @@ unsigned int Robot::EyeCells(const Vector4 &ab)
 	for (A = 0; A <= 4; A++)
 	{
 		if (tantheta < TanLookup[A]) //haha!  it's visible
-			return EyeMid - sign * A;
+			return EyeMid + sign * A;
 	}
 
 	return 0;

@@ -61,7 +61,7 @@ void Shot::CreateShotBasic()
     pos.set(0,0);
     opos.set(0,0);
     vel.set(0,0);
-    color = Vector4(0,0,1.0f);
+    color = Vector4(1,1,1);
     Memloc = Memval = 0;
     value = shottype = 0;
     FindOpenSpace(this);

@@ -144,7 +144,7 @@ void Robot::UpdateAim()
 
 	if ((*this)[SetAim] == (*this)[Aimsys])
 	{
-		Aim = this->aim * 200.0f + (*this)[aimsx] - (*this)[aimdx];
+		Aim = this->aim * 200.0f + (*this)[aimleft] - (*this)[aimright];
 	}
 	else
 	{
@@ -179,8 +179,8 @@ void Robot::UpdateAim()
 	
 	aimvector.set(cosf(aim), sinf(aim));
 
-	(*this)[aimdx] = 0;
-	(*this)[aimsx] = 0;
+	(*this)[aimright] = 0;
+	(*this)[aimleft] = 0;
 	(*this)[Aimsys] = iceil(this->aim * 200);
 	(*this)[SetAim] = iceil((*this)[Aimsys]);
 }
@@ -201,8 +201,8 @@ void Robot::UpdatePosition()
 	//clear bang commands
 	(*this)[dirup] = 0;
 	(*this)[dirdn] = 0;
-	(*this)[dirdx] = 0;
-	(*this)[dirsx] = 0;
+	(*this)[dirright] = 0;
+	(*this)[dirleft] = 0;
 	
 	(*this)[velscalar] = iceil(Length3(this->vel));
 	(*this)[velup] = iceil(vel * aimvector); //dot product of direction

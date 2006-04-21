@@ -3,16 +3,23 @@
 #include "../GFX/Camera.h"
 #include "../Engine/Globals.h"
 #include "../GFX/DrawWorld.h"
+#include "../Engine/SimOptions.h"
+#include "../Engine/Robot.h"
+#include "../GFX/DrawWorld.h"
 
 #include <gl/gl.h>
 #include <gl/glu.h>
+
+int CurrBotUserSelected = -1;
 
 enum
 {
     NONE,
     ZOOM,
     TRANSLATE,
-    ROTATE
+    ROTATE,
+    SELECT_BOT,
+    DRAG_BOT
 }mode;
 
 long MainWindow::onMouseWheel(FXObject *, FXSelector, void *ptr)
@@ -20,7 +27,7 @@ long MainWindow::onMouseWheel(FXObject *, FXSelector, void *ptr)
     FXEvent* event=(FXEvent*)ptr;
     //if(isEnabled())
     {
-        MainCamera.Zoom( -event->code * 0.001f * __min(-10, MainCamera.pos().z() - 8000));
+        MainCamera.Zoom(event->code * 0.5f);
         return 1;
     }
   return 0;
@@ -42,7 +49,27 @@ long MainWindow::onMotion(FXObject *, FXSelector, void *ptr)
 
         case TRANSLATE:
         {
-            MainCamera.Translate(float(event->win_x - event->last_x), float(event->win_y - event->last_y));
+            #define Factor(x) atanf(MainCamera.pos().z() / 100.0f) / float(PI) * SimOpts.FieldDimensions. x ()
+            float factorx = (float)Factor(x);
+            float factory = (float)Factor(y);
+
+            float mousex = float(event->win_x - event->last_x) / 10;
+            float mousey = float(event->win_y - event->last_y) / 10;
+
+            float actualx = (float)canvas->getWidth();
+            float actualy = (float)canvas->getHeight();
+
+            float screeny = SimOpts.FieldDimensions.y() - 2 * factory;
+            float screenx = SimOpts.FieldDimensions.x() - 2 * factorx;
+
+            float DeltaMovementX = mousex / actualx * screenx;
+            float DeltaMovementY = mousey / actualy * screeny;
+
+            MainCamera.Translate(-DeltaMovementX,
+                                 DeltaMovementY);
+            
+            getApp()->addChore(this, ID_UpdGfx, 0);
+            #undef Factor
         }
         break;
     }
@@ -53,12 +80,52 @@ long MainWindow::onMotion(FXObject *, FXSelector, void *ptr)
 long MainWindow::onLeftBtnPress(FXObject *, FXSelector, void *ptr)
 {
     FXEvent* event=(FXEvent*)ptr;
+    CurrBotUserSelected = Selection(event->win_x, event->win_y);
 
-    if(Selection(event->win_x, event->win_y) == -1)
+    if(CurrBotUserSelected == -1)
         mode = TRANSLATE;
-
-    //event->state&MIDDLEBUTTONMASK
+    else
+    {
+        mode = SELECT_BOT;//we've picked a robot
+        //select bot
+    }
+    
     return 1;
+}
+
+int MainWindow::Selection(unsigned int MouseX, unsigned int MouseY)
+{
+    #define Factor(x) atanf(MainCamera.pos().z() / 100.0f) / float(PI)
+    float factorx = (float)Factor(x);
+    float factory = (float)Factor(y);
+
+    MouseY = canvas->getHeight() - MouseY;
+
+    float screeny = SimOpts.FieldDimensions.y() * (1.0f - 2 * factory);
+    float screenx = SimOpts.FieldDimensions.x() * (1.0f - 2 * factorx);
+
+    float ActualX = MouseX / (float)canvas->getWidth() * screenx;
+    float ActualY = MouseY / (float)canvas->getHeight() * screeny;
+
+    ActualX += MainCamera.pos().x();
+    ActualY += MainCamera.pos().y();
+
+    ActualX += SimOpts.FieldDimensions.x() * factorx;
+    ActualY += SimOpts.FieldDimensions.y() * factory;
+
+    Vector4 ActualPos(ActualX, ActualY, 0);
+
+    for(int x = 0; x <= MaxRobs; x++)
+        if(rob[x] != NULL)
+        {
+            Vector4 Delta = ActualPos - rob[x]->findpos();
+            if(LengthSquared3(Delta) <= rob[x]->rad() * rob[x]->rad())
+            {
+                return x;
+            }
+        }
+
+    return -1;
 }
 
 long MainWindow::onLeftBtnRelease(FXObject *, FXSelector, void *ptr)
@@ -72,9 +139,8 @@ long MainWindow::onRightBtnPress(FXObject *, FXSelector, void *ptr)
 {
     FXEvent* event=(FXEvent*)ptr;
 
-    //mode = ROTATE;
-
-    this->onBotDebug();
+    if(CurrBotUserSelected > -1 && rob[CurrBotUserSelected] != NULL)
+        this->onBotDebug();
 
     return 1;
 }
@@ -83,41 +149,4 @@ long MainWindow::onRightBtnRelease(FXObject *, FXSelector, void *ptr)
 {
     mode = NONE;    
     return 1;
-}
-
-int MainWindow::Selection(unsigned int MouseX, unsigned int MouseY)
-{
-    GLint viewport[4];
-    float ratio;
-    GLuint selectBuf[64];
-    GLint hits;
-
-    glSelectBuffer(64,selectBuf);
-
-    glGetIntegerv(GL_VIEWPORT,viewport);
-
-    glRenderMode(GL_SELECT);
-
-    glInitNames();
-
-    glMatrixMode(GL_PROJECTION);
-    glPushMatrix();
-    glLoadIdentity();
-
-    gluPickMatrix(MouseX,viewport[3]-MouseY,5,5,viewport);
-    ratio = float((viewport[2]+0.0) / viewport[3]);
-    gluPerspective(45,ratio,0.1,1000);
-    glMatrixMode(GL_MODELVIEW);
-
-    DrawWorld(true);
-
-    glMatrixMode(GL_PROJECTION);
-    glPopMatrix();
-    glMatrixMode(GL_MODELVIEW);
-    glFlush();
-    hits = glRenderMode(GL_RENDER);
-
-    if (hits)
-        return selectBuf[3];									// Make Our Selection The First Object
-    return -1;
 }

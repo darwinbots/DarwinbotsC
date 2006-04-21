@@ -8,10 +8,10 @@
 //
 const int dirup = 1;
 const int dirdn = 2;
-const int dirdx = 3;
-const int dirsx = 4;
-const int aimdx = 5;
-const int aimsx = 6;
+const int dirright = 3;
+const int dirleft = 4;
+const int aimright = 5;
+const int aimleft = 6;
 const int shoot = 7;
 const int shootval = 8;
 const int backshot = 9;

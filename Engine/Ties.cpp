@@ -111,7 +111,7 @@ bool Tie::MakeTie(Robot *shooter, Robot *target, int _port)
     target->RemoveTie(shooter);
 	
 	//create tie
-	Tie* temp = new Tie(shooter, target, _port, .07f, .05f);
+	Tie* temp = new Tie(shooter, target, _port, .1f, .1f);
 	
 	shooter->AddTie(temp);
 	target->AddTie(temp);

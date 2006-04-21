@@ -3,17 +3,18 @@
 /*******************************
 Basic idea:
 
-Divide the world into 1440 grid cells that contain linked lists
+Divide the world into 1440 sized grid cells that contain linked lists
 of robot pointers.
 
 For every robot that can see, put his pointer into all the grids'
 linked list for every grid he can see.
 
-During eye tests, check every bot against the cell they're presently in 
-and appropriate neighboring cells to see what bots can see it.
+During eye tests, check every bot against the cell(s) it's presently in
+to see what bots can see it.  Since bots have radius and aren't just single points,
+bots may need to test multiple 
 *//////////////////////////////////////////
 
-#define GRID_DIM 1440
+#define GRID_DIM 1440 //this is the eye sight range, which is capped here
 
 class EyeGrid_Class
 {

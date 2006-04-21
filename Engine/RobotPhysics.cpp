@@ -260,33 +260,33 @@ void Robot::VoluntaryForces()
 {
     float EnergyCost, mult;
     Vector4 NewAccel, dir;
-
+    
     if (this->Corpse == true)
         return;
-
+    
     if (this->NewMove == false)
         mult = this->mass;
     else
         mult = 1;
-
-    dir.set(float( (*this)[dirup] - (*this)[dirdn]), float((*this)[dirdx] - (*this)[dirsx]));
+    
+    dir.set(float((*this)[dirright] - (*this)[dirleft]),
+            float((*this)[dirup] - (*this)[dirdn]), 0);
+    
     dir = dir * mult;
-
-    Vector4 aim(this->aimvector.x(), -this->aimvector.y());
-
-    NewAccel.set(aim * dir, aim % dir);
-
+    
+    NewAccel.set(aimvector % dir, aimvector * dir);
+    
     //NewAccel is the impulse vector formed by the robot's internal "engine".
     //Impulse is the integral of Force over time.
-
+    
     this->Impulse += NewAccel * SimOpts.MovingEfficiency / 100.0f;
     EnergyCost = Length3(dir) * SimOpts.Costs[MOVECOST];
     this->ChargeNRG(EnergyCost);
-
+    
     (*this)[dirup] =
     (*this)[dirdn] =
-    (*this)[dirdx] =
-    (*this)[dirsx] = 0;
+    (*this)[dirright] =
+    (*this)[dirleft] = 0;
 }
 
 void Robot::GravityForces()
@@ -385,9 +385,9 @@ void Robot::SpringForces()
 
 Vector4 Tie::SpringForces(Robot *caller)
 {
-    Vector4 dist = sender->pos - receiver->pos;
+    Vector4 dist = caller->pos - FindOther(caller)->pos;
 
-    NaturalLength = max(sender->rad() + receiver->rad(), NaturalLength);
+    this->NaturalLength = max(sender->rad() + receiver->rad(), this->NaturalLength);
 
     if(LengthSquared3(dist) == NaturalLength * NaturalLength)
         return Vector4(0,0,0);
@@ -395,7 +395,10 @@ Vector4 Tie::SpringForces(Robot *caller)
     float length = Length3(dist);
     dist /= length;
 
-    Vector4 Impulse = -(k * (NaturalLength - length) + dist * (caller->vel - FindOther(caller)->vel) * b) * dist;
+    Vector4 Impulse(0,0,0);
+    
+    Impulse += k * (NaturalLength - length) * dist;
+    Impulse += dist * (caller->vel - FindOther(caller)->vel) * -b * dist;
 
     return Impulse;
 }

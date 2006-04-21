@@ -13,6 +13,8 @@
 #include "GUIBotDebug.h"
 #include "BotDNABox.h"
 
+#include "../GFX/DrawWorld.h"
+
 bool GUIWINDOW = false;
 
 using namespace std;
@@ -333,7 +335,7 @@ long MainWindow::onBotDebug()
     else
         BotDebug->show();*/
 
-    new BotDNAWindow_Class(rob[0], this);
+    new BotDNAWindow_Class(rob[CurrBotUserSelected], this);
 
     return 1;
 }

@@ -32,8 +32,6 @@ protected:
     FXMDIClient *mdiclient;
 
     FXMDIChild *mainview;
-    
-    void ConnectVar();
         
 public:
     OptionsFormDialogBox *OptionsForm;
