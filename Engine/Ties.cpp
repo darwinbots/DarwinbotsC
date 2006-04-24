@@ -1,7 +1,6 @@
+#include "../Common/Vectors.h"
 #include "Tie.h"
 #include "Robot.h"
-
-using namespace Math3D;
 
 // *PRIVATE* and only constructor
 Tie::Tie(Robot *_sender,
@@ -20,7 +19,7 @@ Tie::Tie(Robot *_sender,
         sender(_sender),
         receiver (_receiver)        
 {
-    NaturalLength = Math3D::Length3(sender->pos - receiver->pos);
+    NaturalLength = (sender->pos - receiver->pos).Length();
     this->Phase = _phase;
     SenderCQ.SetBase(sender);
     ReceiverCQ.SetBase(receiver);
@@ -48,7 +47,7 @@ bool Robot::FireTie()
 	{
         if(BasicProximity() != NULL)
 		{
-            if(Length3(this->pos - this->lastopp->pos) - this->rad() - this->lastopp->rad() <= 
+            if((this->pos - this->lastopp->pos).Length() - this->rad() - this->lastopp->rad() <= 
                RobSize)
                 return Tie::MakeTie(this, lastopp, tieport);
         }
@@ -111,7 +110,7 @@ bool Tie::MakeTie(Robot *shooter, Robot *target, int _port)
     target->RemoveTie(shooter);
 	
 	//create tie
-	Tie* temp = new Tie(shooter, target, _port, .1f, .1f);
+	Tie* temp = new Tie(shooter, target, _port, .05f, .05f);
 	
 	shooter->AddTie(temp);
 	target->AddTie(temp);
@@ -306,7 +305,7 @@ void Robot::ApplyNewTieSysvars()
 
     if(tie != NULL)
     {
-        DNACommands.Add(readtielen, (__int16)Length3(tie->FindVector()));
+        DNACommands.Add(readtielen, (__int16)tie->FindVector().Length());
         DNACommands.Add(writetielen, DNACommands.FilterRead(readtielen));
         DNACommands.Add(tieangle, tie->FindAngle(this));
         DNACommands.Add(currtiesys, currtie);
@@ -321,15 +320,14 @@ void Robot::ApplyNewTieSysvars()
     }
 }
 
-Vector4 Tie::FindVector()
+Vector3f Tie::FindVector()
 {
     return (sender->findpos() - receiver->findpos());
 }
 
 __int16 Tie::FindAngle(Robot *me)
 {
-    Vector4 unit = FindVector();
-    Normalize3(unit);
+    Vector3f unit = FindVector().Normal();
 
     //some magic vector math
     

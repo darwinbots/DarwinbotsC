@@ -13,9 +13,19 @@ Numsgil Feb. 09 2006
 #define SHOTDECAY 40.0f //increase to have shots lose power slower
 #define SHELLEFFECTIVENESS 20
 
-//this below is horribly complicated:  allow me to explain:
+//this POWERMUTLIPLIER below is horribly complicated:  allow me to explain:
 //nrg dissipates in a non-linear fashion.  Very little nrg disappears until you
 //get near the last 10% of the journey or so.
+//here's what the graph would look like for nrg with respect to time:
+/*
+|________
+|        \
+|          \
+|           \
+|            |
+|            |
+|____________|
+*/
 #define POWERMULTIPLIER(age, range) (atanf(float(age)/float(range) * SHOTDECAY - SHOTDECAY) / atanf(-SHOTDECAY))
 
 /****************************************
@@ -61,7 +71,7 @@ void Shot::CreateShotBasic()
     pos.set(0,0);
     opos.set(0,0);
     vel.set(0,0);
-    color = Vector4(1,1,1);
+    color = Vector3f(1,1,1);
     Memloc = Memval = 0;
     value = shottype = 0;
     FindOpenSpace(this);
@@ -80,7 +90,7 @@ Shot::Shot(Robot *parent)
     
     this->pos = parent->pos + parent->rad() * parent->aimvector;
     float angle = (parent->aim * 200 + frnd(-35, 35)) / 200;
-    this->vel = parent->vel + Vector4(cosf(angle), sinf(angle)) * 40;
+    this->vel = parent->vel + Vector3f(cosf(angle), sinf(angle)) * 40;
     this->opos = this->pos;
 }
 
@@ -293,12 +303,8 @@ void Shot::UpdatePos()
     //If you're unaware of what's going on here, it's called
     //verlet integration, as opposed to Euler integration.    
 
-    Vector4 temp;
-    
-    temp = this->pos;
-    
     this->opos = this->pos;
-    this->vel += Vector4(0, SimOpts.YGravity);
+    this->vel += Vector3f(0.0f, SimOpts.YGravity);
     this->pos += this->vel;
 }
 
@@ -355,11 +361,11 @@ void Shot::UpdateShot()
 Robot *Shot::ShotColl()
 {
     //perform checks for torroidal edge wraparound
-    Vector4 ab, ac, bc;
+    Vector3f ab, ac, bc;
     float MagAB, dist;
 
     ab = this->pos - this->opos;
-    MagAB = Length3(ab);
+    MagAB = ab.Length();
     
     //search through all bots to find one that's collided with us
     for (int x = 0; x <= MaxRobs; x++)
@@ -380,12 +386,12 @@ Robot *Shot::ShotColl()
             if (ab * ac > 0)
             {
                 //if AB * AC > 0 then nearest point is point B (present position)
-                dist = LengthSquared3(bc);
+                dist = bc.LengthSquared();
             }
             else if(ab * bc <= 0)
             {
                 //'if AB dot BC < 0 then nearest point is point A (older position)
-                dist = LengthSquared3(ac);
+                dist = ac.LengthSquared();
             }
             else if(MagAB > 0)
             {
@@ -399,7 +405,7 @@ Robot *Shot::ShotColl()
                 //this is rarely, if ever called.  Primarily
                 //an error catching routine
                 //the speed of the shot would have to be 0
-                dist = LengthSquared3(bc);
+                dist = bc.LengthSquared();
             }
 
             if (dist < rob[x]->radius * rob[x]->radius)

@@ -66,13 +66,13 @@ long OptionsFormDialogBox::onStartNew(FXObject *, FXSelector, void *)
 
 long OptionsFormDialogBox::onSaveSettings(FXObject *, FXSelector, void *)
 {
-    WriteSett(Engine.MainDir() + "savesett.set", TmpOpts);
+    WriteSett(Engine.MainDir() + "\\settings\\savesett.set", TmpOpts);
     return 1;
 }
 
 long OptionsFormDialogBox::onLoadSettings(FXObject *, FXSelector, void *)
 {
-    ReadSett(Engine.MainDir() + "savesett.set", TmpOpts);
+    ReadSett(Engine.MainDir() + "\\settings\\savesett.set", TmpOpts);
     SpeciesList->clearItems(true);
     for(int x = 0; x < (int)TmpOpts.SpeciesNum; x++)
         SpeciesList->appendItem(TmpOpts.Specie[x].Name.c_str());

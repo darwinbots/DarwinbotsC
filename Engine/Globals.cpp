@@ -17,26 +17,26 @@ float fsgn(float value)
     return 1.0f;
 }
 
-SCALAR minS(SCALAR a, SCALAR b)
+SCALAR_F minS(SCALAR_F a, SCALAR_F b)
 {
     if (a > b)
         return b;
     return a;
 }
 
-SCALAR maxS(SCALAR a, SCALAR b)
+SCALAR_F maxS(SCALAR_F a, SCALAR_F b)
 {
     if (a < b)
         return b;
     return a;
 }
 
-Vector4 VectorMin(const Vector4 &a, const Vector4 &b)
+Vector3f VectorMin(const Vector3f &a, const Vector3f &b)
 {
-    return Vector4(minS(a.x(), b.x()), minS(a.y(), b.y()), minS(a.z(), b.z()), minS(a.w(), b.w()));
+    return Vector3f(minS(a.x(), b.x()), minS(a.y(), b.y()), minS(a.z(), b.z()));
 }
 
-Vector4 VectorMax(const Vector4 &a, const Vector4 &b)
+Vector3f VectorMax(const Vector3f &a, const Vector3f &b)
 {
-    return Vector4(maxS(a.x(), b.x()), maxS(a.y(), b.y()), maxS(a.z(), b.z()), maxS(a.w(), b.w()));
+    return Vector3f(maxS(a.x(), b.x()), maxS(a.y(), b.y()), maxS(a.z(), b.z()));
 }

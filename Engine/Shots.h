@@ -33,7 +33,7 @@ class Shot : public ObjectPrimitive
     Shot();
     Shot(Robot *parent);
     ~Shot();
-    const Vector4 &findpos() const
+    const Vector3f &findpos() const
     {
         return pos;
     }

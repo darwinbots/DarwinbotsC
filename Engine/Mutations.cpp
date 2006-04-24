@@ -2,6 +2,7 @@
 //ALWAYS assume that DNA is sized right
 //ALWAYS size DNA correctly when mutating
 
+#include <algorithm>
 #include "DNAClass.h"
 #include "Mutations.h"
 
@@ -18,8 +19,7 @@ bool DNA_Class::Delete(int start, int end)
 
 bool DNA_Class::Reverse(unsigned int start, unsigned int end)
 {
-    for(unsigned int x = start, y = end; x <= (start+end) / 2; x++, y--)
-        swap(Code[x], Code[y]);
+    reverse(Code.begin() + start, Code.begin() + end + 1);
     DNAgenenum = -1;
     return true;
 }

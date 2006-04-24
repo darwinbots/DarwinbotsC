@@ -3,13 +3,17 @@
 
 #include <iostream>
 #include <string>
+
+#include "UniformEyeGrids.h"
 class Robot;
 
 using namespace std;
 
 class Engine_Class
 {
-	public:
+	//friend void DrawEyeGrid();
+    
+    public:
 
 	void ProgramInitialize(void);
     void UpdateSim(void);
@@ -22,6 +26,9 @@ class Engine_Class
     {
         maindir=newDir;
     };
+
+    WhatCanSeeMe(Robot *me, list<Robot *> &BotList);
+    EyeGridRemoveDeadBot(Robot *bot);
 	
 	private:
 	void LoadRobots(void);
@@ -29,6 +36,9 @@ class Engine_Class
     void ExecuteShots();
     void RepopulateVeggies();
     string maindir;
+    EyeGrid_Class EyeGrid;
+    ManipulateEyeGrid(Robot *bot);
+    
 }extern Engine;
 
 void FindOpenSpace(Robot *me); //finds spot for robot in array, returns pointer to said robot

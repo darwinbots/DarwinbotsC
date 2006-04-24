@@ -15,7 +15,7 @@ void StatusBar(MainWindow *object)
     
     new FXLabel(statusbar, "Cyc/Sec: ", NULL, FRAME_SUNKEN | JUSTIFY_LEFT);
 
-    new FXTextField(statusbar,5,new FXDataTarget(SimOpts.CycSec),
+    new FXTextField(statusbar,7,new FXDataTarget(SimOpts.CycSec),
             FXDataTarget::ID_VALUE,
             TEXTFIELD_REAL|JUSTIFY_LEFT|LAYOUT_CENTER_Y|FRAME_SUNKEN|LAYOUT_CENTER_X|FRAME_THICK|LAYOUT_FILL_ROW);
     
@@ -39,7 +39,7 @@ void StatusBar(MainWindow *object)
 
     new FXLabel(statusbar, "Cycles: ", NULL, FRAME_SUNKEN | JUSTIFY_LEFT);
 
-    new FXTextField(statusbar,9,new FXDataTarget((FXulong &) SimOpts.TotRunCycle),
+    new FXTextField(statusbar,14,new FXDataTarget((FXulong &) SimOpts.TotRunCycle),
             FXDataTarget::ID_VALUE,
             TEXTFIELD_REAL|JUSTIFY_LEFT|LAYOUT_CENTER_Y|FRAME_SUNKEN|LAYOUT_CENTER_X|FRAME_THICK|LAYOUT_FILL_ROW);
 }

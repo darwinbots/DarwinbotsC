@@ -13,7 +13,6 @@ Class containing all the info for robots
 #include <fx.h>
 
 using namespace std;
-using namespace Math3D;
 
 vector<Robot *> rob(5000, (Robot *)NULL);
 int MaxRobs; //how far into the robot array to go
@@ -60,9 +59,10 @@ void Robot::Setup(datispecie *myspecies)
 	this->Body = (float)myspecies->body;
     if(this->Body <= 0)
         this->Body = 1000;
-    this->color = Vector4(float(FXREDVAL(myspecies->color))   / 255.0f,
-                          float(FXGREENVAL(myspecies->color)) / 255.0f,
-                          float(FXBLUEVAL(myspecies->color))  / 255.0f);    
+    
+    this->color = Vector3f(float(FXREDVAL(myspecies->color))   / 255.0f,
+                           float(FXGREENVAL(myspecies->color)) / 255.0f,
+                           float(FXBLUEVAL(myspecies->color))  / 255.0f);    
 
 	this->UpdateRadius();
 	this->UpdateMass();
@@ -187,8 +187,6 @@ void Robot::UpdateAim()
 
 void Robot::UpdatePosition()
 {
-	Vector4 temp;
-  
 	if ((*this)[fixpos] > 0) Fixed = true;
 	else Fixed = false;
 	
@@ -204,7 +202,7 @@ void Robot::UpdatePosition()
 	(*this)[dirright] = 0;
 	(*this)[dirleft] = 0;
 	
-	(*this)[velscalar] = iceil(Length3(this->vel));
+	(*this)[velscalar] = iceil(this->vel.Length());
 	(*this)[velup] = iceil(vel * aimvector); //dot product of direction
 	(*this)[veldn] = -(*this)[velup];
 	(*this)[veldx] = iceil((vel % aimvector)); //the magnitude for a 2D vector crossed in 3D is the Z element
@@ -565,6 +563,7 @@ bool Robot::KillRobot()
     rob[counter] = NULL;
     
 	RemoveAllTies();
+    Engine.EyeGridRemoveDeadBot(this);
 	
     //remember that shots may still exist that think of us as the parents
 	//make poff
@@ -654,7 +653,7 @@ void Robot::DuringTurn()
 void Robot::PostTurn()
 {
 	this->DNA->Mutate(false); //<--- mutating by point cycle
-	//BotDNAManipulation t <--- Things like delgene, making viruses, etc.
+	//this->BotDNAManipulation t <--- Things like delgene, making viruses, etc.
     this->Construction();
 	this->ShotManagement();
 	this->BodyManagement();
@@ -673,6 +672,12 @@ void Robot::TurnCleanup()
 void Robot::Reproduce()
 {
     this->Reproduction();
+}
+
+void Robot::CheckVision()
+{
+    //this->BasicProximity(); //O(n^2)
+    this->EyeGridProximity(); //Uses uniform grids to achieve a (supposed) O(n)
 }
 
 void Robot::TurnEnd()
@@ -697,8 +702,8 @@ void Robot::TurnEnd()
 Robot* Robot::Split(float percentage)
 {
 	long sondist;
-	Vector4 babypos;
-	Vector4 thispos;
+	Vector3f babypos;
+	Vector3f thispos;
 
 	if( Wall == true || Corpse == true || Dead == true)
 		return NULL;
@@ -775,7 +780,7 @@ Robot* Robot::Split(float percentage)
 	baby->UpdateRadius();
 
 	sondist = long(this->radius + baby->radius);
-	Vector4 vel = this->pos - this->opos;
+	Vector3f vel = this->pos - this->opos;
     
     this->pos = this->pos - percentage * sondist * this->aimvector;
 	baby->pos = this->pos + float(sondist) * this->aimvector;
@@ -816,8 +821,8 @@ void Robot::SetMems()
 
 	(*this)[masssys] = iceil(this->mass * 100);
 
-	Vector4 vel = this->pos - this->opos;
-    (*this)[velscalar] = iceil(Length3(vel));
+	Vector3f vel = this->pos - this->opos;
+    (*this)[velscalar] = iceil(vel.Length());
 	(*this)[velup] = iceil(vel * this->aimvector); //dot product of direction
 	(*this)[veldn] = -(*this)[velup];
 	(*this)[veldx] = iceil(vel % this->aimvector); //the magnitude for a 2D vector crossed in 3D is the Z element

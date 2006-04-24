@@ -69,7 +69,7 @@ struct SimOptions: PhysicsConstants
     datispecie Specie[50];		//datispecie
     unsigned int FieldSize;     //unsigned int
     
-    Vector4 FieldDimensions;	//Vector4
+    Vector3f FieldDimensions;	//Vector4
 
     unsigned int MaxPopulation; //unsigned int
     unsigned int MinVegs;		//unsigned int

@@ -13,6 +13,7 @@ void DrawTies(bool Perimeter);
 void DrawEyeField(Robot *me);
 void DrawEyes();
 void DrawSelectHalo();
+void DrawEyeGrid();
 
 long MainWindow::DrawScene()
 {
@@ -68,7 +69,8 @@ void DrawWorld(double width, double height)
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
 
-    DrawEyeField(rob[0]);
+    if(CurrBotUserSelected > 0)
+        DrawEyeField(rob[CurrBotUserSelected]);
     
     glBegin(GL_LINE_LOOP);
         glColor3f(1.0f,1.0f,1.0f);
@@ -77,6 +79,8 @@ void DrawWorld(double width, double height)
         glVertex3f(SimOpts.FieldDimensions.x(), SimOpts.FieldDimensions.y(),0);
         glVertex3f(0, SimOpts.FieldDimensions.y(), 0);
     glEnd();
+
+    DrawEyeGrid();
     
     DrawTies(false);
     DrawTies(true);    
@@ -106,8 +110,6 @@ void DrawRobots()
 
             glColor3f(rob[x]->color.x(), rob[x]->color.y(), rob[x]->color.z());
             CreateCircle(rob[x]->findpos(), rob[x]->rad(), 8);
-            
-            
         }
     }
 }
@@ -144,11 +146,11 @@ void DrawTies(bool Perimeter)
                    rob[x]->Ties[y]->FindOther(rob[x])->AbsNum < rob[x]->AbsNum)
                 {
                     
-                    Vector4 otherpos = rob[x]->Ties[y]->FindOther(rob[x])->findpos();
-                    Vector4 AntiAB = rob[x]->findpos() - otherpos;
-                    AntiAB /= Length3(AntiAB);
+                    Vector3f otherpos = rob[x]->Ties[y]->FindOther(rob[x])->findpos();
+                    Vector3f AntiAB = rob[x]->findpos() - otherpos;
+                    AntiAB /= AntiAB.Length();
                     AntiAB.set(AntiAB.y(), -AntiAB.x(), 0);
-                    Vector4 point;
+                    Vector3f point;
 
                     float myrad=15, yourrad=15;
 
@@ -160,9 +162,9 @@ void DrawTies(bool Perimeter)
                     
                     if(!Perimeter)
                     {
-                        Vector4 color = (rob[x]->color + 
-                                         rob[x]->Ties[y]->FindOther(rob[x])->color + 
-                                         Vector4(1,1,1)) / 3;
+                        Vector3f color = (rob[x]->color + 
+                                          rob[x]->Ties[y]->FindOther(rob[x])->color + 
+                                          Vector3f(1,1,1)) / 3;
                         glColor3f(color.x(), color.y(), color.z());
 
                         glBegin(GL_QUADS);
@@ -179,8 +181,8 @@ void DrawTies(bool Perimeter)
                     else
                     {
 
-                        Vector4 color = (rob[x]->color + 
-                                         rob[x]->Ties[y]->FindOther(rob[x])->color) / 3;
+                        Vector3f color = (rob[x]->color + 
+                                          rob[x]->Ties[y]->FindOther(rob[x])->color) / 3;
                         glColor3f(color.x(), color.y(), color.z());
 
                         glBegin(GL_LINES);
@@ -307,6 +309,21 @@ void Robot::DrawRobotEye()
                  (this->pos + this->aimvector * this->radius).z());
     gluDisk(quadratic, 0, 3.75, 16, 1);
     glPopMatrix();
+}
+
+void DrawEyeGrid()
+{
+    for(unsigned int x = 0; x < ceil(SimOpts.FieldDimensions / GRID_DIM).x(); x++)
+        for(unsigned int y = 0; y < ceil(SimOpts.FieldDimensions / GRID_DIM).y(); y++)
+        {
+            glColor3f(1,0,0);
+            glBegin(GL_LINE_LOOP);
+                glVertex3f(float(x) * GRID_DIM,     float(y) * GRID_DIM       , 0);
+                glVertex3f(float(x+1) * GRID_DIM,   float(y) * GRID_DIM       , 0);
+                glVertex3f(float(x+1) * GRID_DIM,   float(y+1) * GRID_DIM   , 0);
+                glVertex3f(float(x) * GRID_DIM,     float(y+1) * GRID_DIM   , 0);
+            glEnd();
+        }
 }
 
 

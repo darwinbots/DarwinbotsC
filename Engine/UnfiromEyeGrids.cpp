@@ -1,3 +1,4 @@
+#include "UniformEyeGrids.h"
 #include "Robot.h"
 
 /*******************************
@@ -11,79 +12,141 @@ linked list for every grid he can see.
 
 During eye tests, check every bot against the cell(s) it's presently in
 to see what bots can see it.  Since bots have radius and aren't just single points,
-bots may need to test multiple 
+bots may need to test multiple grids
 *//////////////////////////////////////////
-
-#define GRID_DIM 1440 //this is the eye sight range, which is capped here
-
-class EyeGrid_Class
-{
-    list<Robot *> **Grid;
-    Vector4 Dim;
-
-    public:
-    Setup(Vector4 Dimensions);    
-    EyeGrid_Class();
-    Insert(Robot *bot);
-    Remove(Robot *bot, bool opos = false);
-    Move(Robot *bot);
-        
-}EyeGrid;
-
 EyeGrid_Class::EyeGrid_Class()
 {
-    Grid = NULL;
-    Dim.set(-1,-1,-1);
 }
 
-EyeGrid_Class::Setup(Vector4 Dimensions)
+//call this whenever we either reset the sim
+//or change dimensions
+EyeGrid_Class::Setup(Vector3f Dimensions)
 {
-    if(Grid != NULL)
-    {
-        for(int y = 0; y < Dim.y(); y++)
-            delete Grid[y];
-
-        delete Grid;
-    }    
+    Grid.resize((int)Dimensions.x());
     
-    Grid = new list<Robot *>*[(int)Dimensions.y()];    
-
-    for(int y = 0; y < Dimensions.y(); y++)
-        Grid[y] = new list<Robot *>[(int)Dimensions.x()];
-
-    Dim = Dimensions;
+    for(unsigned int x = 0; x < Grid.size(); x++)
+    {
+        Grid[x].resize((int)Dimensions.y());
+    }
 }
 
-EyeGrid_Class::Insert(Robot *bot)
+bool EyeGrid_Class::OutOfBounds(const Vector3f &GridIndex)
 {
-    Vector4 grid = floorV(bot->findpos() / GRID_DIM);
+    if(GridIndex.x() < 0 || GridIndex.x() >= Grid.size())
+        return true;
 
-    Grid[(int)grid.x()][(int)grid.y()].push_back(bot);
+    if(GridIndex.y() < 0 || GridIndex.y() >= Grid[0].size())
+        return true;
+
+    return false;
 }
 
-EyeGrid_Class::Remove(Robot *bot, bool opos)
+//Insert bot into grid GridIndex
+EyeGrid_Class::Insert(Robot *bot, Vector3f GridIndex)
 {
-    Vector4 pos;
+    if(OutOfBounds(GridIndex))
+        return false;
 
-    if(opos)
-        pos = bot->findopos();
-    else
-        pos = bot->findpos();
+    Grid[(int)GridIndex.x()][(int)GridIndex.y()].push_back(bot);
+    
+    return true;
+}
 
-    Vector4 grid = floorV(pos / GRID_DIM);
-    Grid[(int)grid.x()][(int) grid.y()].remove(bot);
+//Check what grids the bot can see and insert it into all such grids
+EyeGrid_Class::Insert(Robot *me)
+{
+    Vector3f GridCenter = floor(me->findpos() / GRID_DIM);
+
+    Vector3f xBounds(-1, 1), yBounds(-1, 1);
+    
+    for(int x = (int)xBounds[0]; x <= (int)xBounds[1]; x++)
+        for(int y = (int)yBounds[0]; y <= (int)yBounds[1]; y++)
+            Insert(me, GridCenter + Vector3f((float)x, (float)y));
+}
+
+EyeGrid_Class::Remove(Robot *bot, Vector3f GridCenter)
+{
+    Vector3f pos;
+
+    for(int x = -1; x <= 1; x++)
+        for(int y = -1; y <= 1; y++)
+        {
+            Vector3f GridIndex = GridCenter + Vector3f((float)x, (float)y);
+
+            if(OutOfBounds(GridIndex))
+                continue;
+            
+            Grid[(int)GridCenter.x() + x][(int)GridCenter.y() + y].remove(bot);
+        }
 }
 
 EyeGrid_Class::Move(Robot *bot)
 {
-    if(floorV(bot->findpos()  / GRID_DIM) ==
-       floorV(bot->findopos() / GRID_DIM))
-    {
-        return 0; //we haven't moved enough 
-    }
+    if(!bot->View)
+        return 0;
+    
+    Vector3f GridCenter;
+    Vector3f leftover;
+    Vector3f xBound, yBound;
 
-    Remove(bot, true);
-    Insert(bot);
+    GridCenter = floor(bot->findpos() / GRID_DIM);
+    leftover = bot->findpos() - GridCenter * GRID_DIM;
+    
+    if(leftover.x() < GRID_DIM / 2)
+        xBound(0) = -1, xBound(1) = 0;
+    else
+        xBound(1) = 1, xBound(0) = 0;
+    
+    if(leftover.y() < GRID_DIM / 2)
+        yBound(0) = -1, yBound(1) = 0;
+    else
+        yBound(1) = 1, yBound(0) = 0;
+
+    Remove(bot, GridCenter);
+    for(int x = (int)xBound(0); x <= (int)xBound(1); x++)
+        for(int y = (int)yBound(0); y <= (int)yBound(1); y++)
+            Insert(bot, GridCenter + Vector3f((float)x, (float)y));
 
     return 1;
+}
+
+//Modifies BotList to contain a list of all bots that can potentially see this bot.
+//The bots returned will still need to be checked by CompareRobots
+EyeGrid_Class::WhatCanSeeMe(Robot *me, list<Robot *> &BotList)
+{
+    Vector3f GridCenter = floor(me->findpos() / GRID_DIM);
+    Vector3f LeftOver = me->findpos() - GridCenter * GRID_DIM;
+    Vector3f xBounds, yBounds;
+    list<Robot *> *InsertMe;
+
+    xBounds.set(0,0,0);
+    yBounds.set(0,0,0);
+
+    if(LeftOver.x() - me->rad() < 0)
+        xBounds(0) = -1; //check out left hand side
+    if(LeftOver.x() + me->rad() >= GRID_DIM)
+        xBounds(1) = 1; //check out right hand side
+    if(LeftOver.y() + me->rad() >= GRID_DIM)
+        yBounds(1) = 1; //check out top side
+    if(LeftOver.y() - me->rad() < 0)
+        yBounds(0) = -1 ;//check out bottom side
+
+    Vector3f GridIndex;
+    for(int x = (int)xBounds[0]; x <= (int)xBounds[1]; x++)
+        for(int y = (int)yBounds[0]; y <= (int)yBounds[1]; y++)
+        {
+            GridIndex(0) = GridCenter.x() + x;
+            GridIndex(1) = GridCenter.y() + y;
+
+            //Don't check out of bounds
+            if(OutOfBounds(GridIndex))
+                continue;
+            
+            InsertMe = &Grid[(int)GridIndex[0]][(int)GridIndex[1]];
+            BotList.insert(BotList.end(), InsertMe->begin(), InsertMe->end());
+        }
+
+    //remove duplicates from list
+    BotList.sort();
+    BotList.unique();
 }

@@ -1,14 +1,12 @@
 #ifndef PRIMITIVES_H
 #define PRIMITIVES_H
 
-#include "../Common/Math3d.h"
+#include "../Common/Vectors.h"
 
-using namespace Math3D;
-
-void CreateCircle(Vector4 c, float radius, long divisions);
-void CreateSphere(Vector4 c,float r,int n = 5);
-void CreatePoint(Vector4 c, float bigness);
-void CreateBox(Vector4 min, Vector4 max);
-void CreateCylinder(Vector4 p1, Vector4 p2, float radius);
+void CreateCircle(Vector3f c, float radius, long divisions);
+void CreateSphere(Vector3f c,float r,int n = 5);
+void CreatePoint(Vector3f c, float bigness);
+void CreateBox(Vector3f min, Vector3f max);
+void CreateCylinder(Vector3f p1, Vector3f p2, float radius);
 
 #endif

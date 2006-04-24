@@ -7,7 +7,7 @@
 
 class Tie;
 
-#include "../Common/Math3D.h"
+#include "../Common/Vectors.h"
 #include "Robot.h"
 class Robot;
 #include "CommandQueue.h"
@@ -71,7 +71,7 @@ class Tie
     const Robot *Receiver() { return receiver; }
     Robot *FindOther(Robot *me);
     CommandQueueClass &FindOtherCQ(Robot *me);
-    Vector4 Tie::SpringForces(Robot *caller);
+    Vector3f Tie::SpringForces(Robot *caller);
     void Tie::UpdateTie();
     void Tie::WriteMem(Robot *me, __int16 loc, __int16 value);
     void Tie::ShareSubstance(Robot *me, substance_ID ID, float amount);
@@ -81,7 +81,7 @@ class Tie
         return Phase;
     }
 
-    Vector4 FindVector();
+    Vector3f FindVector();
     __int16 Tie::FindAngle(Robot *me);
 
     void ApplyCQ();

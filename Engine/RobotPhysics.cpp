@@ -20,7 +20,7 @@ video game literature.
 *****************************************************/
 
 #include "Robot.h"
-#include "..\Common\Math3D.h"
+#include "..\Common\Vectors.h"
 #include "..\Common\Random.h"
 
 #define CUBE(a) (a*a*a)
@@ -91,12 +91,12 @@ float Robot::BotCollisionsPos()
     {
         if(rob[x] != NULL && rob[x]->AbsNum < this->AbsNum)
         {
-            Vector4 normal = rob[x]->pos - this->pos;
+            Vector3f normal = rob[x]->pos - this->pos;
             
             float mindist = this->radius + rob[x]->radius;
             mindist *= mindist;
                         
-            float currdist = LengthSquared3(normal);
+            float currdist = normal.LengthSquared();
             
             if(currdist < mindist)
             {
@@ -130,16 +130,16 @@ float Robot::BotCollisionsPos()
 
 void Robot::VelocityCap()
 {
-    if (LengthSquared3(this->vel) > SimOpts.MaxSpeed * SimOpts.MaxSpeed)
-        this->vel = Normalize3(this->vel) * (float)SimOpts.MaxSpeed;
+    if (this->vel.LengthSquared() > SimOpts.MaxSpeed * SimOpts.MaxSpeed)
+        this->vel = this->vel.Normal() * (float)SimOpts.MaxSpeed;
 }
 
 void Robot::EdgeCollisions()
 {
     //The Edges are perfectly damped springs that repel bots
         
-    Vector4 dist;
-    Vector4 radvec(this->radius, this->radius, 0);
+    Vector3f dist;
+    Vector3f radvec(this->radius, this->radius);
     
     dist = 
     VectorMin(
@@ -223,11 +223,11 @@ void Robot::BotCollisionsVel()
     {
         if(rob[x] != NULL && rob[x]->AbsNum < this->AbsNum)
         {
-            Vector4 normal = rob[x]->pos - this->pos;
+            Vector3f normal = rob[x]->pos - this->pos;
             float mindist = this->radius + rob[x]->radius;
             mindist *= mindist;
                         
-            float currdist = LengthSquared3(normal);
+            float currdist = normal.LengthSquared();
             
             if(currdist < mindist)
             {
@@ -238,13 +238,13 @@ void Robot::BotCollisionsVel()
                 
                 normal /= sqrtf(currdist); //normalize normal vector
 
-                Vector4 V1 = (this->vel * normal) * normal;
-                Vector4 V2 = (rob[x]->vel * normal) * normal;
+                Vector3f V1 = (this->vel * normal) * normal;
+                Vector3f V2 = (rob[x]->vel * normal) * normal;
 
-                Vector4 V1f = ((e + 1.0f) * M2 * V2 + V1 * (M1 - e * M2))/
+                Vector3f V1f = ((e + 1.0f) * M2 * V2 + V1 * (M1 - e * M2))/
                             (M1 + M2);
                 
-                Vector4 V2f = ((e + 1.0f) * M1 * V1 + V2 * (M2 - e * M1))/
+                Vector3f V2f = ((e + 1.0f) * M1 * V1 + V2 * (M2 - e * M1))/
                             (M1 + M2);
                 
                 this->vel = V1f + (this->vel - V1);
@@ -259,7 +259,7 @@ void Robot::BotCollisionsVel()
 void Robot::VoluntaryForces()
 {
     float EnergyCost, mult;
-    Vector4 NewAccel, dir;
+    Vector3f NewAccel, dir;
     
     if (this->Corpse == true)
         return;
@@ -280,7 +280,7 @@ void Robot::VoluntaryForces()
     //Impulse is the integral of Force over time.
     
     this->Impulse += NewAccel * SimOpts.MovingEfficiency / 100.0f;
-    EnergyCost = Length3(dir) * SimOpts.Costs[MOVECOST];
+    EnergyCost = dir.Length() * SimOpts.Costs[MOVECOST];
     this->ChargeNRG(EnergyCost);
     
     (*this)[dirup] =
@@ -291,7 +291,7 @@ void Robot::VoluntaryForces()
 
 void Robot::GravityForces()
 {
-    Vector4 temp(0,1,0);
+    Vector3f temp(0,1,0);
     
     this->Impulse -= (this->mass * SimOpts.YGravity) * temp;
 }
@@ -300,7 +300,7 @@ void Robot::BrownianForces()
 {
     float Impulse = Gauss(SimOpts.Brownian / 2);
     float RandomAngle = frnd(1, 1256) / 200.0f;
-    Vector4 temp(cosf(RandomAngle) * Impulse, sinf(RandomAngle) * Impulse);    
+    Vector3f temp(cosf(RandomAngle) * Impulse, sinf(RandomAngle) * Impulse);    
     this->Impulse += temp;
 }
 
@@ -311,7 +311,7 @@ void Robot::BouyancyForces()
 
     double Impulse = -SimOpts.Density * CUBE((double)this->radius)
                                       * 4.0 / 3.0 * double(PI) * double(SimOpts.YGravity);
-    Vector4 temp(0, float(Impulse), 0);
+    Vector3f temp(0.0f, float(Impulse), 0.0f);
     this->Impulse += temp;
 }
 
@@ -321,8 +321,8 @@ void Robot::PlanetEaters()
     {
         if(rob[x] != NULL && rob[x]->AbsNum < this->AbsNum)
         {
-            Vector4 PosDiff = rob[x]->pos - this->pos;
-            float mag = LengthSquared3(PosDiff);
+            Vector3f PosDiff = rob[x]->pos - this->pos;
+            float mag = PosDiff.LengthSquared();
             if(mag != 0)
             {
                 float force = (SimOpts.PlanetEatersG * rob[x]->mass * this->mass) / (mag);
@@ -352,9 +352,9 @@ void Robot::Friction()
     //the below uses the min of vel and ZGravity * CoefficientKinetic for
     //stability.  Bots that begin to reach 0 will still overjump 0 a little
     //bit, but it's a stable oscillation which approaches 0.
-    if(LengthSquared3(vel) > 0)
+    if(vel.LengthSquared() > 0)
     {
-        float length = Length3(vel);
+        float length = vel.Length();
         if(SimOpts.ZGravity * SimOpts.CoefficientKinetic <= length)
             vel -= SimOpts.ZGravity * SimOpts.CoefficientKinetic * (vel / length);
         else
@@ -376,26 +376,26 @@ void Robot::SpringForces()
         {
             if(Ties[x]->FindOther(this)->AbsNum < AbsNum)
             {
-                Vector4 Imp = Ties[x]->SpringForces(this);
+                Vector3f Imp = Ties[x]->SpringForces(this);
                 Impulse += Imp;
                 Ties[x]->FindOther(this)->Impulse -= Imp;
             }
         }
 }
 
-Vector4 Tie::SpringForces(Robot *caller)
+Vector3f Tie::SpringForces(Robot *caller)
 {
-    Vector4 dist = caller->pos - FindOther(caller)->pos;
+    Vector3f dist = caller->pos - FindOther(caller)->pos;
 
     this->NaturalLength = max(sender->rad() + receiver->rad(), this->NaturalLength);
 
-    if(LengthSquared3(dist) == NaturalLength * NaturalLength)
-        return Vector4(0,0,0);
+    if(dist.LengthSquared() == NaturalLength * NaturalLength)
+        return Vector3f(0,0,0);
 
-    float length = Length3(dist);
+    float length = dist.Length();
     dist /= length;
 
-    Vector4 Impulse(0,0,0);
+    Vector3f Impulse(0,0,0);
     
     Impulse += k * (NaturalLength - length) * dist;
     Impulse += dist * (caller->vel - FindOther(caller)->vel) * -b * dist;

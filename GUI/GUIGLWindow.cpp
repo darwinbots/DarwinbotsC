@@ -3,7 +3,6 @@
 #include <gl/glu.h>
 #include "../Engine/Globals.h"
 #include "../Engine/Robot.h"
-#include "../Common/Math3d.h"
 #include "../GFX/DrawWorld.h"
 #include "../GFX/Camera.h"
 #include "../Engine/Engine.h"

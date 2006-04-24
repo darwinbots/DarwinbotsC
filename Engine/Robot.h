@@ -5,13 +5,10 @@
 #pragma warning(disable : 4786)
 #endif
 
-//we stick this up here or else we get a semi-infinite loop of including between this and tie.h
-//class Robot;
-
 #include <iostream>
 #include <vector>
 #include <cmath>
-#include "../Common/Math3D.h"
+#include "../Common/Vectors.h"
 #include "../Common/Random.h"
 #include "ObjectPrimitive.h"
 #include "Tie.h"
@@ -54,15 +51,15 @@ private:
     
 	float aim;								// aim angle
     float AngularMomentum;
-    Vector4 aimvector;                      // the unit vector for aim
+    Vector3f aimvector;                      // the unit vector for aim
 
 	TieList Ties;                           //linked list of ties
     __int16 currtie;                        //current port or phase that the bot is set to
 	
 	//Physics
-	Vector4 ovel;
-    Vector4 Impulse;                        // impulses that get divided by mass to get forces
-    Vector4 oldImpulse;
+	Vector3f ovel;
+    Vector3f Impulse;                        // impulses that get divided by mass to get forces
+    Vector3f oldImpulse;
 	float ImpulseStatic;					// static force scalar (always opposes current forces)
     
 public:
@@ -166,11 +163,12 @@ private:
 	void Taste();
 	void EraseSenses();
 	Robot *BasicProximity();
+    void EyeGridProximity();
 	void WriteSenses();
 	void WriteRefVars(const Robot *lastopp);
 	void occurrList();
 	inline void CompareRobots(Robot *const other, const unsigned int field);
-	unsigned int EyeCells(const Vector4 &ab);
+	unsigned int EyeCells(const Vector3f &ab);
 
     //physics
     void NetForces();
@@ -216,7 +214,7 @@ public:
                 View(false),
                 currtie(0)
     {
-        pos = opos = vel = Vector4(0,0,0);
+        pos = opos = vel = Vector3f(0,0,0);
         age = 0;
         memset(&mem[0], 0, sizeof(mem));
         memset(&occurr[0], 0, sizeof(occurr));
@@ -241,6 +239,7 @@ public:
 	void TurnCleanup();
     void Reproduce();
 	void TurnEnd();
+    void CheckVision();
 	__int16 &operator[](const unsigned int i)
 	{
 		return mem[i-1];
@@ -272,12 +271,12 @@ public:
         return radius;
     }
 
-    const Vector4 &findpos() const
+    const Vector3f &findpos() const
     {
         return this->pos;
     }
 
-    const Vector4 &findopos() const
+    const Vector3f &findopos() const
     {
         return this->opos;
     }

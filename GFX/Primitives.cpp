@@ -2,12 +2,10 @@
 #include <gl/gl.h>
 #include <gl/glu.h>
 
-#include "../Common/Math3d.h"
+#include "../Common/Vectors.h"
 #include "../Engine/Globals.h"
 
-using namespace Math3D;
-
-void CreatePoint(Vector4 c, float bigness)
+void CreatePoint(Vector3f c, float bigness)
 {
 	glPointSize(bigness);
 	glBegin(GL_POINTS);
@@ -15,7 +13,7 @@ void CreatePoint(Vector4 c, float bigness)
 	glEnd();
 }
 
-void CreateCircle(Vector4 c, float radius, long divisions)
+void CreateCircle(Vector3f c, float radius, long divisions)
 {
 	float angle;
 
@@ -30,11 +28,11 @@ void CreateCircle(Vector4 c, float radius, long divisions)
 	glEnd();
 }
 
-void CreateSphere(Vector4 c,float r,int n = 5)
+void CreateSphere(Vector3f c,float r,int n = 5)
 {
    float i,j;
    float theta1,theta2,theta3, jalt, ialt;
-   Vector4 e,p;
+   Vector3f e,p;
 
    if (n < 0)
 	 n = -n;
@@ -91,7 +89,7 @@ void CreateSphere(Vector4 c,float r,int n = 5)
 }
 
 // Draws a simple box using the given corners
-void CreateBox(Vector4 min, Vector4 max) {
+void CreateBox(Vector3f min, Vector3f max) {
   glBegin(GL_TRIANGLE_STRIP);
     glNormal3f(0.,0.,-1.);
     glVertex3f(min.x(), min.y(), min.z());
@@ -141,11 +139,11 @@ void CreateBox(Vector4 min, Vector4 max) {
   glEnd();
   }
 
-void CreateCylinder(Vector4 p1, Vector4 p2, float radius)
+void CreateCylinder(Vector3f p1, Vector3f p2, float radius)
 {
     //I make no claims that this is the best way
     
     GLUquadricObj *quadric = gluNewQuadric();
-    gluCylinder(quadric,radius,radius,Length3(p2 - p1),32,32);	// Draw Our Cylinder   
+    gluCylinder(quadric,radius,radius,(p2 - p1).Length(),32,32);	// Draw Our Cylinder   
     gluDeleteQuadric(quadric);
 }

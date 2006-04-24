@@ -22,8 +22,8 @@ void Engine_Class::UpdateSim(void)
     //_really_ thinking about how it changes the
     //order of other functions	
 
-    this->ExecuteDNA();
-    this->ExecuteShots();
+    this->ExecuteDNA();  //O(n)
+    this->ExecuteShots(); //Checks every shot against every bot O(mn)
 
     ////////////////////
 	//UpdateBots
@@ -54,6 +54,8 @@ void Engine_Class::UpdateSim(void)
     //or conversely, bot collisions have one of the bots moving 100%
     //of the distance
 
+    //O(n^2)
+    
     float maxoverlap;
     int loopcounter = 0;
     do
@@ -71,22 +73,26 @@ void Engine_Class::UpdateSim(void)
     
     }while(maxoverlap > 0.1f && loopcounter <= 5);
 
+    FORALLROBOTS ManipulateEyeGrid(rob[counter]);
+    
     //END CONSTRAINTS
     //END Physics steps
     
     FORALLROBOTS rob[counter]->DuringTurn();
-
+    
 	FORALLROBOTS rob[counter]->PostTurn();
-
+    
 	FORALLROBOTS rob[counter]->TurnCleanup();
-
+    
     FORALLROBOTS rob[counter]->Reproduce();
-
+    
 	RepopulateVeggies();
+    
+    FORALLROBOTS rob[counter]->CheckVision();
 	
 	//Write senses
 	FORALLROBOTS rob[counter]->TurnEnd();
-
+    
     //update cycle count
 	SimOpts.TotRunCycle++;
 }
@@ -130,6 +136,8 @@ void Engine_Class::SetupSim(void)
     MaxShots = -1;
 
 	this->LoadRobots();
+
+    EyeGrid.Setup(floor(SimOpts.FieldDimensions / GRID_DIM) + Vector3f(1,1,1));
 
 	//initalize the upload/download boxes for internet sharing
 
@@ -222,6 +230,21 @@ void Engine_Class::RepopulateVeggies()
         cooldown = SimOpts.RepopCooldown;
     }
 }
+
+Engine_Class::ManipulateEyeGrid(Robot *bot)
+{
+    EyeGrid.Move(bot);
+}
+
+Engine_Class::EyeGridRemoveDeadBot(Robot *bot)
+{
+    EyeGrid.Remove(bot, floor(bot->findopos() / GRID_DIM));
+}
+
+Engine_Class::WhatCanSeeMe(Robot *me, list<Robot *> &BotList)
+{
+    EyeGrid.WhatCanSeeMe(me, BotList);
+};
 
 void FindOpenSpace(Robot *me) //finds spot for robot in array, returns pointer to said robot
 {

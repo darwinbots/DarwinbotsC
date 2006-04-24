@@ -388,7 +388,7 @@ string &DNA_Class::text()
             if (Code[t] == DNA_START || Code[t] == DNA_ELSE)
                 gene++;
       
-            if (Code[t] == DNA_STOP)
+            if(Code[t] == DNA_STOP)
                 temp += "\n";
         }
         else

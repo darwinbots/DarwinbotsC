@@ -1,16 +1,14 @@
 #ifndef CAMERA_H
 #define CAMERA_H
 
-#include "../Common/Math3d.h"
+#include "../Common/Vectors.h"
 #include "../GUI/GUImain.h"
-
-using namespace Math3D;
 
 class CameraClass
 {
     private:
-    Vector4 POS;
-    Vector4 LOOKAT;
+    Vector3f POS;
+    Vector3f LOOKAT;
 
     public:
 
@@ -20,8 +18,8 @@ class CameraClass
     void Translate(float xvalue, float yvalue);
     void Rotate(float xvalue, float yvalue);
 
-    const Vector4 pos() {return POS;}
-    const Vector4 lookat() {return LOOKAT;}
+    const Vector3f pos() {return POS;}
+    const Vector3f lookat() {return LOOKAT;}
 };
 
 extern CameraClass MainCamera;

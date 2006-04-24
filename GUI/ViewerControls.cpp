@@ -113,13 +113,13 @@ int MainWindow::Selection(unsigned int MouseX, unsigned int MouseY)
     ActualX += SimOpts.FieldDimensions.x() * factorx;
     ActualY += SimOpts.FieldDimensions.y() * factory;
 
-    Vector4 ActualPos(ActualX, ActualY, 0);
+    Vector3f ActualPos(ActualX, ActualY, 0.0f);
 
     for(int x = 0; x <= MaxRobs; x++)
         if(rob[x] != NULL)
         {
-            Vector4 Delta = ActualPos - rob[x]->findpos();
-            if(LengthSquared3(Delta) <= rob[x]->rad() * rob[x]->rad())
+            Vector3f Delta = ActualPos - rob[x]->findpos();
+            if(Delta.LengthSquared() <= rob[x]->rad() * rob[x]->rad())
             {
                 return x;
             }

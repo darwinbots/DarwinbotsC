@@ -1,7 +1,5 @@
-#include "../Common/Math3D.h"
+#include "../Common/Vectors.h"
 #include "Robot.h"
-
-using namespace Math3D;
 
 const float TanLookup[5] = {
 0.0874886635f,
@@ -33,7 +31,7 @@ void Robot::FacingSun()
 //1 square root and 2 arctans taken
 void Robot::Touch(Robot *other, float distance)
 {
-	Vector4 dpos;
+	Vector3f dpos;
 	float angle;
 	float hitstrength;
 
@@ -70,7 +68,7 @@ void Robot::Touch(Robot *other, float distance)
 	
 	///////////////////////////////
 
-	hitstrength = Length3((other->pos - other->opos) - (this->pos - this->opos));
+	hitstrength = ((other->pos - other->opos) - (this->pos - this->opos)).Length();
 
 	(*this)[hit] = iceil(hitstrength * other->mass);
 	(*other)[hit] = iceil(hitstrength * this->mass);
@@ -147,15 +145,30 @@ Robot *Robot::BasicProximity()
 	{
 		if (rob[counter] != this)
 			CompareRobots(rob[counter], 12);
-	}
+	}   
 
 	return this->lastopp;
+}
+
+void Robot::EyeGridProximity()
+{
+    list<Robot *> BotList;
+    Robot *other;
+    
+    Engine.WhatCanSeeMe(this, BotList);
+
+    while(!BotList.empty())
+    {
+        other = BotList.front();
+        BotList.pop_front();
+        other->CompareRobots(this, 12);
+    }
 }
 
 void Robot::WriteSenses()
 {
 	FacingSun();
-	if (this->View && BasicProximity() != NULL)
+	if (View && lastopp != NULL)
 		WriteRefVars(this->lastopp);
 
 	(*this)[energy] = iceil(this->nrg);
@@ -219,8 +232,7 @@ void Robot::WriteRefVars(const Robot *lastopp)
 		(*this)[reffixed] = 0;
 
 	//these should be double checked
-    Vector4 vel = lastopp->vel - this->vel;
-    Vector4 aim = aimvector;
+    Vector3f vel = lastopp->vel - this->vel;
 	(*this)[refvelup] = iceil(vel * this->aimvector);
 	(*this)[refveldn] = -iceil(float((*this)[refvelup]));
 	
@@ -257,13 +269,13 @@ void Robot::CompareRobots(Robot *const other, const unsigned int field)
     
         if (other == NULL) return; //must be first to avoid unnecessary inits
 
-        Vector4 RelativePosition = VectorSub2D(other->pos, this->pos);
+        Vector3f RelativePosition = other->pos.VectorSub2D(this->pos);
 	    float discheck = field * RobSize + other->radius;
 	    //below checks the bounding square
         if (fabs(RelativePosition.x())>discheck || fabs(RelativePosition.y())>discheck)
             return;
     
-    float magsquare = LengthSquared3(RelativePosition);
+    float magsquare = RelativePosition.LengthSquared();
     discheck = discheck * discheck;
 
 	//check circle distance
@@ -273,7 +285,7 @@ void Robot::CompareRobots(Robot *const other, const unsigned int field)
     float mag = sqrtf(magsquare);
     
     unsigned int eyecellD, eyecellC;
-    Vector4 ac, ad, PerpindicularLeft, PerpindicularRight;
+    Vector3f ac, ad, PerpindicularLeft, PerpindicularRight;
 	
     //ac and ad are to either end of the bot, while RelativePosition (ab) is to the center
 	//|ac| = |ad| = |ab|
@@ -313,7 +325,7 @@ void Robot::CompareRobots(Robot *const other, const unsigned int field)
 	}
 }
 
-unsigned int Robot::EyeCells(const Vector4 &ab)
+unsigned int Robot::EyeCells(const Vector3f &ab)
 {
 	float tantheta;
 	int sign;

@@ -1,19 +1,17 @@
 #ifndef OBJECTPRIMITIVE_H
 #define OBJECTPRIMITIVE_H
 
-#include "../Common/Math3D.h"
-
-using Math3D::Vector4;
+#include "../Common/Vectors.h"
 
 class ObjectPrimitive
 {
 	protected:
-	Vector4 pos, opos;
-    Vector4 vel;
+	Vector3f pos, opos;
+    Vector3f vel;
     unsigned long age;
 	
     public:
-    Vector4 color;
+    Vector3f color;
 };
 
 #endif

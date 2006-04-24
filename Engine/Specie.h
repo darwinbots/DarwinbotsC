@@ -2,10 +2,9 @@
 #define SPECIE_H
 
 #include <iostream>
-#include "../Common/Math3D.h"
+#include "../Common/Vectors.h"
 
 using namespace std;
-using namespace Math3D;
 
 struct MutationTypeInformationHolder
 {
@@ -59,7 +58,7 @@ struct datispecie
     bool Veg;
     bool Fixed;
     
-    Vector4 PosTopLeft, PosLowRight;
+    Vector3f PosTopLeft, PosLowRight;
     
     string Comment;
     
