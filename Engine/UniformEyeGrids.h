@@ -17,16 +17,16 @@ class EyeGrid_Class
 {
     #pragma warning(disable : 4786) //get rid of "identifier too long, name clipped" warning
     vector< vector< list<Robot *> > > Grid;
-    bool OutOfBounds(const Vector3f &GridIndex);
+    bool OutOfBounds(const Vector3i &GridIndex);
     
     public:
-    Setup(Vector3f Dimensions);
+    void EyeGrid_Class::Setup(Vector3i Dim);
     EyeGrid_Class();
-    Insert(Robot *bot, Vector3f GridIndex);
-    Insert(Robot *me);
-    Remove(Robot *bot, Vector3f GridCenter);
-    Move(Robot *bot);
-    WhatCanSeeMe(Robot *me, list<Robot *> &BotList);        
+    void Insert(Robot *bot, Vector3i GridIndex);
+    void Insert(Robot *me);
+    void Remove(Robot *bot, Vector3i GridCenter);
+    void Move(Robot *bot);
+    void WhatCanSeeMe(Robot *me, list<Robot *> &BotList);        
 };
 
 #endif

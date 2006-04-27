@@ -57,3 +57,4 @@ class EngineThread_Class : public FXThread
 }extern EngineThread;
 
 #endif
+

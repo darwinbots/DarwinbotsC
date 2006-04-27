@@ -137,7 +137,9 @@ void Engine_Class::SetupSim(void)
 
 	this->LoadRobots();
 
-    EyeGrid.Setup(floor(SimOpts.FieldDimensions / GRID_DIM) + Vector3f(1,1,1));
+    EyeGrid.Setup(Vector3i(int(SimOpts.FieldDimensions.x() / GRID_DIM),
+                           int(SimOpts.FieldDimensions.y() / GRID_DIM),
+                           int(SimOpts.FieldDimensions.z() / GRID_DIM)) + Vector3i(1,1));
 
 	//initalize the upload/download boxes for internet sharing
 
@@ -231,17 +233,19 @@ void Engine_Class::RepopulateVeggies()
     }
 }
 
-Engine_Class::ManipulateEyeGrid(Robot *bot)
+void Engine_Class::ManipulateEyeGrid(Robot *bot)
 {
     EyeGrid.Move(bot);
 }
 
-Engine_Class::EyeGridRemoveDeadBot(Robot *bot)
+void Engine_Class::EyeGridRemoveDeadBot(Robot *bot)
 {
-    EyeGrid.Remove(bot, floor(bot->findopos() / GRID_DIM));
+    EyeGrid.Remove(bot, Vector3i(int(bot->findopos().x() / GRID_DIM),
+                                 int(bot->findopos().y() / GRID_DIM),
+                                 int(bot->findopos().z() / GRID_DIM)));
 }
 
-Engine_Class::WhatCanSeeMe(Robot *me, list<Robot *> &BotList)
+void Engine_Class::WhatCanSeeMe(Robot *me, list<Robot *> &BotList)
 {
     EyeGrid.WhatCanSeeMe(me, BotList);
 };

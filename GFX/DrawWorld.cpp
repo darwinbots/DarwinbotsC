@@ -80,7 +80,7 @@ void DrawWorld(double width, double height)
         glVertex3f(0, SimOpts.FieldDimensions.y(), 0);
     glEnd();
 
-    DrawEyeGrid();
+    //DrawEyeGrid();
     
     DrawTies(false);
     DrawTies(true);    

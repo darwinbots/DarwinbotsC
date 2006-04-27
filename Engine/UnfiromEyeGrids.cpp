@@ -20,77 +20,78 @@ EyeGrid_Class::EyeGrid_Class()
 
 //call this whenever we either reset the sim
 //or change dimensions
-EyeGrid_Class::Setup(Vector3f Dimensions)
+void EyeGrid_Class::Setup(Vector3i Dim)
 {
-    Grid.resize((int)Dimensions.x());
+    Grid.resize(Dim.x());
     
     for(unsigned int x = 0; x < Grid.size(); x++)
     {
-        Grid[x].resize((int)Dimensions.y());
+        Grid[x].resize(Dim.y());
     }
 }
 
-bool EyeGrid_Class::OutOfBounds(const Vector3f &GridIndex)
+bool EyeGrid_Class::OutOfBounds(const Vector3i &GridIndex)
 {
-    if(GridIndex.x() < 0 || GridIndex.x() >= Grid.size())
+    if(GridIndex.x() < 0 || GridIndex.x() >= (int)Grid.size())
         return true;
 
-    if(GridIndex.y() < 0 || GridIndex.y() >= Grid[0].size())
+    if(GridIndex.y() < 0 || GridIndex.y() >= (int)Grid[0].size())
         return true;
 
     return false;
 }
 
 //Insert bot into grid GridIndex
-EyeGrid_Class::Insert(Robot *bot, Vector3f GridIndex)
+void EyeGrid_Class::Insert(Robot *bot, Vector3i GridIndex)
 {
     if(OutOfBounds(GridIndex))
-        return false;
+        return;
 
-    Grid[(int)GridIndex.x()][(int)GridIndex.y()].push_back(bot);
-    
-    return true;
+    Grid[GridIndex.x()][GridIndex.y()].push_back(bot);
 }
 
 //Check what grids the bot can see and insert it into all such grids
-EyeGrid_Class::Insert(Robot *me)
+void EyeGrid_Class::Insert(Robot *me)
 {
-    Vector3f GridCenter = floor(me->findpos() / GRID_DIM);
+    Vector3i GridCenter = Vector3i(int(me->findpos().x() / GRID_DIM),
+                                   int(me->findpos().y() / GRID_DIM),
+                                   int(me->findpos().z() / GRID_DIM));
 
-    Vector3f xBounds(-1, 1), yBounds(-1, 1);
+    Vector3i xBounds(-1, 1), yBounds(-1, 1);
     
-    for(int x = (int)xBounds[0]; x <= (int)xBounds[1]; x++)
-        for(int y = (int)yBounds[0]; y <= (int)yBounds[1]; y++)
-            Insert(me, GridCenter + Vector3f((float)x, (float)y));
+    for(int x = xBounds[0]; x <= (int)xBounds[1]; x++)
+        for(int y = yBounds[0]; y <= (int)yBounds[1]; y++)
+            Insert(me, GridCenter + Vector3i(x, y));
 }
 
-EyeGrid_Class::Remove(Robot *bot, Vector3f GridCenter)
+void EyeGrid_Class::Remove(Robot *bot, Vector3i GridCenter)
 {
-    Vector3f pos;
-
     for(int x = -1; x <= 1; x++)
         for(int y = -1; y <= 1; y++)
         {
-            Vector3f GridIndex = GridCenter + Vector3f((float)x, (float)y);
+            Vector3i GridIndex = GridCenter + Vector3i(x, y);
 
             if(OutOfBounds(GridIndex))
                 continue;
             
-            Grid[(int)GridCenter.x() + x][(int)GridCenter.y() + y].remove(bot);
+            Grid[GridCenter.x() + x][GridCenter.y() + y].remove(bot);
         }
 }
 
-EyeGrid_Class::Move(Robot *bot)
+void EyeGrid_Class::Move(Robot *bot)
 {
     if(!bot->View)
-        return 0;
+        return;
     
-    Vector3f GridCenter;
-    Vector3f leftover;
-    Vector3f xBound, yBound;
+    Vector3i xBound, yBound;
 
-    GridCenter = floor(bot->findpos() / GRID_DIM);
-    leftover = bot->findpos() - GridCenter * GRID_DIM;
+    Vector3i GridCenter(int(bot->findpos().x() / GRID_DIM),
+                        int(bot->findpos().y() / GRID_DIM),
+                        int(bot->findpos().z() / GRID_DIM));
+    
+    Vector3f leftover(bot->findpos().x() - GridCenter.x() * GRID_DIM,
+                      bot->findpos().y() - GridCenter.y() * GRID_DIM,
+                      bot->findpos().z() - GridCenter.z() * GRID_DIM);
     
     if(leftover.x() < GRID_DIM / 2)
         xBound(0) = -1, xBound(1) = 0;
@@ -103,24 +104,25 @@ EyeGrid_Class::Move(Robot *bot)
         yBound(1) = 1, yBound(0) = 0;
 
     Remove(bot, GridCenter);
-    for(int x = (int)xBound(0); x <= (int)xBound(1); x++)
-        for(int y = (int)yBound(0); y <= (int)yBound(1); y++)
-            Insert(bot, GridCenter + Vector3f((float)x, (float)y));
-
-    return 1;
+    for(int x = xBound(0); x <= xBound(1); x++)
+        for(int y = yBound(0); y <= yBound(1); y++)
+            Insert(bot, GridCenter + Vector3i(x, y));
 }
 
 //Modifies BotList to contain a list of all bots that can potentially see this bot.
 //The bots returned will still need to be checked by CompareRobots
-EyeGrid_Class::WhatCanSeeMe(Robot *me, list<Robot *> &BotList)
+void EyeGrid_Class::WhatCanSeeMe(Robot *me, list<Robot *> &BotList)
 {
-    Vector3f GridCenter = floor(me->findpos() / GRID_DIM);
-    Vector3f LeftOver = me->findpos() - GridCenter * GRID_DIM;
-    Vector3f xBounds, yBounds;
-    list<Robot *> *InsertMe;
+    Vector3i GridCenter(int(me->findpos().x() / GRID_DIM),
+                        int(me->findpos().y() / GRID_DIM),
+                        int(me->findpos().z() / GRID_DIM));
+    
+    Vector3f LeftOver(me->findpos().x() - GridCenter.x() * GRID_DIM,
+                      me->findpos().y() - GridCenter.y() * GRID_DIM,
+                      me->findpos().z() - GridCenter.z() * GRID_DIM);
 
-    xBounds.set(0,0,0);
-    yBounds.set(0,0,0);
+    Vector3i xBounds(0,0), yBounds(0,0);
+    list<Robot *> *InsertMe;
 
     if(LeftOver.x() - me->rad() < 0)
         xBounds(0) = -1; //check out left hand side
@@ -131,18 +133,17 @@ EyeGrid_Class::WhatCanSeeMe(Robot *me, list<Robot *> &BotList)
     if(LeftOver.y() - me->rad() < 0)
         yBounds(0) = -1 ;//check out bottom side
 
-    Vector3f GridIndex;
-    for(int x = (int)xBounds[0]; x <= (int)xBounds[1]; x++)
-        for(int y = (int)yBounds[0]; y <= (int)yBounds[1]; y++)
+    Vector3i GridIndex;
+    for(int x = xBounds[0]; x <= xBounds[1]; x++)
+        for(int y = yBounds[0]; y <= yBounds[1]; y++)
         {
-            GridIndex(0) = GridCenter.x() + x;
-            GridIndex(1) = GridCenter.y() + y;
+            GridIndex.set(GridCenter.x() + x, GridCenter.y() + y);
 
             //Don't check out of bounds
             if(OutOfBounds(GridIndex))
                 continue;
             
-            InsertMe = &Grid[(int)GridIndex[0]][(int)GridIndex[1]];
+            InsertMe = &Grid[GridIndex[0]][GridIndex[1]];
             BotList.insert(BotList.end(), InsertMe->begin(), InsertMe->end());
         }
 

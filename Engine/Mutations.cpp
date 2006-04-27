@@ -81,7 +81,7 @@ string &MutationType(int mode)
     float mutprob = 1.0f / ((float)Mutables. XXX .Prob * multiplier);  \
     if( powf(mutprob, (float)length()) > DBrand())
 
-DNA_Class::MutatePoint(float multiplier)
+void DNA_Class::MutatePoint(float multiplier)
 {
     BASICMUTATIONWORK(Point)
     {
@@ -96,7 +96,7 @@ DNA_Class::MutatePoint(float multiplier)
     DNAgenenum = -1;
 }
 
-DNA_Class::MutateDelta(float multiplier)
+void DNA_Class::MutateDelta(float multiplier)
 {
     BASICMUTATIONWORK(Delta)
     {
@@ -128,7 +128,7 @@ DNA_Class::MutateDelta(float multiplier)
     }    
 }
 
-DNA_Class::MutateCopyError(float multiplier)
+void DNA_Class::MutateCopyError(float multiplier)
 {
     BASICMUTATIONWORK(CopyError)
     {
@@ -142,7 +142,7 @@ DNA_Class::MutateCopyError(float multiplier)
     DNAgenenum = -1;
 }
 
-DNA_Class::MutateReversal(float multiplier)
+void DNA_Class::MutateReversal(float multiplier)
 {
     BASICMUTATIONWORK(Reversal)
     {
@@ -164,10 +164,9 @@ DNA_Class::MutateReversal(float multiplier)
 
         Reverse(location, location + ReversalLength - 1);
     }
-
-    return true;
 }
-DNA_Class::MutateTranslocation(float multiplier)
+
+void DNA_Class::MutateTranslocation(float multiplier)
 {
     BASICMUTATIONWORK(Translocation)
     {
@@ -189,11 +188,9 @@ DNA_Class::MutateTranslocation(float multiplier)
 
         Translocate(location, location + TranslocationLength - 1);
     }
-    return true;
-    
 }
 
-DNA_Class::MutateInsertion(float multiplier)
+void DNA_Class::MutateInsertion(float multiplier)
 {
     BASICMUTATIONWORK(Insertion)
     {
@@ -230,7 +227,8 @@ DNA_Class::MutateInsertion(float multiplier)
         }
     }    
 }
-DNA_Class::MutateAmplification(float multiplier)
+
+void DNA_Class::MutateAmplification(float multiplier)
 {
     BASICMUTATIONWORK(Amplification)
     {
@@ -262,7 +260,7 @@ DNA_Class::MutateAmplification(float multiplier)
             Code[z] = temp[y];
     }    
 }
-DNA_Class::MutateDeletion(float multiplier)
+void DNA_Class::MutateDeletion(float multiplier)
 {
     BASICMUTATIONWORK(Deletion)
     {
@@ -284,5 +282,4 @@ DNA_Class::MutateDeletion(float multiplier)
 
         Delete(location, location + DeleteLength - 1);
     }
-    return true;
 }

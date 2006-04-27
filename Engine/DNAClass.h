@@ -47,14 +47,14 @@ class DNA_Class
     bool Delete(int start, int end); //deletes blocks from start (inclusive) to end (inclusive)
     bool Reverse(unsigned int start, unsigned int end);
     bool Translocate(unsigned int start, unsigned int end);
-    MutatePoint(float multiplier);
-    MutateDelta(float multiplier);
-    MutateCopyError(float multiplier);
-    MutateReversal(float multiplier);
-    MutateTranslocation(float multiplier);
-    MutateInsertion(float multiplier);
-    MutateAmplification(float multiplier);
-    MutateDeletion(float multiplier);    
+    void MutatePoint(float multiplier);
+    void MutateDelta(float multiplier);
+    void MutateCopyError(float multiplier);
+    void MutateReversal(float multiplier);
+    void MutateTranslocation(float multiplier);
+    void MutateInsertion(float multiplier);
+    void MutateAmplification(float multiplier);
+    void MutateDeletion(float multiplier);    
 
     string &SysvarDetok(__int16 number);
     __int16 SysvarTok(const string &in);

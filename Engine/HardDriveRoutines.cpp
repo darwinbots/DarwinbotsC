@@ -528,10 +528,8 @@ bool GrabBool(istream &in)
 	return false;
 }
 
-#ifdef _MSC_VER
-//disable warnings about conversions
+//prevent warnigns about type castings
 #pragma warning(disable : 4244)
-#endif
 void ReadSettPre2_4(istream &in, SimOptions &Options)
 {
 	string line;
@@ -714,11 +712,8 @@ void ReadSettPre2_4(istream &in, SimOptions &Options)
     if (Options.MaxSpeed == 0)
         Options.MaxSpeed = 60;
 }
-
-#ifdef _MSC_VER
 //enable warnings about conversions
 #pragma warning(default: 4244)
-#endif
 
 bool BuildSysvars()
 {

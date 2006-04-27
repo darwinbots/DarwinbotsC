@@ -19,6 +19,8 @@ int EngineThread_Class::run()
         int x = 0;
         Engine.SetupSim();
 
+        SimOpts.CycSec = 0;
+
         while(true)
         {
             if(this->Flow.Counter() >= 0)

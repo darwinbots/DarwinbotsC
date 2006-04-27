@@ -15,6 +15,7 @@ class Engine_Class
     
     public:
 
+    void ExecuteDNA();
 	void ProgramInitialize(void);
     void UpdateSim(void);
 	void SetupSim(void);
@@ -27,17 +28,16 @@ class Engine_Class
         maindir=newDir;
     };
 
-    WhatCanSeeMe(Robot *me, list<Robot *> &BotList);
-    EyeGridRemoveDeadBot(Robot *bot);
+    void WhatCanSeeMe(Robot *me, list<Robot *> &BotList);
+    void EyeGridRemoveDeadBot(Robot *bot);
 	
 	private:
 	void LoadRobots(void);
-    void ExecuteDNA();
     void ExecuteShots();
     void RepopulateVeggies();
     string maindir;
     EyeGrid_Class EyeGrid;
-    ManipulateEyeGrid(Robot *bot);
+    void ManipulateEyeGrid(Robot *bot);
     
 }extern Engine;
 

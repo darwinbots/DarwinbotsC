@@ -2,7 +2,7 @@
 #pragma warning(disable : 4786)
 #endif*/
 
-//STILL UNDER DEVELOPMENT
+//Legacy code that might contain interesting bits
 
 #include <iostream>
 #include <vector>

@@ -23,29 +23,33 @@ BotDNAWindow_Class::BotDNAWindow_Class(Robot *bot, FXComposite *parent) :
 
     FXMatrix *LayoutMatrix = new FXMatrix(this, 1, MATRIX_BY_ROWS | LAYOUT_SIDE_TOP | LAYOUT_FILL);
 
-    /*//Setup Toolbar
+    //Setup Toolbar
     {
         FXDockSite *topdock = new FXDockSite(this);
 
         FXToolBarShell *dragshell = new FXToolBarShell(this, FRAME_RAISED);
         FXToolBar *toolbar = new FXToolBar(topdock, dragshell, FRAME_RAISED);
     
-        FXButton *button1 = new FXButton(toolbar, "Toggle Breakpoints", 0, this,
+        new FXButton(toolbar, "Compile DNA");
+        
+        //new FXSeparator(toolbar);
+        
+        new FXButton(toolbar, "Toggle Breakpoint", 0, this,
         	         ID_BREAKPOINT, LAYOUT_FIX_WIDTH | BUTTON_TOOLBAR | FRAME_RAISED | FRAME_THICK,
-                            0,0,100,0,10,10,0,0);
+                     0,0,100,0,10,10,0,0);
     
-        FXButton *button2 = new FXButton(toolbar, "Run to Breakpoint", 0, this,
+        new FXButton(toolbar, "Run to Breakpoint", 0, this,
         	         ID_CONTINUE, LAYOUT_FIX_WIDTH | BUTTON_TOOLBAR | FRAME_RAISED | FRAME_THICK,
-                            0,0,100,0,10,10,0,0);
+                     0,0,100,0,10,10,0,0);
     
-        FXButton *button3 = new FXButton(toolbar, "Step", 0, this,
+        new FXButton(toolbar, "Step", 0, this,
         	         ID_STEP, LAYOUT_FIX_WIDTH | BUTTON_TOOLBAR | FRAME_RAISED | FRAME_THICK,
-                            0,0,100,0,10,10,0,0);
+                     0,0,100,0,10,10,0,0);
     
-        FXButton *button4 = new FXButton(toolbar, "Run to Cursor", 0, this,
+        new FXButton(toolbar, "Run to Cursor", 0, this,
         	         ID_TOCURSOR, LAYOUT_FIX_WIDTH | BUTTON_TOOLBAR | FRAME_RAISED | FRAME_THICK,
-                            0,0,100,0,10,10,0,0);
-    }*/
+                     0,0,100,0,10,10,0,0);
+    }
 
     //Setup DNA
     {
@@ -64,7 +68,7 @@ BotDNAWindow_Class::BotDNAWindow_Class(Robot *bot, FXComposite *parent) :
     
         DNATextBox->setDelimiters(" \n\t");
 
-        DNATextBox->disable();
+        //DNATextBox->disable();
     }
 
     this->create();

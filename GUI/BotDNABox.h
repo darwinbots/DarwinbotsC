@@ -35,3 +35,4 @@ class BotDNAWindow_Class : public FXDialogBox
 };
 
 #endif
+

@@ -9,6 +9,8 @@
 
 extern inline __int16 iceil(float value);
 
+#define SCALAR_F float
+
 extern float fsgn(float value);
 extern SCALAR_F minS(SCALAR_F a, SCALAR_F b);
 extern SCALAR_F maxS(SCALAR_F a, SCALAR_F b);

@@ -44,7 +44,7 @@ void CommandQueueClass::SetBase(Robot *_base)
     base = _base;
 }
 
-CommandQueueClass::Apply()
+void CommandQueueClass::Apply()
 {
     for(unsigned int x = 0; x < Commands.size(); x++)
         (*base)[Commands[x].loc] = Commands[x].val;

@@ -36,8 +36,8 @@ void ExecuteLogic(int n);
 
 __int32 StackCeil(float value)
 {
-    if (value < -2147483648.0f)
-        return -(signed)2147483648;
+    if (value < -2147483647.0f)
+        return -(signed)2147483647;
     else if (value > 2147483647.0f)
         return 2147483647;
     else

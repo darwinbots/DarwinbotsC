@@ -31,7 +31,8 @@ class CommandQueueClass
     void Clear();
     CommandQueueClass();
     void SetBase(Robot *_base);
-    Apply();
+    void Apply();
 };
 
 #endif
+
