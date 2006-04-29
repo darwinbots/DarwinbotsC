@@ -15,7 +15,7 @@ void DrawEyes();
 void DrawSelectHalo();
 void DrawEyeGrid();
 
-long MainWindow::DrawScene()
+long MainWindow::DrawScene() //alias
 {
     return MainWindow::DrawScene(NULL, 0, NULL);
 }
@@ -47,7 +47,7 @@ void DrawWorld(double width, double height)
     glViewport(0,0,(int)width,(int)height);
 
     glClearColor(0.0235294118f, 0.0705882353f, 0.3176470588f, 1.0);				// classic blue color
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+    glClear(GL_COLOR_BUFFER_BIT);
     
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
@@ -65,7 +65,6 @@ void DrawWorld(double width, double height)
             SimOpts.FieldDimensions.y() - yfactor + MainCamera.pos().y(),
             0, 10);
     
-    
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
 
@@ -81,6 +80,8 @@ void DrawWorld(double width, double height)
     glEnd();
 
     //DrawEyeGrid();
+    glEnable(GL_LINE_SMOOTH);
+    glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
     
     DrawTies(false);
     DrawTies(true);    
@@ -92,26 +93,50 @@ void DrawWorld(double width, double height)
 
 void DrawRobots()
 {
-    GLUquadricObj *quadratic;
-    
-    quadratic=gluNewQuadric();			        // Create A Pointer To The Quadric Object ( NEW )
-	gluQuadricNormals(quadratic, GLU_SMOOTH);	// Create Smooth Normals ( NEW )
-	gluQuadricTexture(quadratic, GL_TRUE);		// Create Texture Coords ( NEW )
+    //SetupDisplayLists(); done in the setup for the GL window
+
+    static bool DisplayListsCreated = false;
+
+    //for some reason this needs to be setup again every frame.  I can't figure out why
+    //if(!DisplayListsCreated)
+    //{
+        SetupDisplayLists();
+    //    DisplayListsCreated = true;
+    //}
     
     for (int x = 0; x <= MaxRobs; x++)
     {
         if (rob[x] != NULL)
         {
-            glColor3f(rob[x]->color.x() / 3,rob[x]->color.y() / 3,rob[x]->color.z() / 3);
             glPushMatrix();
-            glTranslatef(rob[x]->findpos().x(), rob[x]->findpos().y(), rob[x]->findpos().z());
-            gluDisk(quadratic, 0, rob[x]->rad() * 0.9f, 32, 1);
-            glPopMatrix();                
+            
+            Vector3f pos(rob[x]->findpos());
+            glTranslatef(pos.x(), pos.y(), pos.z());
+            glScalef(rob[x]->rad(), rob[x]->rad(), rob[x]->rad());
 
+            //Draw the bots' guts
+            glColor3f(rob[x]->color.x() / 3,rob[x]->color.y() / 3,rob[x]->color.z() / 3);
+            glCallList(BOT_GUTS);
+            
+            //Draw the bots' perimeter
             glColor3f(rob[x]->color.x(), rob[x]->color.y(), rob[x]->color.z());
-            CreateCircle(rob[x]->findpos(), rob[x]->rad(), 8);
+            glCallList(BOT_PERIMETER);
+            
+            glPopMatrix();
         }
     }
+}
+
+void SetupDisplayLists()
+{
+    //Guts
+    glNewList(BOT_GUTS, GL_COMPILE);
+        gluDisk(gluNewQuadric(), 0, 0.9f, 32, 1);
+    glEndList();
+
+    glNewList(BOT_PERIMETER, GL_COMPILE);
+        CreateCircle(Vector3f(0,0,0), 1, 8);
+    glEndList();
 }
 
 void DrawEyes()

@@ -22,8 +22,8 @@ void CreateCircle(Vector3f c, float radius, long divisions)
 	glBegin(GL_LINE_LOOP);
     for(int i =0;i<divisions;i++)
 	{
-      angle = float(i*2*PI/divisions);
-      glVertex2f(c.x()+cosf(angle)*radius,c.y()+sinf(angle)*radius);
+        angle = float(i*2*PI/divisions);
+        glVertex2f(c.x()+cosf(angle)*radius,c.y()+sinf(angle)*radius);
     }
 	glEnd();
 }
@@ -60,9 +60,9 @@ void CreateSphere(Vector3f c,float r,int n = 5)
 		 ialt = n-i;
 		 theta3 = (float)(i * 2 *PI)/n;
 		 
-         e.set(float(cos(theta2) * cos(theta3)), 
-               (float)sin(theta2),
-               float(cos(theta2) * sin(theta3)));
+         e.set(cosf(theta2) * cosf(theta3), 
+               sinf(theta2),
+               cosf(theta2) * sinf(theta3));
 
 		 p.set(c.x() + r * e.x(),
                c.y() + r * e.y(),
@@ -72,9 +72,9 @@ void CreateSphere(Vector3f c,float r,int n = 5)
          glTexCoord2f(ialt / n, 1 - 2 * (jalt)/ n);
 		 glVertex3f(p.x(),p.y(),p.z());
 
-         e.set(float(cos(theta1) * cos(theta3)),
-               float(sin(theta1)),
-               float(cos(theta1) * sin(theta3)));
+         e.set(cosf(theta1) * cosf(theta3),
+               sinf(theta1),
+               cosf(theta1) * sinf(theta3));
 		 
 		 p.set(c.x() + r * e.x(),
                c.y() + r * e.y(),

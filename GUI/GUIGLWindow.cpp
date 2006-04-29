@@ -53,15 +53,16 @@ long MainWindow::GLWindow()
 long MainWindow::onUpdGfx(FXObject *, FXSelector, void *)
 {    
     static int counter;
-    
+        
     if(GraphicsOn)
         this->DrawScene();
+    
     else if(++counter > 16 || counter < 0)
     {
         this->DrawScene();
         counter = 0;
     }
-
+    
     getApp()->addTimeout(this, ID_UpdGfx, 32);
     return 1;
 }
