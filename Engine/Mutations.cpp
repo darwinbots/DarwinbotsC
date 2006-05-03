@@ -112,7 +112,7 @@ void DNA_Class::MutateDelta(float multiplier)
                 percentage = 1;
         }
 
-        #define MUT(x) Mutables. x .Prob = unsigned long ((float)Mutables. x .Prob * (percentage / 100));
+        #define MUT(x) Mutables. x .Prob = (unsigned long) ((float)Mutables. x .Prob * (percentage / 100))
         switch(muttype)
         {            
             case PointUP:           MUT(Point);             break;

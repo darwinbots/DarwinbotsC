@@ -28,7 +28,8 @@ Tie::Tie(Robot *_sender,
 //Before a tie can be deleted, it has to be removed from its sender's and receiver's tieList
 Tie::~Tie()
 {
-    for(unsigned int x = 0; x < sender->Ties.size(); x++)
+    unsigned int x = 0;
+    for(x = 0; x < sender->Ties.size(); x++)
         if(sender->Ties[x] == this)
             sender->Ties[x] = NULL;
 

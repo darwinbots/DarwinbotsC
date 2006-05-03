@@ -328,7 +328,8 @@ bool WriteSett(const string &path, SimOptions &Options)
     settingsout << "-3" << endl;
 
     settingsout << Options.SpeciesNum << "; Species" << endl;
-    for(unsigned int x = 0; x < Options.SpeciesNum; x++)
+    unsigned int x = 0;
+    for(x = 0; x < Options.SpeciesNum; x++)
     {
         settingsout << endl;
         settingsout << Options.Specie[x].Name << " ;Species" << END;

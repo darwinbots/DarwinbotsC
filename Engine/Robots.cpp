@@ -541,7 +541,7 @@ bool Robot::KillRobot()
 	if (MaxRobs == counter)
 	{
 		MaxRobs = -1;
-		for(unsigned int x = counter-1; x >= 0; x--)
+		for(int x = counter-1; x >= 0; x--)
 		{
 			if (rob[x] != NULL)
 			{

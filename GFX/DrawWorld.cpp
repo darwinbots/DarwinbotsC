@@ -153,8 +153,9 @@ void DrawShots()
     {
         if (shots[x] != NULL)
         {
-            glColor3f(shots[x]->color[0], shots[x]->color[1], shots[x]->color[2]);
-            CreatePoint(shots[x]->findpos(), 2);
+            Shot test = *shots[x]; //BUG here! The engine can delete a shot between the previous line and this one.
+            glColor3f(test.color[0], test.color[1], test.color[2]);
+            CreatePoint(test.findpos(), 2);
         }
     }
 }
