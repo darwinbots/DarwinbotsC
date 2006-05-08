@@ -38,12 +38,17 @@ class Shot : public ObjectPrimitive
         return pos;
     }
 
-    void UpdateShot();
+    const Vector3f &findopos() const
+    {
+        return opos;
+    }
+
+    void UpdateShot(bool again);
+    void UpdatePos();
 
     private:
     void CreateShotBasic();
 
-    void UpdatePos();
     Robot *ShotColl();
 
     public:

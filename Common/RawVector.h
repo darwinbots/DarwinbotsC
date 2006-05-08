@@ -1,3 +1,18 @@
+/**********************************************************************
+This is a "raw" include.  Vectors.h contains the pre-processor
+directives necessary to allow this to compile.  The idea is that
+the vector implementation has been abstracted away from what SCALAR
+you're using and what you're calling the vector class.
+
+This is probably similar to a template, but MSVC templates and inlining
+together cause all sorts of headache.  I'm saving myself the effort and
+using old school C pre processor directives to take care of it.
+************************************************************************/
+
+#include <assert.h>
+
+#define VECTORNAME #VECTOR \
+
 class VECTOR
 {
     friend inline VECTOR floor(const VECTOR &v);
@@ -134,11 +149,13 @@ inline void VECTOR::operator*= (const SCALAR k)
 
 inline VECTOR VECTOR::operator/ (const SCALAR k) const
 {
+    assert(k != 0 && "Attempting to divide by 0 in VECTOR::operator /");
     return VECTOR(X / k, Y / k, Z / k);
 }
 
 inline void VECTOR::operator/= (const SCALAR k)
 {
+    assert(k != 0 && "Attempting to divide by 0 in VECTOR::operator /=");
     X /= k;
     Y /= k;
     Z /= k;
@@ -186,12 +203,16 @@ inline SCALAR VECTOR::Length() const
 //returns a normal vector without modifying existing vector
 inline VECTOR VECTOR::Normal() const
 {
-    return VECTOR((*this) / Length());
+    SCALAR length = Length();
+    assert(length != 0 && "Attempting to Normalize a 0 length vector in VECTOR::Normal()" );
+    return VECTOR((*this) / length);
 }
 
 inline VECTOR VECTOR::Normalize()
 {
-    (*this) /= Length();    
+    SCALAR length = Length();
+    assert(length != 0 && "Attempting to Normalize a 0 length vector in VECTOR::Normalize()" );
+    (*this) /= length;    
     return (*this);
 }
 
@@ -221,6 +242,7 @@ inline VECTOR operator* (const SCALAR k, const VECTOR &v)
 
 inline VECTOR operator/ (const SCALAR k, const VECTOR &v)
 {
+    assert(k != 0 && "Attempting to divide by 0 in VECTOR, non-internal operator/");
     return v / k;
 }
 

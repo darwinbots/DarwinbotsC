@@ -87,9 +87,11 @@ Shot::Shot(Robot *parent)
     this->CreateShotBasic();
     this->parent = parent->AbsNum;
     //this->color  = parent->color;
-    
+
+    float const AngleSpread = 0.35f;
+
     this->pos = parent->pos + parent->rad() * parent->aimvector;
-    float angle = (parent->aim * 200 + frnd(-35, 35)) / 200;
+    float angle = (parent->aim + AngleSpread * (DBrand() - 0.5f));
     this->vel = parent->vel + Vector3f(cosf(angle), sinf(angle)) * 40;
     this->opos = this->pos;
 }
@@ -300,33 +302,78 @@ void Shot::CreateInfoShot(Robot *parent)
 
 void Shot::UpdatePos()
 {
-    //If you're unaware of what's going on here, it's called
-    //verlet integration, as opposed to Euler integration.    
+    //Euler integration
 
     this->opos = this->pos;
     this->vel += Vector3f(0.0f, SimOpts.YGravity);
     this->pos += this->vel;
 }
 
-void Shot::UpdateShot()
+void Shot::UpdateShot(bool again)
 {
+    assert(this != NULL && "Attempting to update a non existant shot");
     Robot *collide=NULL;
     
-    this->UpdatePos();
-    this->age++;
-
-    if (this->age > this->range)
+    if(!again)
     {
-        //this shot is dead
-        delete this;
-        return;
+        //this->UpdatePos();
+        this->age++;
+
+        if (this->age > this->range)
+        {
+            //this shot is dead
+            delete this;
+            return;
+        }
     }
     
     //check for and handle collisions
     if((collide = this->ShotColl()) != NULL)
     {
-        if (collide->parent == this->parent && collide->age <= 1)
+        Vector3f m = this->pos - this->vel - collide->findpos();
+        Vector3f v = this->vel;
+        
+        //(m + tv) dot (m + tv) = radius^2
+        //(v dot v) t^2 + 2(m dot v) t + (m dot m - radius ^ 2) = 0
+        
+        float a = v * v;
+        float b = m * v;
+        float c = m * m - collide->rad() * collide->rad();
+        float t = 0;
+
+        float discriminant = b * b - a * c; //factor of 4 has been pre factored out
+        
+        if(discriminant >= 0)
+        {
+            //need to find the time of intersection using quadratic equation
+            t = -b / a - discriminant;
+            if(t < 0) t = 0; //for some reason the shot never actually entered the sphere
+
+            this->pos = this->opos + t * v; //pos = point of contact
+            this->opos = this->pos;
+        }        
+        else return;//this shouldn't happen, it would mean the shot never really collided        
+
+        //update new velocity
+        this->range *= 2;
+        this->vel = (collide->vel - this->vel / 2); //returned shots have this vector
+        
+        t = 1 - t;
+        //time is now the remaining time step to move the shot
+        //move the shot forward by the remaining time
+
+        this->pos += this->vel * t;
+        //this->opos = this->pos - this->vel;
+
+        /////////////////////////////////////////////////
+        /////////////////////////////////////////////////
+        /////////////////////////////////////////////////
+        
+        if (collide->parent == this->parent && collide->age == 0)
+        {
             return; //baby bots immune to parents' shots at first
+            delete this;
+        }
 
         //taste shot
 
@@ -443,9 +490,6 @@ void Shot::CollideInfoShot(Robot *collide)
 void Shot::CollideFeedingShot(Robot *collide)
 {
     float power;
-    
-    //There might be a better vector to return the shot along, but if there is I don't know it.
-    this->vel = -this->vel;
     
     if(SimOpts.EnergyExType == true) power = this->value * 
         POWERMULTIPLIER(this->age, this->range) * SimOpts.EnergyProp / 100;
@@ -643,6 +687,5 @@ void Shot::CollideBodyShot(Robot *collide)
     }
 
     this->value = (__int16)power;
-    this->vel = -this->vel;
     CreateNRGGivingShot(collide);
 }

@@ -71,6 +71,7 @@ public:
 	bool Dead;								// Allows program to define a robot; dead after a certain operation
 	bool Multibot;        					// Is robot part of a multi-bot
     bool NewMove;                           // does this bot use the new movement controls or is it a pussy?
+    bool active;                            // used in collision detection
 private:
 	int occurr[20];							// array with the ref* values
 	
@@ -182,7 +183,8 @@ private:
     void PlanetEaters();
     void UpdateAddedMass();
     void Friction();
-    void FulfillTieConstraints();
+    void FulfillTieConstraintsPos();
+    void FulfillTieConstraintsVel();
     void Robot::SpringForces();
     
     //veg controls

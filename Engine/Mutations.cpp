@@ -87,7 +87,7 @@ void DNA_Class::MutatePoint(float multiplier)
     {
         unsigned int location = frnd(1, length()) - 1;
 
-        if(DBrand() > Mutables.Point.DeltaValue / 100.0f)
+        if(DBrand() > Mutables.Point.DeltaValue)
             Code[location].RandomizeTipo();
         else
             Code[location].RandomizeValue();
@@ -133,7 +133,7 @@ void DNA_Class::MutateCopyError(float multiplier)
     BASICMUTATIONWORK(CopyError)
     {
         unsigned int location = frnd(1, length()) - 1;
-        if(DBrand() > Mutables.CopyError.DeltaValue / 100.0f)
+        if(DBrand() > Mutables.CopyError.DeltaValue)
             Code[location].RandomizeTipo();
         else
             Code[location].RandomizeValue();

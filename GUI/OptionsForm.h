@@ -1,3 +1,6 @@
+#ifndef OPTIONSFORM_H
+#define OPTIONSFORM_H
+
 #include <fx.h>
 #include "../Engine/SimOptions.h"
 
@@ -45,7 +48,6 @@ class OptionsFormDialogBox : public FXDialogBox
     long onCloneSpecies        (FXObject *, FXSelector, void *);
     long onInheritSpecies        (FXObject *, FXSelector, void *);
     
-
     long onNrgButton20K         (FXObject *, FXSelector, void *);
     long onNrgButton30K         (FXObject *, FXSelector, void *);
 
@@ -54,7 +56,7 @@ class OptionsFormDialogBox : public FXDialogBox
 
     long onWorldDimensionSlider (FXObject *, FXSelector, void *);
 
-    long onAdvancedPhysics     (FXObject *, FXSelector, void *);
+    long onMutationsSpecies     (FXObject *, FXSelector, void *);
 
     long onClearCosts           (FXObject *, FXSelector, void *);
     long onCostsF1Default       (FXObject *, FXSelector, void *);
@@ -101,7 +103,7 @@ class OptionsFormDialogBox : public FXDialogBox
         ID_BODY_30K,
 
         ID_WORLDDIMENSIONSLIDER,
-        ID_ADVANCEDPHYSICS,
+        ID_MUTATIONSPECIES,
 
         ID_CLEARCOSTS,
         ID_COSTSF1DEFAULT,
@@ -133,9 +135,11 @@ FXDEFMAP(OptionsFormDialogBox) OptionsFormDialogBoxMap[] = {
 
     FXMAPFUNC(SEL_COMMAND, OptionsFormDialogBox::ID_WORLDDIMENSIONSLIDER,     OptionsFormDialogBox::onWorldDimensionSlider),
 
-    FXMAPFUNC(SEL_COMMAND, OptionsFormDialogBox::ID_ADVANCEDPHYSICS,     OptionsFormDialogBox::onAdvancedPhysics),
+    FXMAPFUNC(SEL_COMMAND, OptionsFormDialogBox::ID_MUTATIONSPECIES,     OptionsFormDialogBox::onMutationsSpecies),
     
     FXMAPFUNC(SEL_COMMAND, OptionsFormDialogBox::ID_CLEARCOSTS,     OptionsFormDialogBox::onClearCosts),
     FXMAPFUNC(SEL_COMMAND, OptionsFormDialogBox::ID_COSTSF1DEFAULT,     OptionsFormDialogBox::onCostsF1Default),
     FXMAPFUNC(SEL_COMMAND, OptionsFormDialogBox::ID_COSTSGUESS,     OptionsFormDialogBox::onCostsDecentGuess)
 };
+
+#endif

@@ -409,6 +409,8 @@ istream& DNA_Class::LoadDNA(istream &input)
     string line, word;
     block temp;
 
+    Code.clear();
+
     while(!input.eof())
     {
         line = GetLine(input);
@@ -428,7 +430,7 @@ istream& DNA_Class::LoadDNA(istream &input)
     }
 
     this->Code.push_back(DNA_END);
-
+    assert(this->Code.size() > 0 && "An odd error that should never occurr.");
     this->length();
     this->genenum();
 	return input;

@@ -102,8 +102,9 @@ void Robot::init(datispecie *myspecies)
 
 void Robot::ExecuteDNA()
 {
-    if (this->DNA != NULL)
-        this->DNA->Execute(this);
+    assert(this != NULL && "Attempting to access non existant bot's DNA in Robot::ExecuteDNA()");
+    assert(this->DNA != NULL && "Attempting to access non existant DNA in Robot::ExecuteDNA()");
+    this->DNA->Execute(this);
 }
 
 void Robot::UpdateRadius()
@@ -345,7 +346,8 @@ void Robot::Upkeep()
     this->ChargeNRG(Body * SimOpts.Costs[BODYUPKEEP]);
     
     //'DNA upkeep cost
-    this->ChargeNRG(this->DNA->length() * SimOpts.Costs[BPCYCCOST]);
+    if(this->DNA != NULL)
+        this->ChargeNRG(this->DNA->length() * SimOpts.Costs[BPCYCCOST]);
 }
 
 /*
@@ -496,9 +498,14 @@ bool Robot::DeathManagement()
 			Corpse = true;
 			fname = "Corpse";
 			RemoveAllTies();
-			this->color.set(1,1,1);
-            //delete this->DNA;
-            //this->DNA = NULL;
+			this->color.set(1,1,1); //corpses are white
+            if(this->DNA != NULL)
+            {
+                delete this->DNA;
+                this->DNA = NULL;
+            }
+
+            this->occurrList();
             memset(this->occurr, 0, sizeof(this->occurr));
 			Veg = false;
 			Fixed = false;
@@ -526,8 +533,7 @@ bool Robot::DeathManagement()
 /*Returns false if some really really weird error is occurring*/
 bool Robot::KillRobot()
 {
-	if (this == NULL)
-        return false;
+	assert(this != NULL && "Trying to kill an already dead bot");
     
 	int counter = 0;
     
@@ -578,6 +584,8 @@ void Robot::Reproduction()
 {
 	Robot *baby=NULL;
     float mutmult, costmult;
+    assert(!this->Corpse && "Corpse attempting to reproduce");
+    assert(this != NULL && "Non existant bot trying to reproduce");
     
     if ((*this)[Repro] > 0)
 	{
@@ -606,6 +614,7 @@ void Robot::Reproduction()
             baby = this->Split(percentage);
             if (baby != NULL)
             {
+                assert(this->DNA != NULL && "Bot with no DNA trying to reproduce");
                 baby->DNA = new DNA_Class((*this->DNA));
                 baby->occurrList();
                 //still need to program code for mrepro
@@ -652,7 +661,8 @@ void Robot::DuringTurn()
 
 void Robot::PostTurn()
 {
-	this->DNA->Mutate(false); //<--- mutating by point cycle
+	if(this->DNA != NULL)
+        this->DNA->Mutate(false); //<--- mutating by point cycle
 	//this->BotDNAManipulation t <--- Things like delgene, making viruses, etc.
     this->Construction();
 	this->ShotManagement();
@@ -671,12 +681,15 @@ void Robot::TurnCleanup()
 
 void Robot::Reproduce()
 {
-    this->Reproduction();
+    assert(this != NULL && "Non existant bot attempting to replicate");
+    if(!this->Corpse)
+        this->Reproduction();
 }
 
 void Robot::CheckVision()
 {
     //this->BasicProximity(); //O(n^2)
+    assert(this != NULL && "Non existant bot checking vision");
     this->EyeGridProximity(); //Uses uniform grids to achieve a (supposed) O(n)
 }
 
@@ -798,7 +811,7 @@ Robot* Robot::Split(float percentage)
 	(*baby)[timersys] = (*this)[timersys];//epigenetic timer
 
 	//make the birth tie
-	Tie::MakeTie(this, baby, -1);
+	//Tie::MakeTie(this, baby, -1);
 
     baby->fname = this->fname;
 

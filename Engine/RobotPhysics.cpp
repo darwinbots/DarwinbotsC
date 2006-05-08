@@ -23,7 +23,7 @@ video game literature.
 #include "..\Common\Vectors.h"
 #include "..\Common\Random.h"
 
-#define CUBE(a) (a*a*a)
+#define CUBE(a) ((a)*(a)*(a))
 
 void Robot::NetForces()
 {        
@@ -76,20 +76,29 @@ void Robot::Integrate()
     //velocity verlet integration
     pos = opos + vel + 0.5f * oldImpulse / (mass + AddedMass);
     vel += (oldImpulse + Impulse) / (2 * (mass + AddedMass));
-
     
     oldImpulse = Impulse;
     Impulse.set(0,0,0);
     ImpulseStatic = 0;
+
+    if(vel.x() == 0 && vel.y() == 0 && vel.z() == 0)
+        active = false;
+    else
+        active = true;
+
+    if(age <= 1)
+        active = true;
 }
 
 //sets a hard constraint that pulls bots that are too close to each other apart
+//changes by angelo
 float Robot::BotCollisionsPos()
 {
     float maxoverlap = 0.0f;
+    bool collide = false;
     for(int x = 0; x <= MaxRobs; x++)
     {
-        if(rob[x] != NULL && rob[x]->AbsNum < this->AbsNum)
+        if(rob[x] != NULL && rob[x]->AbsNum != this->AbsNum) //if i'm a robot, consider me
         {
             Vector3f normal = rob[x]->pos - this->pos;
             
@@ -98,12 +107,18 @@ float Robot::BotCollisionsPos()
                         
             float currdist = normal.LengthSquared();
             
-            if(currdist < mindist)
+            //The +1 is a fudge factor to take into account
+            //floating point inacuracies
+            if(currdist + 1 < mindist) //bots colliding...activate both bots
             {
+                collide = true;
+                rob[x]->active = true;
+				this->active = true;
+				
                 if(currdist < 1)
                 {
                     currdist = 1;
-                    normal.set(1, 1);
+                    normal.set(0, 1);
                 }
 
                 float overlap = sqrtf(mindist / currdist) - 1.0f;
@@ -124,6 +139,9 @@ float Robot::BotCollisionsPos()
             }
         }
     }
+
+    if(collide == false)
+        active = false;
 
     return maxoverlap;
 }
@@ -148,18 +166,20 @@ void Robot::EdgeCollisions()
     
     const float CoefficientRestitution = 0.95f;
     
-    if(this->pos.x() < this->radius ||
-       this->pos.x() > SimOpts.FieldDimensions.x() - this->radius)
+    if(this->pos.x() < this->radius - .1 ||
+       this->pos.x() - .1 > SimOpts.FieldDimensions.x() - this->radius)
     {
         vel(0) = -ovel.x();
-        vel *= CoefficientRestitution;            
+        vel *= CoefficientRestitution;
+        active = true;
     }
 
-    if(this->pos.y() < this->radius ||
-       this->pos.y() > SimOpts.FieldDimensions.y() - this->radius)
+    if(this->pos.y() < this->radius - .1 ||
+       this->pos.y() - .1 > SimOpts.FieldDimensions.y() - this->radius)
     {
         vel(1) = -ovel.y();
-        vel *= CoefficientRestitution;            
+        vel *= CoefficientRestitution;
+        active = true;
     }
 
     //speed loss in non normal direction of wall
@@ -169,7 +189,14 @@ void Robot::EdgeCollisions()
     this->pos = dist;
 }
 
-void Robot::FulfillTieConstraints()
+void Robot::FulfillTieConstraintsVel()
+{
+
+
+
+}
+
+void Robot::FulfillTieConstraintsPos()
 {
 
 
@@ -325,7 +352,7 @@ void Robot::PlanetEaters()
             float mag = PosDiff.LengthSquared();
             if(mag != 0)
             {
-                float force = (SimOpts.PlanetEatersG * rob[x]->mass * this->mass) / (mag);
+                float force = (SimOpts.PlanetEatersG * 1000 * rob[x]->mass * this->mass) / mag;
 
                 PosDiff = PosDiff / sqrtf(mag) * force;
 

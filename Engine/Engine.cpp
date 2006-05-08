@@ -58,6 +58,9 @@ void Engine_Class::UpdateSim(void)
     
     float maxoverlap;
     int loopcounter = 0;
+    
+    #define ANGELOCOLLISION
+    #ifndef ANGELOCOLLISION
     do
     {
         maxoverlap = 0.0f;
@@ -72,6 +75,43 @@ void Engine_Class::UpdateSim(void)
         loopcounter++;
     
     }while(maxoverlap > 0.1f && loopcounter <= 5);
+
+    #else
+    bool Continue;
+    do
+    {
+        Continue = false;
+        maxoverlap = 0.0f;
+        FORALLROBOTS //for all robots 
+        {
+            if (rob[counter]->active)
+			{			 
+				float overlap = rob[counter]->BotCollisionsPos(); 
+				maxoverlap = __max(maxoverlap, overlap);
+			}
+
+            
+        }
+
+        FORALLROBOTS rob[counter]->EdgeCollisions();
+
+        unsigned int activecounter = 0;
+        FORALLROBOTS
+        {
+            if(rob[counter]->active)
+            {
+                activecounter++;
+                Continue = true;
+            }
+        }
+
+        //cout << activecounter << endl;
+
+        //loopcounter++;
+    
+    }while(Continue);
+
+    #endif
 
     FORALLROBOTS ManipulateEyeGrid(rob[counter]);
     
@@ -160,26 +200,43 @@ void Engine_Class::SetupSim(void)
 
 void Engine_Class::LoadRobots(void)
 {
-	for (unsigned int y = 0; y < SimOpts.SpeciesNum; y++)
-	    for (unsigned int x = 0; x < SimOpts.Specie[y].qty; x++)
-			new Robot(&SimOpts.Specie[y]);
+    for (unsigned int y = 0; y < SimOpts.SpeciesNum; y++)
+        for (unsigned int x = 0; x < SimOpts.Specie[y].qty; x++)
+            new Robot(&SimOpts.Specie[y]);
 }
 
 void Engine_Class::ExecuteDNA()
 {
-    FORALLROBOTS rob[counter]->ExecuteDNA();
+    FORALLROBOTS
+        if(rob[counter]->DNA != NULL)
+            rob[counter]->ExecuteDNA();
+
     FORALLROBOTS for(unsigned int x = 0; x < rob[counter]->Ties.size(); x++)
         if(rob[counter]->Ties[x] != NULL)
-            rob[counter]->Ties[x]->ApplyCQ();
+            rob[counter]->Ties[x]->ApplyCQ(); //Apply the Command Queue
 
-    FORALLROBOTS rob[counter]->DNACommands.Apply();
+    FORALLROBOTS
+        if(rob[counter]->DNA != NULL)
+            rob[counter]->DNACommands.Apply();
 }
 
 void Engine_Class::ExecuteShots()
 {   
-	for(int counter = 0; counter <= MaxShots; counter++)
+	int counter;
+    for(counter = 0; counter <= MaxShots; counter++)
         if(shots[counter] != NULL)
-            shots[counter]->UpdateShot();
+            shots[counter]->UpdatePos();
+
+    //first iteration checks for initial collision
+    
+    for(counter = 0; counter <= MaxShots; counter++)
+        if(shots[counter] != NULL)
+            shots[counter]->UpdateShot(false);
+
+    //second iteration checks for collision of returned shots
+    for(counter = 0; counter <= MaxShots; counter++)
+        if(shots[counter] != NULL)
+            shots[counter]->UpdateShot(true);
 }
 
 int cooldown = 0;

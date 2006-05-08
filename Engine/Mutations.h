@@ -6,7 +6,6 @@
 
 using namespace std;
 
-    //per cycle
 #define PointUP         1
 #define DeltaUP         2
 #define CopyErrorUP     3

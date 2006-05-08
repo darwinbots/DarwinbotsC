@@ -204,6 +204,7 @@ void OptionsFormDialogBox::Species(FXTabBook *TabBook)
         new FXLabel(SpeciesInitializationFrame, "Misc Species Details:");
         new FXCheckButton(SpeciesInitializationFrame, "Autotroph", Speciesveggy, FXDataTarget::ID_VALUE);
         new FXCheckButton(SpeciesInitializationFrame, "Fixed", Speciesfixed, FXDataTarget::ID_VALUE);
+        new FXButton(SpeciesInitializationFrame, "Mutations", NULL, this, ID_MUTATIONSPECIES);
     }
 }
 

@@ -47,6 +47,7 @@ int EngineThread_Class::run()
     catch(...)
     {
         //FXMessageBox::warning(MainWindowHandle, MBOX_OK, "Error!", "Error!");
+        assert(!"Exception Thrown");
         throw;
         //int a;
 

@@ -3,6 +3,7 @@
 
 long DNA_Class::genenum()
 {    
+    assert(this != NULL && "Attempting to count the number of genes in non existant DNA in DNA_Class::genenum()");
     long counter=0;
     long genecounter = 0;
 
@@ -24,12 +25,16 @@ long DNA_Class::genenum()
 
 long DNA_Class::length()
 {
+    assert(this != NULL && "Attempting to find the size of non existant DNA");
+    if(this == NULL)
+        return 0;
     return Code.size() - 1;//don't count the end
 }
 
 DNA_Class::DNA_Class()//:contMutations(),reproMutations()
 {
     DNAgenenum = -1;
+    Code.push_back(DNA_END);
 }
 
 DNA_Class::DNA_Class(const DNA_Class &other):Code(other.Code),
@@ -50,7 +55,8 @@ DNA_Class::~DNA_Class()
 
 bool DNA_Class::Mutate(bool reproducing, float multiplier) //returns wether we should mutate colors or not
 {
-    unsigned long oldMut = this->LastMut;
+    assert(this != NULL && "Attempting to mutate non existant DNA in DNAClass::Mutate()");
+    unsigned long oldMut = this->LastMut;    
 
     if (this->Mutables.On == false)
         return false;
@@ -80,6 +86,7 @@ bool DNA_Class::Mutate(bool reproducing, float multiplier) //returns wether we s
 
 void DNA_Class::Occurrs(int *OccurrArray)
 {
+    assert(this != NULL && "Attempting to count up the occurr array for non existant DNA in DNA_Class::Occurrs()");
     int counter = 0;
     
     while(this->Code[counter] != DNA_END)

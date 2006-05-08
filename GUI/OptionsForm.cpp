@@ -1,3 +1,13 @@
+/*************************************************************************
+The coding style of the options forms is very much in flux.
+The goal is to make them as readable and maintainable as possible.
+
+For this reason, especially with regards to data targets, some probably
+non kosher methods might lead to minor memory leaks, among other things.
+
+-Numsgil May 6 2006
+***************************************************************************/
+
 #include "OptionsForm.h"
 #include "../Engine/HardDriveRoutines.h"
 #include "../Engine/Engine.h"
@@ -22,7 +32,7 @@ OptionsFormDialogBox::OptionsFormDialogBox(FXComposite *parent) :
     Veggy(tabbook);
     PhysicsAndCosts(tabbook);
     CostsOptions(tabbook);
-    //Mutations(tabbook);
+    Mutations(tabbook);
     //ReststartAndL(tabbook);
     //InternetOptions(tabbook);
     //Recording(tabbook);

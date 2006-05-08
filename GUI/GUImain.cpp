@@ -127,7 +127,7 @@ void MainWindow::create()
 MainWindow *MainWindowHandle;
 
 #ifndef DB_NOGUI
-#ifdef WIN32
+#ifdef _WINDOWS
     #define WIN32_LEAN_AND_MEAN
     #include "windows.h"
     INT WINAPI WinMain( HINSTANCE hInst, HINSTANCE, LPSTR strCmdLine, INT ){

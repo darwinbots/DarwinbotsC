@@ -143,7 +143,7 @@ Robot *Robot::BasicProximity()
 {
 	for (int counter = 0; counter <= MaxRobs; counter++)
 	{
-		if (rob[counter] != this)
+		if (rob[counter]!= NULL && rob[counter] != this)
 			CompareRobots(rob[counter], 12);
 	}   
 
@@ -161,7 +161,9 @@ void Robot::EyeGridProximity()
     {
         other = BotList.front();
         BotList.pop_front();
-        other->CompareRobots(this, 12);
+        assert(other != NULL && "For some reason a non existant bot has managed to find its way into the BotList");
+        if(other != this)
+            other->CompareRobots(this, 12);
     }
 }
 
@@ -251,10 +253,13 @@ void Robot::occurrList()
 	for(x = 1; x<=12;x++)
 		this->occurr[x] = 0;
 
-	this->DNA->Occurrs(this->occurr);
+	if(this->DNA != NULL)
+    {
+        this->DNA->Occurrs(this->occurr);
 	
-	for(x = mystart; x<= myend; x++)
-		(*this)[x] = occurr[x - mystart + 1];
+	    for(x = mystart; x<= myend; x++)
+		    (*this)[x] = occurr[x - mystart + 1];
+    }
 }
 
 
@@ -264,11 +269,15 @@ field's default value is 12 from the VB days
 ********************************************/
 void Robot::CompareRobots(Robot *const other, const unsigned int field)
 {
+    assert(this != other && "Robot attempting to view itself in Robot::CompareRobots");
+    assert(other != NULL && "Robot attempting to view non existant robot in Robot::CompareRobots");
+    assert(this != NULL && "Non existant robot attempting to see in Robot::CompareRobots");
+
+    if(other == NULL)
+        return;
 
     //the few lines below are the most performance-critical in the whole code
     
-        if (other == NULL) return; //must be first to avoid unnecessary inits
-
         Vector3f RelativePosition = other->pos.VectorSub2D(this->pos);
 	    float discheck = field * RobSize + other->radius;
 	    //below checks the bounding square

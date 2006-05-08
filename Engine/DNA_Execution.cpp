@@ -97,17 +97,20 @@ bool BoolStack::Addup()
 
 void DNA_Class::Execute(Robot* bot)
 {
+    assert(bot != NULL && "Attempting to execute DNA that belongs to a non existant robot");
+    assert(this != NULL && "Attempting to execute non existant DNA");
+    assert(this->Code.size() > 0 && "Attempting to execute 0 length DNA");
     currbot=bot;
     currgene = 0;
     CurrentCondFlag = NEXTBODY;
     CurrentFlow = CLEAR;
-
+    
     while(!IntStack.empty())
         IntStack.pop();
     
     unsigned long pointer=0;
-
-    while(this->Code[pointer] != DNA_END )
+    
+    while(this->Code[pointer] != DNA_END)
     {
         switch (this->Code[pointer].tipo)
         {
@@ -120,13 +123,12 @@ void DNA_Class::Execute(Robot* bot)
             }
             case btPointer:
             {
-                if (CurrentFlow != CLEAR && this->Code[pointer].value > 0 &&
-                                            this->Code[pointer].value <= 1000)
+                if (CurrentFlow != CLEAR && this->Code[pointer].value > 0)
                 {
-                    PushIntStack(currbot->DNACommands.FilterRead(this->Code[pointer].value));
-                    if (this->Code[pointer].value > EyeStart && 
-                        this->Code[pointer].value < EyeEnd)
-                            currbot->View = true;
+                    __int16 loc = (this->Code[pointer].value - 1) % 1000 + 1;
+                    PushIntStack(currbot->DNACommands.FilterRead(loc));
+                    if (loc > EyeStart && loc < EyeEnd)
+                        currbot->View = true;
                     bot->ChargeNRG(SimOpts.Costs[btPointer]);
                 }
                 break;
@@ -286,8 +288,8 @@ void DNAderef()
     if (b > EyeStart && b < EyeEnd)
         currbot->View = true;
 
-    if (b >= 1 && b <= 1000)
-        PushIntStack(currbot->DNACommands.FilterRead((__int16)b));
+    if (b > 0)
+        PushIntStack(currbot->DNACommands.FilterRead((__int16)((b - 1) % 1000 + 1)));
     else
         PushIntStack(0);
 }
@@ -699,8 +701,9 @@ void DNAstore()
     __int32 b;
 
     b = PopIntStack();
-    if (b > 0 && b <= 1000)
+    if (b > 0)
     {
+        b = (b - 1) % 1000 + 1; //place into range 1-1000 if > 1000
         currbot->DNACommands.Add((__int16)b, (__int16)PopIntStack());
         currbot->ChargeNRG(SimOpts.Costs[btStores]); 
     }
@@ -714,8 +717,9 @@ void DNAinc()
 
     a = (__int16)PopIntStack();
 
-    if (a > 0 && a <= 1000)
+    if (a > 0)
     {
+        a = (a - 1) % 1000 + 1;
         currbot->DNACommands.Add((__int16)a, currbot->DNACommands.FilterRead(a) + 1);
         currbot->ChargeNRG(SimOpts.Costs[btStores] / 10); 
     }
@@ -727,8 +731,9 @@ void DNAdec()
 
     a = (__int16)PopIntStack();
 
-    if (a > 0 && a <= 1000)
+    if (a > 0)
     {
+        a = (a - 1) % 1000 + 1;
         currbot->DNACommands.Add((__int16)a, currbot->DNACommands.FilterRead(a) - 1);
         currbot->ChargeNRG(SimOpts.Costs[btStores] / 10); 
     }
@@ -780,6 +785,8 @@ void DNAwritetie()
         a = PopIntStack(); //location
         b = PopIntStack(); //number;
 
+        a = (a - 1) % 1000 + 1;
+
         currbot->WriteTie((__int16)a, (__int16)b);
     }
     else
@@ -790,30 +797,29 @@ void DNAwritetie()
         b = PopIntStack();
         c = PopIntStack();
 
+        a = (a - 1) % 1000 + 1;
+
         currbot->WriteTie((__int16)a, (__int16)b, (__int16)c);
     }
 }
 
 void DNAreadtie()
 {
+    __int16 a, b = 0;
+    
     if(currbot->CurrTie() != NULL)
     {
-        __int16 a;
-
         a = __int16(PopIntStack()); //location
-        
-        
     }
     else
     {
-        long a, b, c;
-
-        a = PopIntStack();
-        b = PopIntStack();
-        c = PopIntStack();
-
-        currbot->WriteTie((__int16)a, (__int16)b, (__int16)c);
+        a = __int16(PopIntStack()); //location
+        b = __int16(PopIntStack()); //tie num
     }
+
+    a = (a - 1) % 1000 + 1; //put location in appropriate range
+
+    currbot->ReadTie(a, b);
 }
 
 void ExecuteTies(int n)
