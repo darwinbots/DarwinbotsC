@@ -1,10 +1,3 @@
-#include "../GUI/GUImain.h"
-#include <gl/gl.h>
-#include <gl/glu.h>
-#include "../Engine/Robot.h"
-#include "Primitives.h"
-#include "Camera.h"
-
 #include "DrawWorld.h"
 
 void DrawRobots();

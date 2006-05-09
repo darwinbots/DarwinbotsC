@@ -87,7 +87,7 @@ void Engine_Class::UpdateSim(void)
             if (rob[counter]->active)
 			{			 
 				float overlap = rob[counter]->BotCollisionsPos(); 
-				maxoverlap = __max(maxoverlap, overlap);
+				maxoverlap = max(maxoverlap, overlap);
 			}
 
             

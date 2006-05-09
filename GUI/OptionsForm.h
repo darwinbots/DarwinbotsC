@@ -3,6 +3,10 @@
 
 #include <fx.h>
 #include "../Engine/SimOptions.h"
+#include "../Engine/HardDriveRoutines.h"
+#include "../Engine/Engine.h"
+#include "../Engine/EngineThread.h"
+#include "../Engine/Mutations.h"
 
 #define LAYOUT_FILL_XY LAYOUT_FILL_X|LAYOUT_FILL_Y
 #define LAYOUT_FILL_RC LAYOUT_FILL_COLUMN|LAYOUT_FILL_ROW
@@ -17,7 +21,9 @@ class OptionsFormDialogBox : public FXDialogBox
     public:
     FXList *SpeciesList;
 
-    private:    
+    private:
+    int mode;
+    FXDataTarget currentMutationMode;
     void BottomToolbar(FXMatrix *LayoutMatrix);
     void Species                (FXTabBook *TabBook);
     void Veggy                  (FXTabBook *TabBook);

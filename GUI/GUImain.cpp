@@ -49,11 +49,9 @@ FXIMPLEMENT(MainWindow, FXMainWindow, MainWindowMap, ARRAYNUMBER(MainWindowMap))
 MainWindow::MainWindow(FXApp *app)
     : FXMainWindow(app, PROJECT_NAME, NULL, NULL, DECOR_ALL, 0, 0, 800, 600)
 {
-    FXMenuBar *menubar;
-    
     FXToolBarShell *dragshell1 = new FXToolBarShell(this, FRAME_RAISED);
-    menubar = new FXMenuBar(this, dragshell1, FRAME_RAISED|LAYOUT_SIDE_TOP|LAYOUT_FILL_X);
-    FXToolBar *toolbar = new FXToolBar(this, dragshell1);
+    FXMenuBar* menubar = new FXMenuBar(this, dragshell1, FRAME_RAISED|LAYOUT_SIDE_TOP|LAYOUT_FILL_X);
+    FXToolBar* toolbar = new FXToolBar(this, dragshell1);
 
     new FXButton(toolbar,"\tPlay",new FXGIFIcon(getApp(),PlayButtonGIF, 128, 128, 255),
     //  tgt, 'selector', opts,  x, y, w,  h,  padl, padr
