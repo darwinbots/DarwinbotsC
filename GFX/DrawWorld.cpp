@@ -7,6 +7,7 @@ void DrawEyeField(Robot *me);
 void DrawEyes();
 void DrawSelectHalo();
 void DrawEyeGrid();
+void DrawRobotEye(Robot* bot);
 
 long MainWindow::DrawScene() //alias
 {
@@ -136,7 +137,7 @@ void DrawEyes()
 {
     for(int x = 0; x <= MaxRobs; x++)
         if(rob[x] != NULL)
-            rob[x]->DrawRobotEye();
+            DrawRobotEye(rob[x]);
 
 }
 
@@ -319,7 +320,7 @@ void DrawEyeField(Robot *me)
     }   
 }
 
-void Robot::DrawRobotEye()
+void DrawRobotEye(Robot* bot)
 {
     //eyes are always white
 
@@ -331,11 +332,11 @@ void Robot::DrawRobotEye()
 
 
     glColor3f(1,1,1);
-    CreatePoint(this->pos + this->aimvector * this->radius, 2);
+    CreatePoint(bot->findpos() + bot->aimvector * bot->radius, 2);
     glPushMatrix();
-    glTranslatef((this->pos + this->aimvector * this->radius).x(), 
-                 (this->pos + this->aimvector * this->radius).y(),
-                 (this->pos + this->aimvector * this->radius).z());
+    glTranslatef((bot->findpos() + bot->aimvector * bot->radius).x(),
+                 (bot->findpos() + bot->aimvector * bot->radius).y(),
+                 (bot->findpos() + bot->aimvector * bot->radius).z());
     gluDisk(quadratic, 0, 3.75, 16, 1);
     glPopMatrix();
 }
