@@ -2,8 +2,6 @@
 #include "OptionsForm.h"
 #include "..\Engine\Mutations.h"
 
-
-
 class SpeciesMutationsDialogBox : public FXDialogBox
 {
     FXDECLARE(SpeciesMutationsDialogBox)

@@ -47,12 +47,14 @@ class Robot : public ObjectPrimitive
 private:
 
 	//Physical Attributes
+public:     //temporary
 	float radius;
-    
+private:
 	float aim;								// aim angle
     float AngularMomentum;
+public:     //temporary
     Vector3f aimvector;                      // the unit vector for aim
-
+private:
 	TieList Ties;                           //linked list of ties
     __int16 currtie;                        //current port or phase that the bot is set to
 	
@@ -293,8 +295,6 @@ public:
         return AbsNum;
     }
 
-    void Robot::DrawRobotEye();
-    
     void Robot::UpdateTies();
     bool FireTie();
     bool CanTie();
