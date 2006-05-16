@@ -6,7 +6,7 @@
 
 #include <iostream>
 #include <vector>
-#include "GUIMain.h"
+#include "MainWindow.h"
 #include "../Engine/Robot.h"
 #include <FXToolBarShell.h>
 

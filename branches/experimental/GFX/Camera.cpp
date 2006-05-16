@@ -1,4 +1,4 @@
-#include "../GUI/GUIMain.h"
+#include "../GUI/MainWindow.h"
 #include "Camera.h"
 
 CameraClass MainCamera;

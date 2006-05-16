@@ -14,7 +14,6 @@
 // The memory requirements are on the order of 2.2 Million * sizeof(std::list) bytes.
 
 #include "BotBotCollisionGrid.h"
-#include "../Common/Vectors.h"
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction

@@ -3,7 +3,7 @@
 
 #include "SimOptions.h"
 #include "HardDriveRoutines.h"
-#include "Shots.h"
+#include "Shot.h"
 #include "Block.h"
 
 #include "Engine.h"
@@ -17,10 +17,9 @@ int counter;
 
 void Engine_Class::UpdateSim(void)
 {
-    //the order of functions here is very important.
-    //don't idley add or (re)move functions without
-    //_really_ thinking about how it changes the
-    //order of other functions	
+    //the order of functions here is very important. Don't idly add or (re)move
+    //functions without _really_ thinking about how it changes the order of
+    //other functions.
 
     this->ExecuteDNA();  //O(n)
     this->ExecuteShots(); //Checks every shot against every bot O(mn)
@@ -137,10 +136,10 @@ void Engine_Class::UpdateSim(void)
 	SimOpts.TotRunCycle++;
 }
 
-void Engine_Class::ProgramInitialize(void)
+void Engine_Class::ProgramInitialize()
 {
-    char buffer[1028];
-    this->maindir = getcwd(buffer, 1028);
+    char buffer[1024];
+    this->maindir = getcwd(buffer, 1024);
     ReadSett(this->maindir + "\\settings\\lastexit.set", SimOpts);
 
     BuildSysvars();

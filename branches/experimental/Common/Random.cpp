@@ -14,8 +14,6 @@ Many functions below have been taken from the book:
 "Numerical Recipes in C", which everyone should pick up
 ***********************************************/
 
-#include <cstdio>
-#include <cmath>
 #include "Random.h"
 
 /***********************************************
@@ -358,12 +356,12 @@ void DBsrand(long seed)
 	gset = 0;
 }
 
-inline float DBrand()
+float DBrand()
 {
 	return ran2(&seedholder);
 }
 
-inline float Gauss()
+float Gauss()
 {
 	return gasdev();
 }

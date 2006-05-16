@@ -17,9 +17,10 @@
 #include "Specie.h"
 #include "RobotSysvars.h"
 #include "SimOptions.h"
-#include "Shots.h"
+#include "Shot.h"
 #include "CommandQueue.h"
 #include "Engine.h"
+#include <fx.h>
 
 //#include "../GUI/GUIBotDebug.h"
 class BotDebug_Window;
@@ -31,7 +32,7 @@ using namespace std;
 const int CUBICTWIPPERBODY = 905;
 const int RobSize          = 120;
 
-class Robot : public ObjectPrimitive
+class Robot : public SolidPrimitive
 {
     friend class Tie; //tie class has access to bot memory among other things
     friend class Shot;
@@ -47,14 +48,9 @@ class Robot : public ObjectPrimitive
 private:
 
 	//Physical Attributes
-public:     //temporary
-	float radius;
-private:
 	float aim;								// aim angle
     float AngularMomentum;
-public:     //temporary
-    Vector3f aimvector;                      // the unit vector for aim
-private:
+
 	TieList Ties;                           //linked list of ties
     __int16 currtie;                        //current port or phase that the bot is set to
 	
@@ -74,6 +70,7 @@ public:
 	bool Multibot;        					// Is robot part of a multi-bot
     bool NewMove;                           // does this bot use the new movement controls or is it a pussy?
     bool active;                            // used in collision detection
+    
 private:
 	int occurr[20];							// array with the ref* values
 	
@@ -109,7 +106,10 @@ private:
 
 	// virtual machine
 	__int16 mem[1000];       				// memory array
-    public: CommandQueueClass DNACommands;
+
+    public:
+        CommandQueueClass DNACommands;
+
     private:
 	DNA_Class *DNA;        					// the DNA
 
@@ -195,12 +195,12 @@ private:
 public:
     bool View;
 
-    Robot::Robot(datispecie *myspecies = NULL):radius(60.0f),
+    Robot::Robot(datispecie *myspecies = NULL):
+                SolidPrimitive(),
                 aim(0.0f),AngularMomentum(0.0f), 
-                aimvector(cosf(aim),sinf(aim)),
                 Ties(),
                 Impulse(0,0,0), ImpulseStatic(0.0f), oldImpulse(0.0f,0.0f,0.0f),
-                ovel(0,0,0),
+                ovel(vel),
                 Veg(false),Wall(false),Corpse(false),Fixed(false),
                 Dead(false),Multibot(false),NewMove(false),
                 nrg(1000.0f),onrg(nrg),

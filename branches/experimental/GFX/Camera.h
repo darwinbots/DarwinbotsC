@@ -2,7 +2,7 @@
 #define CAMERA_H
 
 #include "../Common/Vectors.h"
-#include "../GUI/GUImain.h"
+#include "../GUI/MainWindow.h"
 
 class CameraClass
 {

@@ -1,4 +1,4 @@
-#include "GUIMain.h"
+#include "MainWindow.h"
 #include "OptionsForm.h"
 
 void OptionsFormDialogBox::Mutations(FXTabBook *TabBook)

@@ -1,3 +1,9 @@
+#include <gl/gl.h>
+#include <gl/glu.h>
+#include "../Engine/Robot.h"
+#include "../GUI/MainWindow.h"
+#include "Primitives.h"
+#include "Camera.h"
 #include "DrawWorld.h"
 
 void DrawRobots();
@@ -7,7 +13,7 @@ void DrawEyeField(Robot *me);
 void DrawEyes();
 void DrawSelectHalo();
 void DrawEyeGrid();
-void DrawRobotEye(Robot* bot);
+void DrawRobotEye(SolidPrimitive* bot);
 
 long MainWindow::DrawScene() //alias
 {
@@ -102,18 +108,19 @@ void DrawRobots()
     {
         if (rob[x] != NULL)
         {
+            Robot* temp = rob[x];
             glPushMatrix();
             
-            Vector3f pos(rob[x]->findpos());
+            Vector3f pos(temp->findpos());
             glTranslatef(pos.x(), pos.y(), pos.z());
-            glScalef(rob[x]->rad(), rob[x]->rad(), rob[x]->rad());
+            glScalef(temp->rad(), temp->rad(), temp->rad());
 
             //Draw the bots' guts
-            glColor3f(rob[x]->color.x() / 3,rob[x]->color.y() / 3,rob[x]->color.z() / 3);
+            glColor3f(temp->color.x() / 3,temp->color.y() / 3,temp->color.z() / 3);
             glCallList(BOT_GUTS);
             
             //Draw the bots' perimeter
-            glColor3f(rob[x]->color.x(), rob[x]->color.y(), rob[x]->color.z());
+            glColor3f(temp->color.x(), temp->color.y(), temp->color.z());
             glCallList(BOT_PERIMETER);
             
             glPopMatrix();
@@ -147,19 +154,20 @@ void DrawShots()
     {
         if (shots[x] != NULL)
         {
-            glColor3f(shots[x]->color[0]/2, shots[x]->color[1]/2, shots[x]->color[2]/2);
+            Shot temp(*shots[x]);  //TEMPORARY (flawed) FIX
+            glColor3f(temp.color[0]/2, temp.color[1]/2, temp.color[2]/2);
             glBegin(GL_LINES);
-                glVertex3f(shots[x]->findopos().x(),
-                           shots[x]->findopos().y(),
-                           shots[x]->findopos().z());
+                glVertex3f(temp.findopos().x(),
+                           temp.findopos().y(),
+                           temp.findopos().z());
                 
-                glVertex3f(shots[x]->findpos().x(),
-                           shots[x]->findpos().y(),
-                           shots[x]->findpos().z());
+                glVertex3f(temp.findpos().x(),
+                           temp.findpos().y(),
+                           temp.findpos().z());
             glEnd();
 
-            glColor3f(shots[x]->color[0], shots[x]->color[1], shots[x]->color[2]);
-            CreatePoint(shots[x]->findpos(), 2);
+            glColor3f(temp.color[0], temp.color[1], temp.color[2]);
+            CreatePoint(temp.findpos(), 2);
         }
     }
 }
@@ -320,7 +328,7 @@ void DrawEyeField(Robot *me)
     }   
 }
 
-void DrawRobotEye(Robot* bot)
+void DrawRobotEye(SolidPrimitive* bot)
 {
     //eyes are always white
 
@@ -332,11 +340,10 @@ void DrawRobotEye(Robot* bot)
 
 
     glColor3f(1,1,1);
-    CreatePoint(bot->findpos() + bot->aimvector * bot->radius, 2);
+    CreatePoint(bot->getPos() + bot->getAimVector() * bot->getRadius(), 2);
     glPushMatrix();
-    glTranslatef((bot->findpos() + bot->aimvector * bot->radius).x(),
-                 (bot->findpos() + bot->aimvector * bot->radius).y(),
-                 (bot->findpos() + bot->aimvector * bot->radius).z());
+    Vector3f eyePos=(bot->getPos() + bot->getAimVector() * bot->getRadius());
+    glTranslatef(eyePos.x(), eyePos.y(), eyePos.z());
     gluDisk(quadratic, 0, 3.75, 16, 1);
     glPopMatrix();
 }

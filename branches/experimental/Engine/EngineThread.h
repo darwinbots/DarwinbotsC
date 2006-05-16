@@ -2,59 +2,63 @@
 #define ENGINETHREAD_H
 
 #include <fx.h>
+#include <time.h>
 
-class EngineThread_MasterFlowControl : public FXMutex
-{
-    private:
-    long run_counter;
+#include "Engine.h"
+#include "SimOptions.h"
 
-    public:
-    long Add_Cycles(long cycles)
-    {
-        //we already have some cycles in reserve
-        if(run_counter > 0)
-        {
-            if(run_counter + cycles > 0)
-                run_counter += cycles;
-            else
-                run_counter = -1;
-        }
-        else if(run_counter == 0)
-        {
-            return 0;
-        }
-        else
-        {
-            if(cycles > 0)
-                run_counter = cycles;
-        }
-        return run_counter;
-    }
-
-    long Pause()
-    {
-        return run_counter = -1;
-    }
-
-    long Play()
-    {
-        return run_counter = 0;
-    }
-
-    long Counter()
-    {
-        return run_counter;
-    }
-};
-
-class EngineThread_Class : public FXThread
+class EngineThread : public FXThread
 {
     public:
     int run();
     void ProgramInitialize();
-    EngineThread_MasterFlowControl Flow;
+    EngineThread();
     
-}extern EngineThread;
+    long addCycles(long cycles);
+    long pause();
+    long play();
+    long counter();
+    
+    private:
+    long runCounter;
+};
+
+inline long EngineThread::addCycles(long cycles)
+{
+    //we already have some cycles in reserve
+    if(runCounter > 0)
+    {
+        if(runCounter + cycles > 0)
+            runCounter += cycles;
+        else
+            runCounter = -1;
+    }
+    else if(runCounter == 0)
+    {
+        return 0;
+    }
+    else
+    {
+        if(cycles > 0)
+            runCounter = cycles;
+    }
+    return runCounter;
+};
+
+inline long EngineThread::pause()
+{
+    return runCounter = -1;
+};
+
+inline long EngineThread::play()
+{
+    return runCounter = 0;
+};
+
+inline long EngineThread::counter()
+{
+    return runCounter;
+};
 
 #endif
 

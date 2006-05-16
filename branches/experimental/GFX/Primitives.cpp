@@ -1,6 +1,6 @@
-#include "../GUI/GUImain.h"
 #include <gl/gl.h>
 #include <gl/glu.h>
+#include "../GUI/MainWindow.h"
 
 #include "../Common/Vectors.h"
 #include "../Engine/Globals.h"
