@@ -1,6 +1,6 @@
-#include "GUImain.h"
 #include <gl/gl.h>
 #include <gl/glu.h>
+#include "MainWindow.h"
 #include "../Engine/Globals.h"
 #include "../Engine/Robot.h"
 #include "../GFX/DrawWorld.h"

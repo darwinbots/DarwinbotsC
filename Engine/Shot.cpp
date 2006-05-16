@@ -7,7 +7,7 @@ be my guest.
 Numsgil Feb. 09 2006
 **************************************************************************************/
 #include "Engine.h"
-#include "Shots.h"
+#include "Shot.h"
 #include "SimOptions.h"
 
 #define SHOTDECAY 40.0f //increase to have shots lose power slower

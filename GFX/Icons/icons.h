@@ -9,3 +9,4 @@ extern const unsigned char CycleButtonGIF[];
 /* created by reswrap from file PauseButtonGIF.gif */
 extern const unsigned char PauseButtonGIF[];
 
+extern const unsigned char MonitorGIF[];

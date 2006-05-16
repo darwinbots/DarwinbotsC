@@ -2,13 +2,14 @@
 //ALWAYS assume that DNA is sized right
 //ALWAYS size DNA correctly when mutating
 
-#include <algorithm>
-#include "DNAClass.h"
 #include "Mutations.h"
+#include "../Common/Random.h"
 
 //1-(perbot+1)^(1/DNALength) = per unit
 
 //1-(1-perunit)^DNALength = perbot
+
+using namespace std;
 
 bool DNA_Class::Delete(int start, int end)
 {
@@ -26,13 +27,13 @@ bool DNA_Class::Reverse(unsigned int start, unsigned int end)
 
 bool DNA_Class::Translocate(unsigned int start, unsigned int end)
 {
-    vector<block> temp;
+    vector<Block> temp;
     for(unsigned int x = start; x <= end; x++)
         temp.push_back(Code[x]);
     Delete(start, end);
 
     unsigned int location = frnd(1, length() + 1 - (end - start));
-    Code.insert(Code.begin() + location, (end - start), block()); //insert blanks
+    Code.insert(Code.begin() + location, (end - start), Block()); //insert blanks
     for(unsigned int y = 0, z = location; y < temp.size(); z++, y++)
         Code[z] = temp[y];
 
@@ -77,13 +78,10 @@ string &MutationType(int mode)
 /////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////
 
-#define BASICMUTATIONWORK(XXX)                          \
-    float mutprob = 1.0f / ((float)Mutables. XXX .Prob * multiplier);  \
-    if( powf(mutprob, (float)length()) > DBrand())
-
 void DNA_Class::MutatePoint(float multiplier)
 {
-    BASICMUTATIONWORK(Point)
+    float mutprob = 1.0f / ((float)Mutables.Point.Prob * multiplier);
+    if( powf(mutprob, (float)length()) > DBrand())
     {
         unsigned int location = frnd(1, length()) - 1;
 
@@ -98,7 +96,8 @@ void DNA_Class::MutatePoint(float multiplier)
 
 void DNA_Class::MutateDelta(float multiplier)
 {
-    BASICMUTATIONWORK(Delta)
+    float mutprob = 1.0f / ((float)Mutables.Delta.Prob * multiplier);
+    if( powf(mutprob, (float)length()) > DBrand())
     {
         int muttype = frnd(PointUP, MaxUP - 1);
         float percentage = 0.0f;
@@ -130,7 +129,8 @@ void DNA_Class::MutateDelta(float multiplier)
 
 void DNA_Class::MutateCopyError(float multiplier)
 {
-    BASICMUTATIONWORK(CopyError)
+    float mutprob = 1.0f / ((float)Mutables.CopyError.Prob * multiplier);
+    if( powf(mutprob, (float)length()) > DBrand())
     {
         unsigned int location = frnd(1, length()) - 1;
         if(DBrand() > Mutables.CopyError.DeltaValue)
@@ -144,7 +144,8 @@ void DNA_Class::MutateCopyError(float multiplier)
 
 void DNA_Class::MutateReversal(float multiplier)
 {
-    BASICMUTATIONWORK(Reversal)
+    float mutprob = 1.0f / ((float)Mutables.Reversal.Prob * multiplier);
+    if( powf(mutprob, (float)length()) > DBrand())
     {
         unsigned int ReversalLength = 0;
 
@@ -168,7 +169,8 @@ void DNA_Class::MutateReversal(float multiplier)
 
 void DNA_Class::MutateTranslocation(float multiplier)
 {
-    BASICMUTATIONWORK(Translocation)
+    float mutprob = 1.0f / ((float)Mutables.Translocation.Prob * multiplier);
+    if( powf(mutprob, (float)length()) > DBrand())
     {
         unsigned int TranslocationLength = 0;
         
@@ -192,7 +194,8 @@ void DNA_Class::MutateTranslocation(float multiplier)
 
 void DNA_Class::MutateInsertion(float multiplier)
 {
-    BASICMUTATIONWORK(Insertion)
+    float mutprob = 1.0f / ((float)Mutables.Insertion.Prob * multiplier);
+    if( powf(mutprob, (float)length()) > DBrand())
     {
         unsigned int InsertLength = 0;
 
@@ -208,8 +211,8 @@ void DNA_Class::MutateInsertion(float multiplier)
         if (InsertLength == (unsigned int)length())
             InsertLength = length();
 
-        vector<block> temp;
-        block RND;
+        vector<Block> temp;
+        Block RND;
         for(x = 0; x < InsertLength; x++)
         {
             RND.RandomizeTipo();
@@ -219,7 +222,7 @@ void DNA_Class::MutateInsertion(float multiplier)
 
         unsigned int location = frnd(0, length() - 1);
 
-        Code.insert(Code.begin() + location + 1, InsertLength, block());
+        Code.insert(Code.begin() + location + 1, InsertLength, Block());
 
         for(x = 0; x < InsertLength; x++)
         {
@@ -230,7 +233,8 @@ void DNA_Class::MutateInsertion(float multiplier)
 
 void DNA_Class::MutateAmplification(float multiplier)
 {
-    BASICMUTATIONWORK(Amplification)
+    float mutprob = 1.0f / ((float)Mutables.Amplification.Prob * multiplier);
+    if( powf(mutprob, (float)length()) > DBrand())
     {
         unsigned int AmpLength = 0;
 
@@ -248,21 +252,22 @@ void DNA_Class::MutateAmplification(float multiplier)
 
         unsigned int location = frnd(0, length() - AmpLength);
 
-        vector<block> temp;
+        vector<Block> temp;
 
         for(x = location; x < location + AmpLength; x++)
             temp.push_back(Code[location]);
 
         location = frnd(0, length() - 1);
 
-        Code.insert(Code.begin() + location + 1, AmpLength, block());
+        Code.insert(Code.begin() + location + 1, AmpLength, Block());
         for(unsigned int z = location, y = 0; z < AmpLength + location; z++, y++)
             Code[z] = temp[y];
     }    
 }
 void DNA_Class::MutateDeletion(float multiplier)
 {
-    BASICMUTATIONWORK(Deletion)
+    float mutprob = 1.0f / ((float)Mutables.Deletion.Prob * multiplier);
+    if( powf(mutprob, (float)length()) > DBrand())
     {
         unsigned int DeleteLength = 0;
         

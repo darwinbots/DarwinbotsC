@@ -6,6 +6,7 @@
 
 class BotDebug_Window;
 class OptionsFormDialogBox;
+class EngineThread;
 
 #define PROJECT_NAME "DarwinBots 2.5"
 #define PROJECT_VERSION "2.5 Pre-Alpha"
@@ -30,10 +31,11 @@ protected:
     bool GraphicsOn;
 
     FXMDIClient *mdiclient;
-
     FXMDIChild *mainview;
-        
+    
 public:
+    EngineThread* engineThread;
+
     OptionsFormDialogBox *OptionsForm;
 
     MainWindow(FXApp *app);
@@ -63,8 +65,10 @@ public:
         ID_StepEngine,
         ID_PlayEngine,
 
-        ID_TurnOffGraphics,
+        ID_ToggleGraphics,
 
+        ID_STARTNEW,
+        
         ID_LAST
     };
     
@@ -98,14 +102,17 @@ public:
     long onPlay                 (FXObject *, FXSelector, void *);
     long onPause                (FXObject *, FXSelector, void *);
 
-    long onTurnOffGraphics      (FXObject *, FXSelector, void *);
+    long onCmdToggleGraphics    (FXObject *, FXSelector, void *);
+    long onUpdToggleGraphics    (FXObject *, FXSelector, void *);
+    
+    long onStartNew             (FXObject *, FXSelector, void *);
 
     long GLWindow               ();
 
 
     long onBotDebug             ();
     
-}extern *MainWindowHandle;
+};
 
 FXDEFMAP(MainWindow) MainWindowMap[] = {
   FXMAPFUNC(SEL_CONFIGURE, MainWindow::ID_MainView,         MainWindow::DrawScene),
@@ -135,7 +142,9 @@ FXDEFMAP(MainWindow) MainWindowMap[] = {
   FXMAPFUNC(SEL_COMMAND, MainWindow::ID_StepEngine, MainWindow::onCycle),
   FXMAPFUNC(SEL_COMMAND, MainWindow::ID_PlayEngine, MainWindow::onPlay),
   FXMAPFUNC(SEL_COMMAND, MainWindow::ID_PauseEngine, MainWindow::onPause),
-  FXMAPFUNC(SEL_COMMAND, MainWindow::ID_TurnOffGraphics, MainWindow::onTurnOffGraphics)
+  FXMAPFUNC(SEL_COMMAND, MainWindow::ID_ToggleGraphics, MainWindow::onCmdToggleGraphics),
+  FXMAPFUNC(SEL_UPDATE , MainWindow::ID_ToggleGraphics, MainWindow::onUpdToggleGraphics),
+  FXMAPFUNC(SEL_COMMAND, MainWindow::ID_STARTNEW, MainWindow::onStartNew)
 };
 
 #endif

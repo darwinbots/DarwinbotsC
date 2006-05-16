@@ -3,8 +3,11 @@
 
 #include <iostream>
 #include <string>
+#include <algorithm>
+#include "DNAClass.h"
 
-using namespace std;
+
+
 
 #define PointUP         1
 #define DeltaUP         2

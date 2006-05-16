@@ -9,7 +9,7 @@ non kosher methods might lead to minor memory leaks, among other things.
 ***************************************************************************/
 
 #include "OptionsForm.h"
-
+#include "MainWindow.h"
 
 FXIMPLEMENT(OptionsFormDialogBox, FXDialogBox,
     OptionsFormDialogBoxMap, ARRAYNUMBER(OptionsFormDialogBoxMap))
@@ -66,9 +66,7 @@ long OptionsFormDialogBox::onChange(FXObject *, FXSelector, void *)
 
 long OptionsFormDialogBox::onStartNew(FXObject *, FXSelector, void *)
 {
-    EngineThread.cancel();
-    SimOpts = TmpOpts;
-    EngineThread.start();
+    this->getOwner()->handle(this,FXSEL(SEL_COMMAND,MainWindow::ID_STARTNEW),NULL);
     this->hide();
     return 1;
 }

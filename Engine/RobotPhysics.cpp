@@ -20,8 +20,6 @@ video game literature.
 *****************************************************/
 
 #include "Robot.h"
-#include "..\Common\Vectors.h"
-#include "..\Common\Random.h"
 
 #define CUBE(a) ((a)*(a)*(a))
 
@@ -103,12 +101,14 @@ float Robot::BotCollisionsPos()
             Vector3f normal = rob[x]->pos - this->pos;
             
             float mindist = this->radius + rob[x]->radius;
+            if(abs(normal.x())>mindist || abs(normal.y())>mindist) //Square test
+                continue;
             mindist *= mindist;
                         
             float currdist = normal.LengthSquared();
             
-            //The +1 is a fudge factor to take into account
-            //floating point inacuracies
+            //Circle test
+            //The +1 is a fudge factor for floating point inaccuracies
             if(currdist + 1 < mindist) //bots colliding...activate both bots
             {
                 collide = true;

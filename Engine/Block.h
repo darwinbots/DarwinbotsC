@@ -48,20 +48,21 @@ enum BlockType
     btMAX
 };
 
-struct block
+struct Block
 {
 	BlockType tipo;
     __int16 value;
 
-    block():tipo(btNONE), value(0) {};
-    block(const BlockType &a, const __int16 &b): tipo(a), value(b){};
+    Block():tipo(btNONE), value(0) {};
+    Block(const BlockType &a, const __int16 &b): tipo(a), value(b){};
+    Block(const std::string& command);
     
-    const bool operator == (const block &other) const
+    const bool operator == (const Block &other) const
     {
         return tipo == other.tipo && value == other.value;
     }
 
-    const bool operator != (const block &other) const
+    const bool operator != (const Block &other) const
     {
         return !(tipo == other.tipo && value == other.value);        
     }
@@ -72,20 +73,20 @@ struct block
         this->value = -1;
     }
 
-    block *ParseCommand(const string &Command);
+    Block *ParseCommand(const string &Command);
     string &UnparseCommand(bool converttosysvar = true);
 
     void RandomizeValue();
     void RandomizeTipo();
 };
 
-const block DNA_END  (btMasterFlow,1 );
-const block DNA_START(btFlow ,2 );
-const block DNA_ELSE (btFlow ,3 );
-const block DNA_STOP (btFlow ,4 );
+const Block DNA_END  (btMasterFlow,1 );
+const Block DNA_START(btFlow ,2 );
+const Block DNA_ELSE (btFlow ,3 );
+const Block DNA_STOP (btFlow ,4 );
 
-block RandomBlock();
-block ParseCommand(const string &Command);
+Block RandomBlock();
+Block ParseCommand(const string &Command);
 
 extern vector<var> sysvar; //all possible sysvars
 #endif

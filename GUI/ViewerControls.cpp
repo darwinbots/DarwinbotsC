@@ -1,5 +1,8 @@
 #include <cmath>
-#include "../GUI/GUImain.h"
+#include <gl/gl.h>
+#include <gl/glu.h>
+
+#include "../GUI/MainWindow.h"
 #include "../GFX/Camera.h"
 #include "../Engine/Globals.h"
 #include "../GFX/DrawWorld.h"
@@ -7,8 +10,7 @@
 #include "../Engine/Robot.h"
 #include "../GFX/DrawWorld.h"
 
-#include <gl/gl.h>
-#include <gl/glu.h>
+
 
 int CurrBotUserSelected = -1;
 

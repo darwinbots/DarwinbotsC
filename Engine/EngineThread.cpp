@@ -1,17 +1,17 @@
-#include <time.h>
-#include "..\GUI\GUIMain.h"
+#include "..\GUI\MainWindow.h"
 #include "EngineThread.h"
-#include "Engine.h"
-#include "SimOptions.h"
-
-EngineThread_Class EngineThread;
 
 inline float round(float value)
 {
     return float(int(value * 100))/100;
 }
 
-int EngineThread_Class::run()
+EngineThread::EngineThread():runCounter(0)
+{
+    Engine.ProgramInitialize();
+}
+
+int EngineThread::run()
 {
     try
     {    
@@ -23,15 +23,15 @@ int EngineThread_Class::run()
 
         while(true)
         {
-            if(this->Flow.Counter() >= 0)
+            if(runCounter >= 0)
             {
                 Engine.UpdateSim();
-                Flow.Add_Cycles(-1);
+                addCycles(-1);
                 x++;
             }
             
-            //update cyc/sec calculation at most once every quarter second
-            if(float(clock() - elapsed_time) / float(CLOCKS_PER_SEC) >= .25f)
+            //update cyc/sec calculation at most once every half second
+            if(float(clock() - elapsed_time) / float(CLOCKS_PER_SEC) >= .5f)
             {
                 SimOpts.CycSec = round(x * float(CLOCKS_PER_SEC) / float(clock() - elapsed_time));
                 elapsed_time = clock();
@@ -77,10 +77,7 @@ int EngineThread_Class::run()
     return 0;
 }
 
-void EngineThread_Class::ProgramInitialize()
-{
-    Engine.ProgramInitialize();
-}
+
 
 /*
 Important Note:

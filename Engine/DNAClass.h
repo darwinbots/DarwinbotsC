@@ -18,7 +18,7 @@ struct MutationDetails
     int type;
     unsigned long cycle;
     unsigned long start, stop, location;
-    vector<block> Inserted; //holds the DNA added if DNA was added
+    vector<Block> Inserted; //holds the DNA added if DNA was added
     float Magnitude;
 };
 
@@ -28,7 +28,7 @@ class DNA_Class
 	friend ostream& operator<<(ostream& output, DNA_Class& DNA);   //Output DNA into a Text File
     
     private:
-    vector<block> Code;
+    vector<Block> Code;
 	vector<var>   Private_Variables;
 	long DNAgenenum; //number of genes in the genome
 	
@@ -58,8 +58,8 @@ class DNA_Class
 
     string &SysvarDetok(__int16 number);
     __int16 SysvarTok(const string &in);
-    block ParseCommand(const string &Command);
-    string &UnparseCommand(const block &Command, bool converttosysvar);
+    Block ParseCommand(const string &Command);
+    string &UnparseCommand(const Block &Command, bool converttosysvar);
     
 	public:
     DNA_Class(); //constructor
@@ -72,6 +72,7 @@ class DNA_Class
     string &text(); //parse into a string
     bool LoadDNA(string path);
     istream& LoadDNA(istream &input);
+    istream& load(istream &inputStream);
     void Execute(Robot* bot);
     void Occurrs(int *OccurrArray);
 };

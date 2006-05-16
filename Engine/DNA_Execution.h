@@ -4,6 +4,7 @@
 #include "DNAClass.h"
 #include "Robot.h"
 #include <stack>
+#include "Block.h"
 
 //the conditions stack
 class BoolStack

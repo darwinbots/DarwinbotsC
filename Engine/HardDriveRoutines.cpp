@@ -9,9 +9,9 @@
 #include "DNAClass.h"
 #include "Engine.h"
 #include "HardDriveRoutines.h"
-#include "block.h"
+#include "Block.h"
 #include "..\GUI\OptionsForm.h"
-#include "..\GUI\GUIMain.h"
+#include "..\GUI\MainWindow.h"
 
 ofstream settingsout;
 
@@ -754,25 +754,25 @@ bool DNA_Class::LoadDNA(string path)
     ifstream DNAfile(path.c_str() );
 	if (DNAfile.fail() == true)
 	{
-		//this isn't a valid settings file
+		//this isn't a valid robot DNA file
 		cout << "Robot file " << path.c_str() << " not found." << endl;
 		DNAfile.close();
 		return false;
 	}
     
-    this->LoadDNA(DNAfile);
+    this->load(DNAfile);
     
     DNAfile.close();
     return true;
 }
 
-/*
+
 // This is an all purpose tokenizer respecting Darwinbots' conventions
 // Spaces and linebreaks count as delimiters and everything after "'" is
 // ignored till end of line.
 vector<string> tokenize(istream& inputStream)
 {
-    int pos;
+    unsigned int pos;
     vector<string> tokenList;
     string lineBuf,token;
 
@@ -798,7 +798,7 @@ vector<string> tokenize(istream& inputStream)
 
     return tokenList;
 };
-
+/*
 bool LoadSysvars() {
     string path = Engine.MainDir() + "\\sysvars2.4.txt";
     return LoadSysvars(path);
@@ -843,3 +843,4 @@ bool LoadSysvars(string path) {
   return true;
 };
 */
+
