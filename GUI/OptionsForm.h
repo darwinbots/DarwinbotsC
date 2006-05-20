@@ -1,12 +1,11 @@
 #ifndef OPTIONSFORM_H
 #define OPTIONSFORM_H
 
+#pragma warning(disable : 4786)
+
 #include <fx.h>
 #include "../Engine/SimOptions.h"
-#include "../Engine/HardDriveRoutines.h"
-#include "../Engine/Engine.h"
 #include "../Engine/EngineThread.h"
-#include "../Engine/Mutations.h"
 
 #define LAYOUT_FILL_XY LAYOUT_FILL_X|LAYOUT_FILL_Y
 #define LAYOUT_FILL_RC LAYOUT_FILL_COLUMN|LAYOUT_FILL_ROW
@@ -21,9 +20,9 @@ class OptionsFormDialogBox : public FXDialogBox
     public:
     FXList *SpeciesList;
 
-    private:
-    int mode;
-    FXDataTarget currentMutationMode;
+    private:    
+    bool recover;
+
     void BottomToolbar(FXMatrix *LayoutMatrix);
     void Species                (FXTabBook *TabBook);
     void Veggy                  (FXTabBook *TabBook);
@@ -72,10 +71,20 @@ class OptionsFormDialogBox : public FXDialogBox
     void hide()
     {
         FXDialogBox::hide();
+        if(recover)
+            EngineThread.Flow.Play();
     }
 
     void show(FXuint placement)
     {
+        if(EngineThread.running())
+        {
+            recover = true;
+            EngineThread.Flow.Pause();
+        }
+        else
+            recover = false;
+        
         SpeciesList->clearItems();
         for (int x = 0; x < 50; x++)
         {

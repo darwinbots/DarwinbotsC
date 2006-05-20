@@ -23,6 +23,8 @@ video game literature.
 #include "..\Common\Vectors.h"
 #include "..\Common\Random.h"
 
+//could be implemented as an inline, but this way I don't have to
+//worry about type safety
 #define CUBE(a) ((a)*(a)*(a))
 
 void Robot::NetForces()
@@ -219,7 +221,7 @@ the algorithm for implementing this is detailed in
 Tricks of the Windows game programming gurus 2nd edition
 by Andre LaMothe
 page 847
-"Real 2D Object-to-Object Collision Response (Advanced)
+"Real 2D Object-to-Object Collision Response (Advanced)"
 
 Basically, the algorithm looks like:
 1.  Compute normal and tangent unit vectors to collision (n and t)
@@ -242,8 +244,6 @@ Also, see http://en.wikipedia.org/wiki/Coefficient_of_restitution
 which Numsgil heavily contributed to.
 */
 
-//unresolved question: should I use added mass
-//as part of the momentum equation for collisions?
 void Robot::BotCollisionsVel()
 {
     for(int x = 0; x <= MaxRobs; x++)

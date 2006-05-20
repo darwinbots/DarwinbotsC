@@ -1,4 +1,5 @@
 #include "GUImain.h"
+#include <FXGUISignal.h>
 #include "OptionsForm.h"
 #include "../Engine/Engine.h"
 #include "../Engine/EngineThread.h"

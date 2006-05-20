@@ -58,24 +58,24 @@ bool DNA_Class::Mutate(bool reproducing, float multiplier) //returns wether we s
     assert(this != NULL && "Attempting to mutate non existant DNA in DNAClass::Mutate()");
     unsigned long oldMut = this->LastMut;    
 
-    if (this->Mutables.On == false)
+    if (this->Mutables.GlobalMutationOn() == false)
         return false;
         
     if (!reproducing)
     {
         //Point Mutations and Delta Mutations
         
-        if(Mutables.Point.On) MutatePoint(multiplier);
-        if(Mutables.Delta.On) MutateDelta(multiplier);
+        if(Mutables[PointUP]->On) MutatePoint(multiplier);
+        if(Mutables[DeltaUP]->On) MutateDelta(multiplier);
     }
     else
     {
-        if(Mutables.CopyError.On)       MutateCopyError(multiplier);
-        if(Mutables.Reversal.On)        MutateReversal(multiplier);
-        if(Mutables.Translocation.On)   MutateTranslocation(multiplier);
-        if(Mutables.Insertion.On)       MutateInsertion(multiplier);
-        if(Mutables.Amplification.On)   MutateAmplification(multiplier);
-        if(Mutables.Deletion.On)        MutateDeletion(multiplier);     
+        if(Mutables[CopyErrorUP]->On)       MutateCopyError(multiplier);
+        if(Mutables[ReversalUP]->On)        MutateReversal(multiplier);
+        if(Mutables[TranslocationUP]->On)   MutateTranslocation(multiplier);
+        if(Mutables[InsertionUP]->On)       MutateInsertion(multiplier);
+        if(Mutables[AmplificationUP]->On)   MutateAmplification(multiplier);
+        if(Mutables[DeletionUP]->On)        MutateDeletion(multiplier);     
     }
 
     if (LastMut > oldMut)
