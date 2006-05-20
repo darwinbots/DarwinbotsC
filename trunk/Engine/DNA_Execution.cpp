@@ -1,20 +1,18 @@
 #include "DNA_Execution.h"
 
-/*****************************************
-TODO: be sure DNA costs are being exacted
-******************************************/
-
 //the conditions stack
 BoolStack condStack;
 
 //the integer stack
 intstack_type IntStack;
 
+//the current state (DNA executes based on a sort of FSM)
 FlowType CurrentFlow;
 
+//wether we execute BODY or ELSE statements
 bool CurrentCondFlag;
 
-Robot* currbot;
+Robot *currbot;
 unsigned long currgene;
 
 /*********************************************

@@ -82,12 +82,13 @@ void Engine_Class::UpdateSim(void)
     {
         Continue = false;
         maxoverlap = 0.0f;
+        
         FORALLROBOTS //for all robots 
         {
             if (rob[counter]->active)
 			{			 
 				float overlap = rob[counter]->BotCollisionsPos(); 
-				maxoverlap = max(maxoverlap, overlap);
+				maxoverlap = __max(maxoverlap, overlap);
 			}
 
             
@@ -104,10 +105,6 @@ void Engine_Class::UpdateSim(void)
                 Continue = true;
             }
         }
-
-        //cout << activecounter << endl;
-
-        //loopcounter++;
     
     }while(Continue);
 

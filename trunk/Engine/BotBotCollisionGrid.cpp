@@ -30,7 +30,7 @@ BotBotCollisionGrid::~BotBotCollisionGrid()
 
 }
 
-void BotBotCollisionGrid::Setup(Vector3i Dimensions)
+BotBotCollisionGrid::Setup(Vector3i Dimensions)
 {
     assert(Dimensions.x() > 0 && "Attempting to create a world grid with zero x dimensions");
     assert(Dimensions.y() > 0 && "Attempting to create a world grid with zero y dimensions");
@@ -43,7 +43,7 @@ void BotBotCollisionGrid::Setup(Vector3i Dimensions)
     MasterGrid.clear();    
 }
 
-void BotBotCollisionGrid::SetupLevel(vector< vector< list< Robot* > > > &Grid, Vector3i Dimensions, int GridSize)
+BotBotCollisionGrid::SetupLevel(vector< vector< list< Robot* > > > &Grid, Vector3i Dimensions, int GridSize)
 {
     Grid.resize( (Dimensions.x() + GridSize - 1) / GridSize);//round up the number of dimensions needed
     for(unsigned int x = 0; x < Grid.size(); x++)
@@ -54,4 +54,12 @@ void BotBotCollisionGrid::SetupLevel(vector< vector< list< Robot* > > > &Grid, V
             Grid[x][y].clear();
         }
     }
+}
+
+void BotBotCollisionGrid::Insert(Robot *bot)
+{
+    /*
+    1.  Find Radius
+    2.  Place bot in grid that's grid size is the Least Upper Bound of
+        its diameter (ie: 2x radius)*/
 }
