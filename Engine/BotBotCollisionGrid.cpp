@@ -30,7 +30,7 @@ BotBotCollisionGrid::~BotBotCollisionGrid()
 
 }
 
-BotBotCollisionGrid::Setup(Vector3i Dimensions)
+void BotBotCollisionGrid::Setup(Vector3i Dimensions)
 {
     assert(Dimensions.x() > 0 && "Attempting to create a world grid with zero x dimensions");
     assert(Dimensions.y() > 0 && "Attempting to create a world grid with zero y dimensions");
@@ -43,7 +43,7 @@ BotBotCollisionGrid::Setup(Vector3i Dimensions)
     MasterGrid.clear();    
 }
 
-BotBotCollisionGrid::SetupLevel(vector< vector< list< Robot* > > > &Grid, Vector3i Dimensions, int GridSize)
+void BotBotCollisionGrid::SetupLevel(vector< vector< list< Robot* > > > &Grid, Vector3i Dimensions, int GridSize)
 {
     Grid.resize( (Dimensions.x() + GridSize - 1) / GridSize);//round up the number of dimensions needed
     for(unsigned int x = 0; x < Grid.size(); x++)
