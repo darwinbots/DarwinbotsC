@@ -12,10 +12,10 @@ char *MutationDetailsArray[] = {
 "Point Mutation",
 "Delta Mutation",
 "Copy Error Mutation",
-"Translocation Mutation",
 "Reversal Mutation",
-"Amplification Mutation",
+"Translocation Mutation",
 "Insertion Mutation",
+"Amplification Mutation",
 "Deletion Mutation"};
 
 char *MutationProbSuffixArray[] = {
@@ -88,7 +88,7 @@ FXIMPLEMENT(SpeciesMutationsDialogBox, FXDialogBox,
     SpeciesMutationsDialogBoxMap, ARRAYNUMBER(SpeciesMutationsDialogBoxMap))
 
 SpeciesMutationsDialogBox::SpeciesMutationsDialogBox(FXComposite *parent, mutationprobs *Muts) :
-    FXDialogBox(parent, "Species Mutation Options", DECOR_TITLE|DECOR_BORDER,
+    FXDialogBox(parent, "Species mutation options", DECOR_TITLE|DECOR_BORDER,
         0,0,0,0, 0,0,0,0, 0,0)
 {
 
@@ -109,7 +109,7 @@ SpeciesMutationsDialogBox::SpeciesMutationsDialogBox(FXComposite *parent, mutati
                     this, SpeciesMutationsDialogBox::ID_MUTATIONMODE + option, BUTTON_NORMAL | LAYOUT_FILL_X
                 
                 //Per Cycle mutations
-                FXGroupBox *MutationsPerCycleFrame = new FXGroupBox(MutationsTypeMatrix, "Per Cycle",
+                FXGroupBox *MutationsPerCycleFrame = new FXGroupBox(MutationsTypeMatrix, "Per cycle",
                     FRAME_RIDGE | LAYOUT_FILL_ALL);
                 {
                     new FXButton(MutationsPerCycleFrame, "Point", NULL, BUTTON_STUFF(PointUP));
@@ -117,14 +117,14 @@ SpeciesMutationsDialogBox::SpeciesMutationsDialogBox(FXComposite *parent, mutati
                 }
 
                 //Per Reproduction mutations
-                FXGroupBox *MutationsPerReproFrame = new FXGroupBox(MutationsTypeMatrix, "Per Reproduction",
+                FXGroupBox *MutationsPerReproFrame = new FXGroupBox(MutationsTypeMatrix, "Per reproduction",
                     FRAME_RIDGE | LAYOUT_FILL_ALL);
                 {
                     new FXButton(MutationsPerReproFrame, "Copy Error", NULL, BUTTON_STUFF(CopyErrorUP));
-                    new FXButton(MutationsPerReproFrame, "Translocation", NULL, BUTTON_STUFF(TranslocationUP));
                     new FXButton(MutationsPerReproFrame, "Reversal", NULL, BUTTON_STUFF(ReversalUP));
-                    new FXButton(MutationsPerReproFrame, "Amplification", NULL, BUTTON_STUFF(AmplificationUP));
+                    new FXButton(MutationsPerReproFrame, "Translocation", NULL, BUTTON_STUFF(TranslocationUP));
                     new FXButton(MutationsPerReproFrame, "Insertion", NULL, BUTTON_STUFF(InsertionUP));
+                    new FXButton(MutationsPerReproFrame, "Amplification", NULL, BUTTON_STUFF(AmplificationUP));
                     new FXButton(MutationsPerReproFrame, "Deletion", NULL, BUTTON_STUFF(DeletionUP));
                 }
                 #undef BUTTON_STUFF
@@ -137,12 +137,12 @@ SpeciesMutationsDialogBox::SpeciesMutationsDialogBox(FXComposite *parent, mutati
                     FRAME_RIDGE | LAYOUT_FILL_ALL);
                 {
                     new FXText(MutationsDetailsFrame, new FXDataTarget((FXString &)MutationInformation), 
-                        FXDataTarget::ID_VALUE, FRAME_RIDGE | LAYOUT_FILL_X);
+                        FXDataTarget::ID_VALUE, FRAME_RIDGE | LAYOUT_FILL_X | TEXT_READONLY);
 
                     FXMatrix *EnabledAndChanceMatrix = 
                         new FXMatrix(MutationsDetailsFrame, 1, MATRIX_BY_ROWS | LAYOUT_FILL_X);
                     {
-                        new FXCheckButton(EnabledAndChanceMatrix, "Mutation Enabled",
+                        new FXCheckButton(EnabledAndChanceMatrix, "Mutation enabled",
                             &MutationEnabledDT, FXDataTarget::ID_VALUE);
                         
                         new FXLabel(EnabledAndChanceMatrix, "1 in ");
@@ -150,18 +150,18 @@ SpeciesMutationsDialogBox::SpeciesMutationsDialogBox(FXComposite *parent, mutati
                         new FXTextField(EnabledAndChanceMatrix, 9, &CurrentMutationProb, FXDataTarget::ID_VALUE);
 
                         new FXTextField(EnabledAndChanceMatrix, 13, new FXDataTarget(MutationProbSuffix),
-                            FXDataTarget::ID_VALUE);
+                            FXDataTarget::ID_VALUE,TEXTFIELD_READONLY);
                     }
 
                     GaussFrame = new FXGroupBox(MutationsDetailsFrame, 
-                        "Guassian Length / Standard Deviation", FRAME_RIDGE | LAYOUT_FILL_X);
+                        "Gaussian distribution", FRAME_RIDGE | LAYOUT_FILL_X);
                     {
                     
                         FXMatrix *ChangeMeanMatrix = 
                             new FXMatrix(GaussFrame, 1, MATRIX_BY_ROWS | LAYOUT_FILL_X);
 
                         {
-                            new FXLabel(ChangeMeanMatrix, "Mean Length");
+                            new FXLabel(ChangeMeanMatrix, "Mean length");
                             new FXHorizontalSeparator(ChangeMeanMatrix, LAYOUT_FILL_X|LAYOUT_FILL_COLUMN);
                             new FXTextField(ChangeMeanMatrix, 9, &MeanDT, FXDataTarget::ID_VALUE,
                                 JUSTIFY_RIGHT|FRAME_SUNKEN|FRAME_THICK|LAYOUT_RIGHT);
@@ -170,7 +170,7 @@ SpeciesMutationsDialogBox::SpeciesMutationsDialogBox(FXComposite *parent, mutati
                         FXMatrix *ChangeStdDevMatrix = 
                             new FXMatrix(GaussFrame, 1, MATRIX_BY_ROWS | LAYOUT_FILL_X);
                         {
-                            new FXLabel(ChangeStdDevMatrix, "Standard Deviation");
+                            new FXLabel(ChangeStdDevMatrix, "Standard deviation");
                             new FXHorizontalSeparator(ChangeStdDevMatrix, LAYOUT_FILL_X|LAYOUT_FILL_COLUMN);
                             new FXTextField(ChangeStdDevMatrix, 9, &StdDevDT, FXDataTarget::ID_VALUE,
                                 JUSTIFY_RIGHT|FRAME_SUNKEN|FRAME_THICK|LAYOUT_RIGHT);
@@ -179,20 +179,20 @@ SpeciesMutationsDialogBox::SpeciesMutationsDialogBox(FXComposite *parent, mutati
 
                     
                     ChangeTypeValueFrame = new FXGroupBox(MutationsDetailsFrame,
-                        "Change Type/Value", FRAME_RIDGE | LAYOUT_FILL_X);
+                        "Change type/value", FRAME_RIDGE | LAYOUT_FILL_X);
                     
                     FXMatrix *ChangeTypeOrValueMatrix = 
                         new FXMatrix(ChangeTypeValueFrame, 1, MATRIX_BY_ROWS | LAYOUT_FILL_X);
                     {
-                        new FXLabel(ChangeTypeOrValueMatrix, "Change Type");
+                        new FXLabel(ChangeTypeOrValueMatrix, "Change type");
 
                         (new FXRealSlider(ChangeTypeOrValueMatrix, NULL, 0, SLIDER_NORMAL | LAYOUT_FILL_ALL))->setRange(0, 1);
                         
-                        new FXLabel(ChangeTypeOrValueMatrix, "Change Value");
+                        new FXLabel(ChangeTypeOrValueMatrix, "Change value");
                     }                    
 
                     FXGroupBox *ApproximateChancesFrame = new FXGroupBox(MutationsDetailsFrame,
-                        "Approximate Mutation Chances", FRAME_RIDGE | LAYOUT_FILL_ALL);
+                        "Approximate mutation chances", FRAME_RIDGE | LAYOUT_FILL_ALL);
                     {                    
                         FXMatrix *PerCycleMatrix = 
                             new FXMatrix(ApproximateChancesFrame, 1, MATRIX_BY_ROWS | LAYOUT_FILL_X);
@@ -234,11 +234,11 @@ SpeciesMutationsDialogBox::SpeciesMutationsDialogBox(FXComposite *parent, mutati
         {
             FXMatrix *ToolbarMatrix = new FXMatrix(ToolbarFrame, 1, MATRIX_BY_ROWS | LAYOUT_FILL_ALL);
             {
-                new FXCheckButton(ToolbarMatrix, "Enable Mutations");
+                new FXCheckButton(ToolbarMatrix, "Enable mutations");
                 //new FXHorizontalSeparator(ToolbarMatrix);
                 new FXButton(ToolbarMatrix, "Cancel", NULL, this, FXDialogBox::ID_CANCEL);
-                new FXButton(ToolbarMatrix, "Apply to Bots in World");
-                new FXButton(ToolbarMatrix, "Apply to Species Template", NULL, this,
+                new FXButton(ToolbarMatrix, "Apply to bots in world");
+                new FXButton(ToolbarMatrix, "Apply to species template", NULL, this,
                     SpeciesMutationsDialogBox::ID_APPLYTOTEMPLATE);
             }
         }        

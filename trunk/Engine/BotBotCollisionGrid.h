@@ -26,7 +26,7 @@ class BotBotCollisionGrid
     vector< vector< list< Robot *> > > Grid4;
     list <Robot*> MasterGrid;
 
-    SetupLevel(vector< vector< list< Robot* > > > &Grid, Vector3i Dimensions, int GridSize);
+    void SetupLevel(vector< vector< list< Robot* > > > &Grid, Vector3i Dimensions, int GridSize);
     
     public:
 	
@@ -35,7 +35,7 @@ class BotBotCollisionGrid
 
     void Insert(Robot *bot);
 
-    Setup(Vector3i Dimensions);
+    void Setup(Vector3i Dimensions);
 
 };
 
