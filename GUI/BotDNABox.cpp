@@ -64,7 +64,7 @@ BotDNAWindow_Class::BotDNAWindow_Class(Robot *bot, FXComposite *parent) :
             250);
     
         DNATextBox->setText(point->DNA_Text().c_str(),
-                            strlen(point->DNA_Text().c_str()));
+                            (int)strlen(point->DNA_Text().c_str()));
     
         DNATextBox->setDelimiters(" \n\t");
 

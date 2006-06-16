@@ -143,7 +143,7 @@ void BotDebug_Window::SetupDNAFrame()
         250);
     
     DNATextBox->setText(point->DNA_Text().c_str(),
-                        strlen(point->DNA_Text().c_str()));
+                        (int)strlen(point->DNA_Text().c_str()));
     
     DNATextBox->setDelimiters(" \n");
 

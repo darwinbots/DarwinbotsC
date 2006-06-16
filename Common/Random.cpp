@@ -158,7 +158,7 @@ float ran1(long *idum)
 	if (*idum < 0)
 		*idum += IM;
 	
-	j=iy/NDIV;  //Will be in the range 0..NTAB-1.
+	j=(__int16)iy/NDIV;  //Will be in the range 0..NTAB-1.
 	iy=iv[j];   //Output previously stored value and refill the
 				//shuffle table.
 	iv[j] = *idum;
@@ -262,7 +262,7 @@ float ran2(long *idum)
 	k = idum2 / IQ2;
 	idum2 = IA2 * (idum2 - k * IQ2) - k * IR2; // Compute idum2=(IA2*idum) % IM2 likewise.
 	if (idum2 < 0) idum2 += IM2;
-	j=iy/NDIV; // Will be in the range 0..NTAB-1.
+	j=(__int16)iy/NDIV; // Will be in the range 0..NTAB-1.
 	iy=iv[j]-idum2; // Here idum is shuffled, idum and idum2 are
 					//combined to generate output. iv[j] = *idum;
 	if (iy < 1) iy += IMM1;

@@ -28,7 +28,7 @@ long DNA_Class::length()
     assert(this != NULL && "Attempting to find the size of non existant DNA");
     if(this == NULL)
         return 0;
-    return Code.size() - 1;//don't count the end
+    return (long)Code.size() - 1;//don't count the end
 }
 
 DNA_Class::DNA_Class()//:contMutations(),reproMutations()

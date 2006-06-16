@@ -59,24 +59,6 @@ void Engine_Class::UpdateSim(void)
     float maxoverlap;
     int loopcounter = 0;
     
-    #define ANGELOCOLLISION
-    #ifndef ANGELOCOLLISION
-    do
-    {
-        maxoverlap = 0.0f;
-        FORALLROBOTS
-        {
-            float overlap = rob[counter]->BotCollisionsPos();
-            maxoverlap = max(maxoverlap, overlap);
-        }
-
-        FORALLROBOTS rob[counter]->EdgeCollisions();
-
-        loopcounter++;
-    
-    }while(maxoverlap > 0.1f && loopcounter <= 5);
-
-    #else
     bool Continue;
     do
     {
@@ -85,21 +67,18 @@ void Engine_Class::UpdateSim(void)
         
         FORALLROBOTS //for all robots 
         {
-            if (rob[counter]->active)
+            if (rob[counter]->CollisionActive)
 			{			 
 				float overlap = rob[counter]->BotCollisionsPos(); 
 				maxoverlap = max(maxoverlap, overlap);
-			}
-
-            
+			}            
         }
-
         FORALLROBOTS rob[counter]->EdgeCollisions();
 
         unsigned int activecounter = 0;
         FORALLROBOTS
         {
-            if(rob[counter]->active)
+            if(rob[counter]->CollisionActive)
             {
                 activecounter++;
                 Continue = true;
@@ -107,8 +86,6 @@ void Engine_Class::UpdateSim(void)
         }
     
     }while(Continue);
-
-    #endif
 
     FORALLROBOTS ManipulateEyeGrid(rob[counter]);
     
@@ -137,7 +114,8 @@ void Engine_Class::UpdateSim(void)
 void Engine_Class::ProgramInitialize(void)
 {
     char buffer[1028];
-    this->maindir = getcwd(buffer, 1028);
+    this->maindir = _getcwd(buffer, 1028);
+    
     ReadSett(this->maindir + "\\settings\\lastexit.set", SimOpts);
 
     BuildSysvars();
@@ -160,7 +138,7 @@ void Engine_Class::SetupSim(void)
 	if(SimOpts.UserSeedToggle)
         DBsrand(SimOpts.UserSeedNumber);
     else
-        DBsrand(time(NULL));
+        DBsrand((long)time(NULL));
 	
     //Load script Lists
 
@@ -278,7 +256,7 @@ void Engine_Class::RepopulateVeggies()
         for(x = 0; x < SimOpts.RepopAmount; x++)
         {
             //this needs to be changed later into something that uses all species with vegs turned on
-            unsigned int spec = frnd(0, VegSpeciesList.size() - 1);            
+            unsigned int spec = frnd(0, (long)VegSpeciesList.size() - 1);            
             
             new Robot(&SimOpts.Specie[spec]);            
             SimOpts.TotVegsNow++;
@@ -315,7 +293,7 @@ void FindOpenSpace(Robot *me) //finds spot for robot in array, returns pointer t
 
     if(firstopenspot >= (int)rob.capacity())
     {
-        unsigned int oldcapacity = rob.capacity();
+        unsigned int oldcapacity = (unsigned int)rob.capacity();
         rob.reserve(oldcapacity + 10);
         for(unsigned int x = oldcapacity; x < oldcapacity + 10; x++)
         {
