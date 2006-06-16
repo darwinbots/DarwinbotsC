@@ -84,12 +84,12 @@ void Robot::Integrate()
     ImpulseStatic = 0;
 
     if(vel.x() == 0 && vel.y() == 0 && vel.z() == 0)
-        active = false;
+        CollisionActive = false;
     else
-        active = true;
+        CollisionActive = true;
 
     if(age <= 1)
-        active = true;
+        CollisionActive = true;
 }
 
 //sets a hard constraint that pulls bots that are too close to each other apart
@@ -114,8 +114,8 @@ float Robot::BotCollisionsPos()
             if(currdist + 1 < mindist) //bots colliding...activate both bots
             {
                 collide = true;
-                rob[x]->active = true;
-				this->active = true;
+                rob[x]->CollisionActive = true;
+				this->CollisionActive = true;
 				
                 if(currdist < 1)
                 {
@@ -143,7 +143,7 @@ float Robot::BotCollisionsPos()
     }
 
     if(collide == false)
-        active = false;
+        CollisionActive = false;
 
     return maxoverlap;
 }
@@ -173,7 +173,7 @@ void Robot::EdgeCollisions()
     {
         vel(0) = -ovel.x();
         vel *= CoefficientRestitution;
-        active = true;
+        CollisionActive = true;
     }
 
     if(this->pos.y() < this->radius - .1 ||
@@ -181,7 +181,7 @@ void Robot::EdgeCollisions()
     {
         vel(1) = -ovel.y();
         vel *= CoefficientRestitution;
-        active = true;
+        CollisionActive = true;
     }
 
     //speed loss in non normal direction of wall

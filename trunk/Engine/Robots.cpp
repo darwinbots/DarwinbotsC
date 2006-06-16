@@ -600,12 +600,12 @@ void Robot::Reproduction()
         else if((*this)[mrepro] < 0)
         {
             costmult = 1.0f + abs((*this)[mrepro]) / 100;
-            mutmult = float (log(35000 / fabs((*this)[mrepro])) / log(2) / 15.1);
+            mutmult = float (log(35000.0 / fabs((double)(*this)[mrepro])) / log(2.0) / 15.1);
         }
         else
         {
             mutmult = 1.0f + abs((*this)[mrepro]) / 100;
-            costmult = float (log(35000 / fabs((*this)[mrepro])) / log(2) / 15.1);
+            costmult = float (log(35000.0 / fabs((double)(*this)[mrepro])) / log(2.0) / 15.1);
         }
         
         float percentage = (*this)[Repro]/100.0f;

@@ -408,6 +408,8 @@ istream& DNA_Class::LoadDNA(istream &input)
     char *c_word = NULL; //cline is the buffer for the text line
     string line, word;
     block temp;
+    
+    char *nexttoken = NULL;
 
     Code.clear();
 
@@ -418,13 +420,13 @@ istream& DNA_Class::LoadDNA(istream &input)
 
         if (!(line[0] == '\'' || line == "")) //these lines are not either blank or comment lines
         {
-            strcpy(buffer, line.c_str());
+            strcpy_s(buffer, 1024, line.c_str());
             
-            c_word = strtok(buffer, "\n\t "); //tokenize the string and find next token in it
+            c_word = strtok_s(buffer, "\n\t ", &nexttoken); //tokenize the string and find next token in it
             while(c_word != NULL)
             {
                 this->Code.push_back(ParseCommand(c_word));
-                c_word = strtok(NULL, "\n\t ");
+                c_word = strtok_s(NULL, "\n\t ", &nexttoken);
             }
         }
     }
@@ -443,7 +445,7 @@ string &DNA_Class::SysvarDetok(__int16 number)
     static string detok = "UNKNOWN_SYMBOL";
 
     detok = "UNKNOWN_SYMBOL";
-    detok = itoa(number, buffer, 10);
+    detok = _itoa_s(number, buffer, 256, 10);
 
     for(t = 0; t < (int)sysvar.size(); t++)
         if (sysvar[t].value == number)
@@ -463,7 +465,7 @@ string &SysvarDetok(__int16 number)
     static string detok = "UNKNOWN_SYMBOL";
 
     detok = "UNKNOWN_SYMBOL";
-    detok = itoa(number, buffer, 10);
+    detok = _itoa_s(number, buffer, 256, 10);
 
     for(t = 0; t < (int)sysvar.size(); t++)
         if (sysvar[t].value == number)
@@ -582,7 +584,7 @@ string &DNA_Class::UnparseCommand(const block &Command, bool converttosysvar)
     {
         case btValue: //number
             if (converttosysvar) returnme = SysvarDetok(Command.value);
-            else returnme = itoa(Command.value, buffer, 10);
+            else returnme = _itoa_s(Command.value, buffer, 256, 10);
             break;
 
         case btPointer: //*.number
@@ -625,7 +627,7 @@ string &block::UnparseCommand(bool converttosysvar)
     {
         case btValue: //number
             if (converttosysvar) returnme = SysvarDetok(value);
-            else returnme = itoa(value, buffer, 10);
+            else returnme = _itoa_s(value, buffer, 256, 10);
             break;
 
         case btPointer: //*.number
