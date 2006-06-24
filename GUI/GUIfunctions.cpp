@@ -16,8 +16,7 @@ long MainWindow::onCmdNewSimulation(FXObject *, FXSelector, void *)
     TmpOpts = SimOpts;
     OptionsForm->show(PLACEMENT_OWNER);
     
-    return 1;
-        
+    return 1;        
 }
 long MainWindow::onCmdSaveSimulation(FXObject *, FXSelector, void *){return 1;}
 long MainWindow::onCmdLoadSimulation(FXObject *, FXSelector, void *){return 1;}

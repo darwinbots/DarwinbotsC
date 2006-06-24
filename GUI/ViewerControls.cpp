@@ -6,6 +6,8 @@
 #include "../Engine/SimOptions.h"
 #include "../Engine/Robot.h"
 #include "../GFX/DrawWorld.h"
+#include "../GUI/BotInfoWindow.h"
+#include "../GUI/BotDNABox.h"
 
 #include <gl/gl.h>
 #include <gl/glu.h>
@@ -141,6 +143,14 @@ long MainWindow::onRightBtnPress(FXObject *, FXSelector, void *ptr)
 
     if(CurrBotUserSelected > -1 && rob[CurrBotUserSelected] != NULL)
         this->onBotDebug();
+
+    return 1;
+}
+
+long MainWindow::onBotDebug()
+{
+    new BotInfoWindow_Class(rob[CurrBotUserSelected], this);
+    new  BotDNAWindow_Class(rob[CurrBotUserSelected], this);
 
     return 1;
 }

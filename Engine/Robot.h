@@ -35,6 +35,7 @@ class Robot : public ObjectPrimitive
 {
     friend class Tie; //tie class has access to bot memory among other things
     friend class Shot;
+    friend class BotInfoWindow_Class; //GUI display to show bot details
         
     #ifdef _MSC_VER
     friend class Robot; //instances of the Robot class can access each other

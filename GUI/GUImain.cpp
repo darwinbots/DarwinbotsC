@@ -130,7 +130,7 @@ MainWindow *MainWindowHandle;
     #include "windows.h"
     INT WINAPI WinMain( HINSTANCE hInst, HINSTANCE, LPSTR strCmdLine, INT ){
     int argc = 1;
-    char *argv[] = {""};
+    char *argv[] = {"Blah", "blah"};
 #else
     int main(int argc, char **argv){
 #endif

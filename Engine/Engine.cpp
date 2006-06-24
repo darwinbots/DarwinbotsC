@@ -15,6 +15,66 @@ int counter;
     for(counter = 0; counter <= MaxRobs; counter++) \
         if(rob[counter] != NULL)
 
+void Engine_Class::Constraints()
+{    
+    //"soft" constraints.  We don't care if these are off by a little bit
+    //between cycles:
+    {    
+        //rigid ties (if ties are hardened)
+
+        FORALLROBOTS rob[counter]->VelocityCap();
+    }
+    
+    //"hard" constraints.  All must be 100% satisfied (or very nearly so)
+    {
+        //More iterations decreases overlap between bots when stacking, but
+        //it hardly seems practical.  A better solution must exist, which
+        //more intelligently offsets colliding bots.
+
+        //perhaps collisions with edges offsets the whole world as well (or rather,
+        //offsets all objects in the world an opposite amount)
+        //or conversely, bot collisions have one of the bots moving 100%
+        //of the distance
+        
+        //algorithm uses what's known as a "fast local search" to make the 
+        //comparison O(n log n) instead of O(n^2) _during_ a cycle.  That is,
+        //the first iteration will still be O(n^2), but later iterations within the
+        //same cycle will be less and less.
+
+        //O(n log n)
+        
+        float maxoverlap;
+        int loopcounter = 0;
+        
+        bool Continue;
+        do
+        {
+            Continue = false;
+            maxoverlap = 0.0f;
+            
+            FORALLROBOTS //for all robots 
+            {
+                if (rob[counter]->CollisionActive)
+			    {			 
+				    float overlap = rob[counter]->BotCollisionsPos(); 
+				    maxoverlap = max(maxoverlap, overlap);
+			    }            
+            }
+            FORALLROBOTS rob[counter]->EdgeCollisions();
+
+            unsigned int activecounter = 0;
+            FORALLROBOTS
+            {
+                if(rob[counter]->CollisionActive)
+                {
+                    activecounter++;
+                    Continue = true;
+                }
+            }
+        
+        }while(Continue);
+    }
+}
 void Engine_Class::UpdateSim(void)
 {
     //the order of functions here is very important.
@@ -29,68 +89,21 @@ void Engine_Class::UpdateSim(void)
 	//UpdateBots
 	////////////////////
 	
-	//update counters
-
 	//Before anything else...
 	FORALLROBOTS rob[counter]->TurnGenesis();
 
 	FORALLROBOTS rob[counter]->PreTurn();
 
 	//Physics Steps:    
-    FORALLROBOTS rob[counter]->Integrate();
-
-    //CONSTRAINTS (done after movement)
-
-    //max tie length and rigid ties (if ties are hardened)
-
-    FORALLROBOTS rob[counter]->VelocityCap();
-
-    //More iterations decreases overlap between bots when stacking, but
-    //it hardly seems practical.  A better solution must exist, which
-    //more intelligently offsets colliding bots.
-
-    //perhaps collisions with edges offsets the whole world as well (or rather,
-    //offsets all objects in the world an opposite amount)
-    //or conversely, bot collisions have one of the bots moving 100%
-    //of the distance
-
-    //O(n^2)
-    
-    float maxoverlap;
-    int loopcounter = 0;
-    
-    bool Continue;
-    do
     {
-        Continue = false;
-        maxoverlap = 0.0f;
-        
-        FORALLROBOTS //for all robots 
-        {
-            if (rob[counter]->CollisionActive)
-			{			 
-				float overlap = rob[counter]->BotCollisionsPos(); 
-				maxoverlap = max(maxoverlap, overlap);
-			}            
-        }
-        FORALLROBOTS rob[counter]->EdgeCollisions();
+        FORALLROBOTS rob[counter]->Integrate();
 
-        unsigned int activecounter = 0;
-        FORALLROBOTS
-        {
-            if(rob[counter]->CollisionActive)
-            {
-                activecounter++;
-                Continue = true;
-            }
-        }
-    
-    }while(Continue);
-
-    FORALLROBOTS ManipulateEyeGrid(rob[counter]);
-    
-    //END CONSTRAINTS
+        Constraints(); //various constraints which must all be met.  Ie: rigid physics
+    }    
     //END Physics steps
+    
+    //After physics, update the eye grid with the new positions of the bots
+    FORALLROBOTS ManipulateEyeGrid(rob[counter]);
     
     FORALLROBOTS rob[counter]->DuringTurn();
     

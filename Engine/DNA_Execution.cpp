@@ -1,4 +1,6 @@
 #include "DNA_Execution.h"
+#include "EngineThread.h"
+#include "DNADebugFlowControls.h"
 
 //the conditions stack
 BoolStack condStack;
@@ -108,15 +110,27 @@ void DNA_Class::Execute(Robot* bot)
     
     unsigned long pointer=0;
     
+    bool idle = false; //to tell the debugging controls that this was an idle step
     while(this->Code[pointer] != DNA_END)
     {
+    
+        //DNA Debugging controls:
+        if(CurrBotDebugControls.Bot() == bot)
+            while(CurrBotDebugControls.Wait())
+                EngineThread.sleep(0, 0);  //simple thread blocking
+        
         switch (this->Code[pointer].tipo)
         {
             case btValue: //number
             {
                 if (CurrentFlow != CLEAR)
+                {   
                     PushIntStack (this->Code[pointer].value);
-                bot->ChargeNRG(SimOpts.Costs[btValue]);
+                    bot->ChargeNRG(SimOpts.Costs[btValue]);
+                }
+                else
+                    idle = true;
+                   
                 break;
             }
             case btPointer:
@@ -129,6 +143,8 @@ void DNA_Class::Execute(Robot* bot)
                         currbot->View = true;
                     bot->ChargeNRG(SimOpts.Costs[btPointer]);
                 }
+                else
+                    idle = true;
                 break;
             }
             
@@ -139,6 +155,8 @@ void DNA_Class::Execute(Robot* bot)
                     ExecuteBasicCommand(this->Code[pointer].value);
                     bot->ChargeNRG(SimOpts.Costs[btBasicCommand]);
                 }
+                else
+                    idle = true;
                 break;
             }
             
@@ -149,6 +167,8 @@ void DNA_Class::Execute(Robot* bot)
                     ExecuteAdvancedCommand(this->Code[pointer].value);
                     bot->ChargeNRG(SimOpts.Costs[btAdvancedCommand]);
                 }
+                else
+                    idle = true;
                 break;
             }
             
@@ -159,6 +179,8 @@ void DNA_Class::Execute(Robot* bot)
                     ExecuteBitwiseCommand(this->Code[pointer].value);
                     bot->ChargeNRG(SimOpts.Costs[btBitwiseCommand]);
                 }
+                else
+                    idle = true;
                 break;
             }
 
@@ -169,6 +191,8 @@ void DNA_Class::Execute(Robot* bot)
                     ExecuteConditions(this->Code[pointer].value);
                     bot->ChargeNRG(SimOpts.Costs[btCondition]);
                 }
+                else
+                    idle = true;
                 break;
             }
 
@@ -179,6 +203,8 @@ void DNA_Class::Execute(Robot* bot)
                     ExecuteLogic(this->Code[pointer].value);
                     bot->ChargeNRG(SimOpts.Costs[btLogic]);
                 }
+                else
+                    idle = true;
                 break;
             }
 
@@ -189,6 +215,8 @@ void DNA_Class::Execute(Robot* bot)
                     //costs calculated inside
                     ExecuteStores(this->Code[pointer].value);
                 }
+                else
+                    idle = true;
                 break;
             }
 
@@ -199,6 +227,8 @@ void DNA_Class::Execute(Robot* bot)
                     ExecuteTies(Code[pointer].value);
                     currbot->ChargeNRG(SimOpts.Costs[btTies]);
                 }
+                else
+                    idle = true;
                 break;
             }
 
@@ -216,6 +246,7 @@ void DNA_Class::Execute(Robot* bot)
             case btMasterFlow:
             {
                 //ONLY end exists at this point, so this is sort of pointless
+                //later this will include things like codule headers, etc.
                 //ExecuteMasterFlow(this->Code[pointer].value);
             }
 
@@ -224,7 +255,10 @@ void DNA_Class::Execute(Robot* bot)
         }
         
         pointer++;
-    }    
+        if(CurrBotDebugControls.Bot() == bot)
+            CurrBotDebugControls.UpdatePosition(pointer, idle);
+        idle = false;
+    }
 }
 
 
@@ -828,10 +862,10 @@ void ExecuteTies(int n)
             DNAsettie(); break;
         case 2:
             DNAnexttie(); break;
-        case 3:
-            break;
-        case 4:
-            break;
+        case 3: //writetie
+            DNAwritetie(); break;
+        case 4: //readtie
+            DNAreadtie(); break;
     }
 }
 

@@ -38,6 +38,7 @@ class Engine_Class
     string maindir;
     EyeGrid_Class EyeGrid;
     void ManipulateEyeGrid(Robot *bot);
+    void Constraints();
     
 }extern Engine;
 

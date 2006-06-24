@@ -5,17 +5,13 @@
 // *PRIVATE* and only constructor
 Tie::Tie(Robot *_sender,
          Robot *_receiver,
-         int _phase,
-         float _k,
-         float _b,
-         int _type)
+         int _phase
+         )
 
         :age(0),
         Sharing(false),
         Communicating(false),
         Feeding(false),
-        k(_k),
-        b(_b),
         sender(_sender),
         receiver (_receiver)        
 {
@@ -111,7 +107,7 @@ bool Tie::MakeTie(Robot *shooter, Robot *target, int _port)
     target->RemoveTie(shooter);
 	
 	//create tie
-	Tie* temp = new Tie(shooter, target, _port, .05f, .05f);
+	Tie* temp = new Tie(shooter, target, _port);
 	
 	shooter->AddTie(temp);
 	target->AddTie(temp);
@@ -157,7 +153,7 @@ void Tie::WriteMem(Robot *me, __int16 loc, __int16 value)
     if (loc > 0)
         FindOtherCQ(me).Add((loc - 1)%1000 + 1, value);
     if (loc < 0)
-        ; //if -1 it's energy eating
+        ShareSubstance(me, (substance_ID)((-loc - 1)%10 + 1), value);
 }
 
 //3.  tie joints
@@ -170,24 +166,90 @@ void Tie::WriteMem(Robot *me, __int16 loc, __int16 value)
     //should be in my notebook - Numsgil
 
 //6.  tie constraints
-    //ties cannot exceed some maximum length.  Later this will depend on
-    //more factors, but at first a value of 1000 is fine.
+    //set tie to natural tie length
 
-//7.  tie hooke forces
-    //F = -kx + bv
-
-//8.  permanent tie sharing of a substance
-//9.  tie feeding (either -6 or -1 type shots)
-
-//  with transfer amount dependant on pumping strength
-//  and cross sectional area of tie
-
+#define FindMin(substance) __min(amount, Bot->substance)
 void Tie::ShareSubstance(Robot *me, substance_ID ID, float amount)
 {
-
-
-
+    //Bot does the transfering, other recieves
+    Robot *Bot, *other;
+    
+    if(amount == 0)
+        return;
+    if(age < 20) //"soft" ties must be capped at 1000 material per cycle
+        amount = __min(1000, amount); 
+    
+    if(amount < 0)
+    {
+        Bot = FindOther(me);
+        other = me;
+        amount = -amount;
+    }
+    else
+    {
+        Bot = me;
+        other = FindOther(me);
+    }
+    
+    switch(ID)
+    {
+        case NRG_ID:
+        {
+            amount = FindMin(nrg);
+            Bot->nrg -= amount;
+            other->nrg += amount;
+        }break;
+        
+        case SHELL_ID:
+        {
+            amount = FindMin(Shell);
+            Bot->Shell -= amount;
+            other->Shell += amount;
+        }break;
+        
+        case VENOM_ID:
+        {
+            amount = FindMin(Venom);
+            Bot->Venom -= amount;
+            other->Venom += amount;
+        }break;
+        
+        case WASTE_ID:
+        {
+            amount = FindMin(Waste);
+            Bot->Waste -= amount;
+            other->Waste += amount;
+        }break;
+        
+        case POISON_ID:
+        {
+            amount = FindMin(Poison);
+            Bot->Poison -= amount;
+            other->Poison += amount;
+        }break;
+        
+        case BODY_ID:
+        {
+            amount = FindMin(Body);
+            Bot->Body -= amount;
+            other->Body += amount;
+        }break;
+        
+        case SLIME_ID:
+        {
+            amount = FindMin(Slime);
+            Bot->Slime -= amount;
+            other->Slime += amount;
+        }break;
+        
+        default:
+            return;
+            break;
+    }   
+    
+    this->Sharing = true;
 }
+#undef FindMin
 
 void Tie::UpdateTie()
 {

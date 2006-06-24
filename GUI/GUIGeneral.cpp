@@ -3,9 +3,7 @@
 FXSlider *FieldSizeSlider;
 
 void OptionsFormDialogBox::General(FXTabBook *TabBook)
-{
-    
-    
+{   
     FXTabItem *linesTab2=new FXTabItem(TabBook,"&General",NULL);
     FXPacker *linesPage2=new FXPacker(TabBook,FRAME_THICK|FRAME_RAISED);  
     
