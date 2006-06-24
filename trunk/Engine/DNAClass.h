@@ -26,6 +26,7 @@ class DNA_Class
 {
 	friend istream& operator>>(istream& input, DNA_Class& newDNA); //Load DNA from an input source
 	friend ostream& operator<<(ostream& output, DNA_Class& DNA);   //Output DNA into a Text File
+	friend class BotInfoWindow;
     
     private:
     vector<block> Code;

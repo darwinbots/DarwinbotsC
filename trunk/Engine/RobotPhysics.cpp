@@ -46,8 +46,7 @@ void Robot::NetForces()
     if(SimOpts.PlanetEaters && SimOpts.PlanetEatersG > 0) this->PlanetEaters();
 
     this->SpringForces();
-    //tie angles
-    
+    //tie angles    
         
     //RESISTIVE FORCES
     this->BotCollisionsVel();
@@ -83,7 +82,8 @@ void Robot::Integrate()
     Impulse.set(0,0,0);
     ImpulseStatic = 0;
 
-    if(vel.x() == 0 && vel.y() == 0 && vel.z() == 0)
+    //Used for the fast local search during constraints after physics
+    if(vel == Vector3f(0,0,0))
         CollisionActive = false;
     else
         CollisionActive = true;
@@ -424,8 +424,8 @@ Vector3f Tie::SpringForces(Robot *caller)
 
     Vector3f Impulse(0,0,0);
     
-    Impulse += k * (NaturalLength - length) * dist;
-    Impulse += dist * (caller->vel - FindOther(caller)->vel) * -b * dist;
+    //Impulse += k * (NaturalLength - length) * dist;
+    //Impulse += dist * (caller->vel - FindOther(caller)->vel) * -b * dist;
 
     return Impulse;
 }

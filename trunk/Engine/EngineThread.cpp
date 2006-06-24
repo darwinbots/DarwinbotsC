@@ -30,8 +30,8 @@ int EngineThread_Class::run()
                 x++;
             }
             
-            //update cyc/sec calculation at most once every quarter second
-            if(float(clock() - elapsed_time) / float(CLOCKS_PER_SEC) >= .25f)
+            //update cyc/sec calculation at most once every tenth second
+            if(float(clock() - elapsed_time) / float(CLOCKS_PER_SEC) >= .1f)
             {
                 SimOpts.CycSec = round(x * float(CLOCKS_PER_SEC) / float(clock() - elapsed_time));
                 elapsed_time = clock();

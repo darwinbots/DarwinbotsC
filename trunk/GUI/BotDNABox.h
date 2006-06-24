@@ -2,7 +2,7 @@
 #define BOTDNABOX_H
 
 #include <fx.h>
-#include "../Engine/Robot.h"
+class Robot;
 
 class BotDNAWindow_Class : public FXDialogBox
 {
@@ -10,6 +10,7 @@ class BotDNAWindow_Class : public FXDialogBox
 
     private:
     Robot *point;
+    FXText *DNATextBox;
     
     public:
     const Robot *ThatBot() const
@@ -17,10 +18,18 @@ class BotDNAWindow_Class : public FXDialogBox
         return point;
     }
     
-    long onCmdStep(FXObject*,FXSelector,void*) {return 0;}
-    long onCmdContinue(FXObject*,FXSelector,void*) {return 0;}
-    long onCmdBreakpoint(FXObject*,FXSelector,void*) {return 0;}
-    long onCmdToCursor(FXObject*,FXSelector,void*) {return 0;}
+    long onCmdStep(FXObject*,FXSelector,void*);
+    long onCmdContinue(FXObject*,FXSelector,void*);
+    long onCmdBreakpoint(FXObject*,FXSelector,void*);
+    long onCmdToCursor(FXObject*,FXSelector,void*);
+    long onUpdGUI(FXObject*,FXSelector,void*);
+    
+    int CursorToDNAPosition(int pos); //convert between cursor position and DNA position
+    int DNAPositionToCursor(int pos); //returns the text position of the current DNA position
+    
+    //update graphics
+    void HighlightBreakpoints();
+    void HighlightCurrStep();
     
     BotDNAWindow_Class(Robot *bot = NULL, FXComposite *parent = NULL);
     
@@ -30,7 +39,9 @@ class BotDNAWindow_Class : public FXDialogBox
         ID_BREAKPOINT,
         ID_CONTINUE,
         ID_STEP,
-        ID_TOCURSOR
+        ID_TOCURSOR,
+        ID_UPDGUI,
+        ID_LAST
     };
 };
 
