@@ -18,12 +18,7 @@ int counter;
 void Engine_Class::Constraints()
 {    
     //"soft" constraints.  We don't care if these are off by a little bit
-    //between cycles:
-    {    
-        //rigid ties (if ties are hardened)
-
-        FORALLROBOTS rob[counter]->VelocityCap();
-    }
+    FORALLROBOTS rob[counter]->SoftConstraints();
     
     //"hard" constraints.  All must be 100% satisfied (or very nearly so)
     {
@@ -44,9 +39,9 @@ void Engine_Class::Constraints()
         //O(n log n)
         
         float maxoverlap;
-        int loopcounter = 0;
-        
+        int loopcounter = 0;        
         bool Continue;
+        
         do
         {
             Continue = false;
@@ -58,21 +53,13 @@ void Engine_Class::Constraints()
 			    {			 
 				    float overlap = rob[counter]->BotCollisionsPos(); 
 				    maxoverlap = max(maxoverlap, overlap);
+				    if(rob[counter]->CollisionActive)
+				        Continue = true;
 			    }            
             }
             FORALLROBOTS rob[counter]->EdgeCollisions();
-
-            unsigned int activecounter = 0;
-            FORALLROBOTS
-            {
-                if(rob[counter]->CollisionActive)
-                {
-                    activecounter++;
-                    Continue = true;
-                }
-            }
         
-        }while(Continue);
+        }while(Continue && ++loopcounter <= 20);
     }
 }
 void Engine_Class::UpdateSim(void)

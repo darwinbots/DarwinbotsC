@@ -226,11 +226,7 @@ void ReadSettPort(istream &in, SimOptions &Options)
         }
 
         GO Options.ZeroMomentum = (EatWord(line) == "ZMon" ? true : false);
-        GO
-        {
-            Options.PlanetEaters = (EatWord(line) == "PEon" ? true : false);
-            Options.PlanetEatersG = (float)atof(EatWord(line).c_str());
-        }
+        GO Options.PlanetEatersG = (float)atof(EatWord(line).c_str());
 
         GO
         {
@@ -421,8 +417,7 @@ bool WriteSett(const string &path, SimOptions &Options)
         settingsout << (Options.ZeroMomentum ? "ZMon" : "ZMoff") << " " <<
                        "; Zero Momentum" << END;
 
-        settingsout << (Options.PlanetEaters ? "PEon" : "PEoff") << " " <<
-                       Options.PlanetEatersG << " " <<
+        settingsout << Options.PlanetEatersG << " " <<
                        "; Planet Eaters" << END;
 
         settingsout << (Options.EnergyExType ? "PropShot" : "FixedShot") << " " <<
@@ -661,7 +656,6 @@ void ReadSettPre2_4(istream &in, SimOptions &Options)
 	if (!in.eof()) Options.CoefficientStatic =	GrabNumber(in);
 	if (!in.eof()) Options.CoefficientKinetic =	GrabNumber(in);
 
-	if (!in.eof()) Options.PlanetEaters  =		GrabBool(in);
 	if (!in.eof()) Options.PlanetEatersG  =		GrabNumber(in);
 
 	if (!in.eof()) Options.Viscosity   =		GrabNumber(in);

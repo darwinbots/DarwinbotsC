@@ -40,7 +40,6 @@ struct PhysicsConstants
     float Brownian;
     float MovingEfficiency;
 
-    bool PlanetEaters;
     float PlanetEatersG;
 
     float ElasticCoefficient; //coefficient used in bot to bot collisions

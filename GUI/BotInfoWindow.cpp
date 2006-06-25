@@ -35,8 +35,8 @@ BotInfoWindow_Class::BotInfoWindow_Class(Robot *bot, FXComposite *parent) :
         new FXLabel(HerMatrix, "Generation:");
         new FXTextField(HerMatrix, 15, new FXDataTarget(bot->generation), FXDataTarget::ID_VALUE);
         
-        //new FXLabel(HerMatrix, "# of Offspring:");
-        //new FXTextField(HerMatrix, 9, new FXDataTarget(bot->off), FXDataTarget::ID_VALUE);
+        new FXLabel(HerMatrix, "# of Offspring:");
+        new FXTextField(HerMatrix, 9, new FXDataTarget(bot->SonNumber), FXDataTarget::ID_VALUE);
         
         new FXLabel(HerMatrix, "Mass:");
         new FXTextField(HerMatrix, 15, new FXDataTarget(bot->mass), FXDataTarget::ID_VALUE);
