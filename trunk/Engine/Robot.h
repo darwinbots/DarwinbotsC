@@ -20,6 +20,7 @@
 #include "Shots.h"
 #include "CommandQueue.h"
 #include "Engine.h"
+#include "RobotPhysics.h"
 
 //#include "../GUI/GUIBotDebug.h"
 class BotDebug_Window;
@@ -31,11 +32,12 @@ using namespace std;
 const int CUBICTWIPPERBODY = 905;
 const int RobSize          = 120;
 
-class Robot : public ObjectPrimitive
+class Robot : public RobotPhysics
 {
     friend class Tie; //tie class has access to bot memory among other things
     friend class Shot;
     friend class BotInfoWindow_Class; //GUI display to show bot details
+    friend class RobotPhysics;        //Subordinate class wrapping the physics details
         
     #ifdef _MSC_VER
     friend class Robot; //instances of the Robot class can access each other
@@ -48,23 +50,18 @@ class Robot : public ObjectPrimitive
 private:
 
 	//Physical Attributes
-	float radius;
-    
+	unsigned long age;
+		
 	float aim;								// aim angle
     float AngularMomentum;
     Vector3f aimvector;                      // the unit vector for aim
 
 	TieList Ties;                           //linked list of ties
     __int16 currtie;                        //current port or phase that the bot is set to
-	
-	//Physics
-	Vector3f ovel;
-    Vector3f Impulse;                        // impulses that get divided by mass to get forces
-    Vector3f oldImpulse;
-	float ImpulseStatic;					// static force scalar (always opposes current forces)
     
-public:
-
+public:	
+	Vector3f color;
+	
 	bool Veg;								// is it a vegetable?
 	bool Wall;								// is it a wall?
 	bool Corpse; 
@@ -72,7 +69,7 @@ public:
 	bool Dead;								// Allows program to define a robot; dead after a certain operation
 	bool Multibot;        					// Is robot part of a multi-bot
     bool NewMove;                           // does this bot use the new movement controls or is it a pussy?
-    bool CollisionActive;                   // used in collision detection
+    
 private:
 	int occurr[20];							// array with the ref* values
 	
@@ -82,9 +79,6 @@ private:
 
 	float Body;								// Body points. A corpse still has a body after all
 	float obody;							// old body points, for use with pain pleas versions for body
-
-	float AddedMass;						// From fluid displacement
-	float mass;								// mass of robot
 
 	float Shell;							// Hard shell. protection from shots 1-100 reduces each cycle
 	float Slime;           					// slime layer. protection from ties 1-100 reduces each cycle
@@ -155,7 +149,7 @@ private:
 	void ShotManagement();
 	void SetMems();
     
-	Robot *Robot::Split(float percentage);
+	Robot *Split(float percentage);
 	void BasicRobotSetup();
 	void Setup(datispecie *myspecies);
     
@@ -172,39 +166,20 @@ private:
 	inline void CompareRobots(Robot *const other, const unsigned int field);
 	unsigned int EyeCells(const Vector3f &ab);
 
-    //physics
-    void NetForces();
-    
-    //subordinate physics functions
-    void VoluntaryForces();
-    void GravityForces();
-    void BrownianForces();
-    void BouyancyForces();
-    void BotCollisionsVel();
-    void PlanetEaters();
-    void UpdateAddedMass();
-    void Friction();
-    void FulfillTieConstraintsPos();
-    void FulfillTieConstraintsVel();
-    void Robot::SpringForces();
-    
     //veg controls
     void FeedVegSun();
 
 public:
     bool View;
 
-    Robot::Robot(datispecie *myspecies = NULL):radius(60.0f),
+    Robot::Robot(datispecie *myspecies = NULL):
                 aim(0.0f),AngularMomentum(0.0f), 
                 aimvector(cosf(aim),sinf(aim)),
                 Ties(),
-                Impulse(0,0,0), ImpulseStatic(0.0f), oldImpulse(0.0f,0.0f,0.0f),
-                ovel(0,0,0),
                 Veg(false),Wall(false),Corpse(false),Fixed(false),
                 Dead(false),Multibot(false),NewMove(false),
                 nrg(1000.0f),onrg(nrg),
                 Body(1000.0f),obody(Body),
-                AddedMass(0.0f),mass(1.0f),
                 Shell(0.0f),Slime(0.0f),Waste(0.0f),Pwaste(0.0f),Poison(0.0f),Venom(0.0f),
                 Paralyzed(false),ParaCount(0),Vloc(0),Vval(0),
                 Poisoned(false),PoisonCount(0),Ploc(0),
@@ -217,7 +192,6 @@ public:
                 View(false),
                 currtie(0)
     {
-        pos = opos = vel = Vector3f(0,0,0);
         age = 0;
         memset(&mem[0], 0, sizeof(mem));
         memset(&occurr[0], 0, sizeof(occurr));
@@ -232,11 +206,6 @@ public:
 	void TurnGenesis();
 	void PreTurn();
 	
-    void Integrate();
-    void EdgeCollisions();
-    float BotCollisionsPos();
-    void VelocityCap();
-    
     void DuringTurn();
 	void PostTurn();
 	void TurnCleanup();
@@ -309,9 +278,9 @@ public:
     }
     Tie *CurrTie();
     __int16 NextTie();
-    void Robot::WriteTie(__int16 location, __int16 number, __int16 tienum = 0);
-    __int16 Robot::ReadTie(__int16 loc, __int16 tienum = 0);
-    void Robot::ApplyNewTieSysvars();
+    void WriteTie(__int16 location, __int16 number, __int16 tienum = 0);
+    __int16 ReadTie(__int16 loc, __int16 tienum = 0);
+    void ApplyNewTieSysvars();
 };
 
 extern vector<Robot *> rob;  //an array of pointers to Robots.

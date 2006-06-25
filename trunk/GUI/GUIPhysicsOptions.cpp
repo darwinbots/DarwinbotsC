@@ -146,12 +146,9 @@ void OptionsFormDialogBox::PhysicsAndCosts(FXTabBook *TabBook)
         FXMatrix *MiscMatrix3=new FXMatrix(MiscGroup2,1,MATRIX_BY_COLUMNS|LAYOUT_SIDE_TOP|LAYOUT_FILL_ALL);
         {
 
-            FXCheckButton *Check1 = new FXCheckButton(MiscMatrix3,"Planet Eaters",
-                new FXDataTarget((FXbool &) TmpOpts.PlanetEaters),FXDataTarget::ID_VALUE,CHECKBUTTON_NORMAL);
-
             FXMatrix *MiscMatrix4=new FXMatrix(MiscMatrix3,3,MATRIX_BY_COLUMNS|LAYOUT_SIDE_TOP|LAYOUT_FILL_X|LAYOUT_FILL_Y);
 
-            new FXLabel(MiscMatrix4,"G:",NULL,LAYOUT_RIGHT|JUSTIFY_RIGHT);
+            new FXLabel(MiscMatrix4,"Constant:",NULL,LAYOUT_RIGHT|JUSTIFY_RIGHT);
 
             new FXTextField(MiscMatrix4,5,new FXDataTarget(TmpOpts.PlanetEatersG),
                 FXDataTarget::ID_VALUE,TEXTFIELD_REAL|JUSTIFY_RIGHT|LAYOUT_CENTER_Y|FRAME_SUNKEN|LAYOUT_CENTER_X|FRAME_THICK|LAYOUT_FILL_ROW);

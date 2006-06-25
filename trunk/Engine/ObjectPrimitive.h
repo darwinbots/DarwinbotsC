@@ -8,10 +8,6 @@ class ObjectPrimitive
 	protected:
 	Vector3f pos, opos;
     Vector3f vel;
-    unsigned long age;
-	
-    public:
-    Vector3f color;
 };
 
 #endif

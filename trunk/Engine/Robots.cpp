@@ -51,9 +51,11 @@ void Robot::Setup(datispecie *myspecies)
 
 	//do I need to set up *.fixed?
 
-	this->Impulse.set(0,0,0);
-    this->oldImpulse.set(0,0,0);
+	this->oldImpulse.set(0,0,0);
     this->vel.set(0,0,0);
+    this->ImpulseIndependant.set(0,0);
+    this->ImpulseResistive.set(0,0);
+    this->ovel.set(0,0);
 
 	this->nrg = (float)myspecies->nrg;
 	this->Body = (float)myspecies->body;
@@ -647,7 +649,7 @@ void Robot::PreTurn()
 	this->WasteManagement();
 	this->Upkeep();
 	this->Aging();
-    this->NetForces(); //<-- all the physics stuff (calculates it, but does not move the bot)
+    this->NetForces(this); //<-- all the physics stuff (calculates it, but does not move the bot)
 	this->EraseSenses();
 	//readtie t 'reads all of the tref variables from a given tie number  <---  Need to be sure we do this for all bots before ties are fired
 }
@@ -803,7 +805,6 @@ Robot* Robot::Split(float percentage)
 
     baby->vel = this->vel;
     baby->oldImpulse.set(0,0,0);
-    baby->Impulse.set(0,0,0);
     baby->ImpulseStatic = 0.0f;
     
 	baby->color = this->color;

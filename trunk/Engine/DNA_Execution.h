@@ -8,7 +8,7 @@
 //the conditions stack
 class BoolStack
 {
-    stack<bool> val;
+    vector<bool> val;
     
     public:
     bool pop();
@@ -17,7 +17,7 @@ class BoolStack
 };
 
 //the integer stack
-typedef stack<__int32> intstack_type;
+typedef vector<__int32> intstack_type;
 extern intstack_type IntStack;
 
 enum FlowType

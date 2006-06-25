@@ -8,6 +8,7 @@ class Robot;
 
 class Shot : public ObjectPrimitive
 {
+    friend void DrawShots();
     #ifdef _MSC_VER
     friend class Shot;
     #endif
@@ -16,6 +17,8 @@ class Shot : public ObjectPrimitive
     //I would do a pointer for this, except Robots come and go, but their serial numbers
     //are unique to a robot over the entire life of a sim.
     unsigned long parent;   // parent absolute number
+    Vector3f color;
+    unsigned long age;
 
     float range;        // max age the shot can exist
     

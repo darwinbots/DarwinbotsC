@@ -47,7 +47,7 @@ __int32 StackCeil(float value)
 //intstack.pos points to the Least Upper Bound element of the stack
 void PushIntStack(__int32 value)
 {
-    IntStack.push(value);
+    IntStack.push_back(value);
 }
 
 __int32 PopIntStack(void)
@@ -55,8 +55,8 @@ __int32 PopIntStack(void)
     if(IntStack.empty())
         return 0;
     else
-    {    __int32 returnme = IntStack.top();
-        IntStack.pop();
+    {    __int32 returnme = IntStack.back();
+        IntStack.pop_back();
         return returnme;
     }
 }
@@ -66,7 +66,7 @@ __int32 PopIntStack(void)
 //////////////////////////////////////////////
 void BoolStack::push(const bool& value)
 {
-    val.push(value);
+    val.push_back(value);
 }
 
 bool BoolStack::pop()
@@ -74,8 +74,8 @@ bool BoolStack::pop()
     if(val.empty())
         return true; //this should never happen
     else
-    {   bool returnme = val.top();
-        val.pop();
+    {   bool returnme = val.back();
+        val.pop_back();
         return returnme;
     }
 }
@@ -85,8 +85,8 @@ bool BoolStack::Addup()
     bool returnme = true;
     while(!val.empty())
     {
-        returnme = returnme && val.top();
-        val.pop();
+        returnme = returnme && val.back();
+        val.pop_back();
     }
     return returnme;
 }
@@ -106,14 +106,13 @@ void DNA_Class::Execute(Robot* bot)
     CurrentFlow = CLEAR;
     
     while(!IntStack.empty())
-        IntStack.pop();
+        IntStack.pop_back();
     
     unsigned long pointer=0;
     
     bool idle = false; //to tell the debugging controls that this was an idle step
     while(this->Code[pointer] != DNA_END)
-    {
-    
+    {    
         //DNA Debugging controls:
         if(CurrBotDebugControls.Bot() == bot)
             while(CurrBotDebugControls.Wait())
