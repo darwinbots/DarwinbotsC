@@ -17,7 +17,7 @@ Tie::Tie(Robot *_sender,
         k(_k),
         b(_b),
         sender(_sender),
-        receiver (_receiver)        
+        receiver (_receiver)
 {
     NaturalLength = (sender->pos - receiver->pos).Length();
     this->Phase = _phase;
@@ -42,13 +42,13 @@ bool Robot::FireTie()
 {
 	int tieport = (*this)[mtie];
 
-	(*this)[mtie] = 0;	
+	(*this)[mtie] = 0;
 
 	if (tieport > 0)
 	{
         if(BasicProximity() != NULL)
 		{
-            if((this->pos - this->lastopp->pos).Length() - this->rad() - this->lastopp->rad() <= 
+            if((this->pos - this->lastopp->pos).Length() - this->getRadius() - this->lastopp->getRadius() <=
                RobSize)
                 return Tie::MakeTie(this, lastopp, tieport);
         }
@@ -74,7 +74,7 @@ void Robot::AddTie(Tie *tie)
     else
         Ties[loc] = tie;
 }
-    
+
 void Robot::RemoveTie(Tie* tie)
 {
     delete tie;
@@ -88,7 +88,7 @@ void Robot::RemoveTie(Robot *other)
         {
             delete Ties[x];
         }
-        
+
 }
 
 void Robot::RemoveAllTies()
@@ -109,13 +109,13 @@ bool Tie::MakeTie(Robot *shooter, Robot *target, int _port)
 	//insert slime defense check
 	shooter->RemoveTie(target);
     target->RemoveTie(shooter);
-	
+
 	//create tie
 	Tie* temp = new Tie(shooter, target, _port, .05f, .05f);
-	
+
 	shooter->AddTie(temp);
 	target->AddTie(temp);
-
+    std::cout<<"Tie created"<<std::endl;
 	return true;
 }
 
@@ -130,7 +130,7 @@ Robot *Tie::FindOther(Robot *me)
         return sender;
 }
 
-CommandQueueClass &Tie::FindOtherCQ(Robot *me)
+CommandQueueClass& Tie::FindOtherCQ(Robot *me)
 {
     if(me == sender)
         return ReceiverCQ;
@@ -142,7 +142,7 @@ __int16 Tie::ReadMem(Robot *me, __int16 loc)
 {
     if (me == NULL)
         return 0;
-    
+
     if (loc > 0)
         return FindOtherCQ(me).FilterRead((loc-1)%1000 + 1);
 
@@ -250,7 +250,7 @@ void Robot::WriteTie(__int16 location, __int16 number, __int16 tienum)
 
     if(tienum == 0)
         tienum = currtie;
-    
+
     if(tienum < 0)
     {
         if(abs(tienum) < (int)Ties.size())
@@ -316,14 +316,14 @@ void Robot::ApplyNewTieSysvars()
     {
         DNACommands.Add(readtielen, 0);
         DNACommands.Add(writetielen, 0);
-        DNACommands.Add(tieangle, 0); 
+        DNACommands.Add(tieangle, 0);
         DNACommands.Add(currtiesys, 0);
     }
 }
 
 Vector3f Tie::FindVector()
 {
-    return (sender->findpos() - receiver->findpos());
+    return (sender->getPos() - receiver->getPos());
 }
 
 __int16 Tie::FindAngle(Robot *me)
@@ -331,7 +331,7 @@ __int16 Tie::FindAngle(Robot *me)
     Vector3f unit = FindVector().Normal();
 
     //some magic vector math
-    
+
     return 0;
 
 }

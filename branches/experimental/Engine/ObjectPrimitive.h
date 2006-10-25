@@ -9,18 +9,36 @@ class ObjectPrimitive
 	Vector3f pos, opos;
     Vector3f vel;
     unsigned long age;
-	
+
     public:
     ObjectPrimitive(Vector3f pos = Vector3f(0,0,0),
                     Vector3f vel=Vector3f(0,0,0),
                     unsigned long age=0);
     Vector3f color;
     const Vector3f getPos() const;
+    const Vector3f getOldPos() const;
+    const Vector3f getVel() const;
+    const unsigned long getAge() const;
 };
 
 inline const Vector3f ObjectPrimitive::getPos() const
 {
     return pos;
+}
+
+inline const Vector3f ObjectPrimitive::getOldPos() const
+{
+    return opos;
+}
+
+inline const Vector3f ObjectPrimitive::getVel() const
+{
+    return vel;
+}
+
+inline const unsigned long ObjectPrimitive::getAge() const
+{
+    return age;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -31,18 +49,21 @@ inline const Vector3f ObjectPrimitive::getPos() const
 class SolidPrimitive : public ObjectPrimitive
 {
     protected:
-    Vector3f aimvector;                     // Unit vector for aim
+    Vector3f aimVector;                     // Unit vector for aim
     float radius;
-    
+    unsigned long absNum;             		// absolute robot number
+
     public:
     SolidPrimitive( Vector3f pos = Vector3f(0,0,0),
                     Vector3f vel=Vector3f(0,0,0),
                     unsigned long age=0,
                     Vector3f startAimVec = Vector3f(1,0),
-                    float startRadius = 60.0f);
+                    float startRadius = 60.0f,
+                    unsigned long id = 0);
     const float& getRadius() const;
     const Vector3f& getAimVector() const;
-    const float getAim();
+    const float getAim() const;
+    const unsigned long& getAbsNum() const;
 };
 
 inline const float& SolidPrimitive::getRadius() const
@@ -52,7 +73,12 @@ inline const float& SolidPrimitive::getRadius() const
 
 inline const Vector3f& SolidPrimitive::getAimVector() const
 {
-    return aimvector;
+    return aimVector;
+}
+
+inline const unsigned long& SolidPrimitive::getAbsNum() const
+{
+    return absNum;
 }
 
 #endif

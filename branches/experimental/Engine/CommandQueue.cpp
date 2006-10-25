@@ -16,7 +16,7 @@ __int16 CommandQueueClass::Add(__int16 location, __int16 value)
 
 void CommandQueueClass::Clear()
 {
-    Commands.erase(Commands.begin(), Commands.end());
+    Commands.clear();
 }
 
 __int16 CommandQueueClass::FilterRead(__int16 location)
@@ -34,9 +34,9 @@ __int16 CommandQueueClass::FilterRead(__int16 location)
         return 0;
 }
 
-CommandQueueClass::CommandQueueClass()
+CommandQueueClass::CommandQueueClass(Robot* robot):base(robot)
 {
-    base = NULL;
+
 }
 
 void CommandQueueClass::SetBase(Robot *_base)
@@ -46,8 +46,8 @@ void CommandQueueClass::SetBase(Robot *_base)
 
 void CommandQueueClass::Apply()
 {
-    for(unsigned int x = 0; x < Commands.size(); x++)
-        (*base)[Commands[x].loc] = Commands[x].val;
+    for(vector<MemPair>::iterator command = Commands.begin(); command != Commands.end(); ++command)
+        (*base)[command->loc] = command->val;
 
     Clear();
 }

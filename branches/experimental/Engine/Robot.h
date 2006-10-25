@@ -1,10 +1,6 @@
 #ifndef ROBOT_H
 #define ROBOT_H
 
-#ifdef _MSC_VER
-#pragma warning(disable : 4786)
-#endif
-
 #include <iostream>
 #include <vector>
 #include <cmath>
@@ -19,12 +15,13 @@
 #include "SimOptions.h"
 #include "Shot.h"
 #include "CommandQueue.h"
-#include "Engine.h"
+
 #include <fx.h>
 
 //#include "../GUI/GUIBotDebug.h"
 class BotDebug_Window;
-typedef vector<Tie *> TieList;
+class Shot;
+typedef std::vector<Tie *> TieList;
 
 using namespace std;
 
@@ -35,49 +32,41 @@ const int RobSize          = 120;
 class Robot : public SolidPrimitive
 {
     friend class Tie; //tie class has access to bot memory among other things
-    friend class Shot;
-        
-    #ifdef _MSC_VER
-    friend class Robot; //instances of the Robot class can access each other
-                        //please do not unfriend Robot class with itself.
-    #endif
-
+    friend class Simulation;
     friend void DrawTies(bool Perimeter);
-    friend void Engine_Class::ExecuteDNA();
 
-private:
-
-	//Physical Attributes
-	float aim;								// aim angle
-    float AngularMomentum;
-
+public:     //temporary
 	TieList Ties;                           //linked list of ties
+private:
     __int16 currtie;                        //current port or phase that the bot is set to
-	
+
 	//Physics
 	Vector3f ovel;
     Vector3f Impulse;                        // impulses that get divided by mass to get forces
     Vector3f oldImpulse;
 	float ImpulseStatic;					// static force scalar (always opposes current forces)
-    
+
+    float aim;								// aim angle
+    float AngularMomentum;
 public:
 
 	bool Veg;								// is it a vegetable?
 	bool Wall;								// is it a wall?
-	bool Corpse; 
+	bool Corpse;
 	bool Fixed;								// is it blocked?
 	bool Dead;								// Allows program to define a robot; dead after a certain operation
 	bool Multibot;        					// Is robot part of a multi-bot
     bool NewMove;                           // does this bot use the new movement controls or is it a pussy?
     bool active;                            // used in collision detection
-    
+    bool View;
+
 private:
 	int occurr[20];							// array with the ref* values
-	
+
+public:
 	//Contents of cell
 	float nrg;								// energy
 	float onrg;								// old energy
-
 	float Body;								// Body points. A corpse still has a body after all
 	float obody;							// old body points, for use with pain pleas versions for body
 
@@ -91,33 +80,96 @@ private:
 	float Poison;          					// How poisonous is robot
 	float Venom;           					// How venomous is robot
 
+private:
 	//Other
 	bool Paralyzed;       					// true when robot is paralyzed
 	float ParaCount;        				// countdown until paralyzed robot is free to move again
 	int Vloc;            					// Location for custom venom to strike
 	int Vval;            					// Value to insert into venom location
-	
+public:
 	bool Poisoned;        					// Is robot poisoned and confused
 	float PoisonCount;     				    // Countdown till poison is out of his system
 	int Ploc;            					// Location for custom poison to strike
-
+private:
 	int DecayTimer;      					// controls decay cycle
 	long Kills;              				// How many other robots has it killed? Might not work properly
 
 	// virtual machine
 	__int16 mem[1000];       				// memory array
 
-    public:
-        CommandQueueClass DNACommands;
+public:
+    CommandQueueClass DNACommands;
 
-    private:
-	DNA_Class *DNA;        					// the DNA
+private:
+	DNA_Class* dna;        					// the DNA
+public:
+	Robot* lastopp;     	            // pointer to robot in eye5
 
-	Robot *lastopp;         	            // pointer to robot in eye5
-	unsigned long AbsNum;             		// absolute robot number
 
-	//console; Consoleform    				// console object;sociated to the robot
 
+    Robot::Robot(DnaParser* parser = NULL, datispecie *myspecies = NULL);
+    Robot::Robot(const Robot* mother);
+    void init(DnaParser*, datispecie *myspecies = NULL);      //be called whenever a bot is created
+
+
+	~Robot();
+	void TurnGenesis();
+	void PreTurn();
+
+    void Integrate();
+    void EdgeCollisions();
+    float BotCollisionsPos();
+    void VelocityCap();
+
+    void DuringTurn();
+	void PostTurn();
+	void Shock();
+	bool DeathManagement();
+
+    const bool isReproducing() const;
+    Robot* makeBaby();
+
+	void TurnEnd();
+    void CheckVision();
+	__int16 &operator[](const unsigned int i)
+	{
+		return mem[i-1];
+	}
+    const __int16 &operator[](const unsigned int i) const
+	{
+		return mem[i-1];
+	}
+
+    const float x() const {return pos.x();}
+    const float y() const{return pos.y();}
+    const float &findaim() const{return this->aim;}
+
+    const std::string getDnaText(const DnaParser* parser) const;
+    void ExecuteDNA();
+    bool ChargeNRG(float amount);
+
+    bool addEnergy(float amount);
+    bool addWaste(float amount);
+    bool addBody(float amount);
+
+    bool isShooting();
+    Shot* makeShot();
+
+    void UpdateTies();
+    bool FireTie();
+    bool CanTie();
+    void AddTie(Tie* tie);
+    void RemoveTie(Robot *other); //remove ties to other if such ties exist
+    void RemoveTie(Tie* tie);
+    void RemoveAllTies();
+    void SetTie(__int16 a);
+    Tie *CurrTie();
+    __int16 NextTie();
+    void Robot::WriteTie(__int16 location, __int16 number, __int16 tienum = 0);
+    __int16 Robot::ReadTie(__int16 loc, __int16 tienum = 0);
+    void Robot::ApplyNewTieSysvars();
+
+private:
 	// informative
 	unsigned int SonNumber;       			// number of sons
 	unsigned long parent;      				// parent absolute number
@@ -126,11 +178,11 @@ private:
 	unsigned int generation;				// generation
 	string LastOwner;        				// last internet owner//s name
 	string fname;            				// species name
-	unsigned int DnaLen;   					// dna length
+	//unsigned int DnaLen;   					// dna length
 
 	int virusshot;       					// the viral shot being stored
 	int Vtimer;          					// Count down timer to produce a virus
-	
+
 	void UpdateRadius();
 	void UpdateMass();
 	void UpdateAim();
@@ -148,24 +200,23 @@ private:
 	void BodyManagement();
 	void RobShoot();
 	void DeltaBody(int value);
-	void Shock();
-	bool DeathManagement();
-	bool KillRobot();
-	void Reproduction();
-	
+
+
+
 	void ShotManagement();
 	void SetMems();
-    
-	Robot *Robot::Split(float percentage);
+
+	Robot* Split(float percentage);
 	void BasicRobotSetup();
-	void Setup(datispecie *myspecies);
-    
+	void Setup(datispecie *myspecies, DnaParser*);
+	void scaleMaterials(float factor);
+
 	//SENSES
 	void FacingSun();
 	void Touch(Robot *other, float distance);
 	void Taste();
 	void EraseSenses();
-	Robot *BasicProximity();
+	Robot* BasicProximity();
     void EyeGridProximity();
 	void WriteSenses();
 	void WriteRefVars(const Robot *lastopp);
@@ -175,7 +226,7 @@ private:
 
     //physics
     void NetForces();
-    
+
     //subordinate physics functions
     void VoluntaryForces();
     void GravityForces();
@@ -188,132 +239,14 @@ private:
     void FulfillTieConstraintsPos();
     void FulfillTieConstraintsVel();
     void Robot::SpringForces();
-    
+
     //veg controls
     void FeedVegSun();
-
-public:
-    bool View;
-
-    Robot::Robot(datispecie *myspecies = NULL):
-                SolidPrimitive(),
-                aim(0.0f),AngularMomentum(0.0f), 
-                Ties(),
-                Impulse(0,0,0), ImpulseStatic(0.0f), oldImpulse(0.0f,0.0f,0.0f),
-                ovel(vel),
-                Veg(false),Wall(false),Corpse(false),Fixed(false),
-                Dead(false),Multibot(false),NewMove(false),
-                nrg(1000.0f),onrg(nrg),
-                Body(1000.0f),obody(Body),
-                AddedMass(0.0f),mass(1.0f),
-                Shell(0.0f),Slime(0.0f),Waste(0.0f),Pwaste(0.0f),Poison(0.0f),Venom(0.0f),
-                Paralyzed(false),ParaCount(0),Vloc(0),Vval(0),
-                Poisoned(false),PoisonCount(0),Ploc(0),
-                DecayTimer(0),Kills(0),
-                DNA(NULL),
-                lastopp(0),AbsNum(0),
-                SonNumber(0),parent(0),BirthCycle(0),genenum(0),generation(0),
-                LastOwner(""),fname(""),DnaLen(0),
-                virusshot(0),Vtimer(0),
-                View(false),
-                currtie(0)
-    {
-        pos = opos = vel = Vector3f(0,0,0);
-        age = 0;
-        memset(&mem[0], 0, sizeof(mem));
-        memset(&occurr[0], 0, sizeof(occurr));
-        init(myspecies);
-        DNACommands.SetBase(this);
-    }
-
-    void init(datispecie *myspecies = NULL);      //be called whenever a bot is created
-	
-	
-	~Robot();
-	void TurnGenesis();
-	void PreTurn();
-	
-    void Integrate();
-    void EdgeCollisions();
-    float BotCollisionsPos();
-    void VelocityCap();
-    
-    void DuringTurn();
-	void PostTurn();
-	void TurnCleanup();
-    void Reproduce();
-	void TurnEnd();
-    void CheckVision();
-	__int16 &operator[](const unsigned int i)
-	{
-		return mem[i-1];
-	}
-    const __int16 &operator[](const unsigned int i) const
-	{
-		return mem[i-1];
-	}
-	
-    string &DNA_Text()
-    {
-        return this->DNA->text();
-    }
-
-    const float x()
-    {
-        return pos.x();
-    }
-
-    const float y()
-    {
-        return pos.y();
-    }
-
-    void ExecuteDNA();
-    bool ChargeNRG(float amount);
-    float rad()
-    {
-        return radius;
-    }
-
-    const Vector3f &findpos() const
-    {
-        return this->pos;
-    }
-
-    const Vector3f &findopos() const
-    {
-        return this->opos;
-    }
-
-    const float &findaim() const
-    {
-        return this->aim;
-    }
-
-    unsigned long findAbsNum()
-    {
-        return AbsNum;
-    }
-
-    void Robot::UpdateTies();
-    bool FireTie();
-    bool CanTie();
-    void AddTie(Tie* tie);
-    void RemoveTie(Robot *other); //remove ties to other if such ties exist
-    void RemoveTie(Tie* tie);
-    void RemoveAllTies();
-    void SetTie(__int16 a)
-    {
-        currtie = (a > 0) ? ((a - 1)% 200) + 1 : a;
-    }
-    Tie *CurrTie();
-    __int16 NextTie();
-    void Robot::WriteTie(__int16 location, __int16 number, __int16 tienum = 0);
-    __int16 Robot::ReadTie(__int16 loc, __int16 tienum = 0);
-    void Robot::ApplyNewTieSysvars();
 };
 
-extern vector<Robot *> rob;  //an array of pointers to Robots.
-extern int MaxRobs; //how far into the robot array to go (we use this instead of downsizing the Robot array to save time)
+inline void Robot::SetTie(__int16 a)
+{
+    currtie = (a > 0) ? ((a - 1)% 200) + 1 : a;
+}
 
 #endif

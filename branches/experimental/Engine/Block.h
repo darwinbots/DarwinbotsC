@@ -6,6 +6,8 @@
 #include <utility>
 #include "../Common/Random.h"
 
+class DnaParser;
+
 using namespace std;
 
 struct BlockValueBounds
@@ -24,12 +26,6 @@ struct BlockValueBounds
     };
 }extern ValueBounds[20];
 void SetDNAMutationsBounds();
-
-struct var
-{
-    std::string name;
-    __int16 value;
-};
 
 enum BlockType
 {
@@ -55,8 +51,8 @@ struct Block
 
     Block():tipo(btNONE), value(0) {};
     Block(const BlockType &a, const __int16 &b): tipo(a), value(b){};
-    Block(const std::string& command);
-    
+    Block(const std::string& command, const DnaParser* parser);
+
     const bool operator == (const Block &other) const
     {
         return tipo == other.tipo && value == other.value;
@@ -64,7 +60,7 @@ struct Block
 
     const bool operator != (const Block &other) const
     {
-        return !(tipo == other.tipo && value == other.value);        
+        return !(tipo == other.tipo && value == other.value);
     }
 
     void erase()
@@ -74,7 +70,7 @@ struct Block
     }
 
     Block *ParseCommand(const string &Command);
-    string &UnparseCommand(bool converttosysvar = true);
+    string &UnparseCommand(const DnaParser* parser, bool converttosysvar = true);
 
     void RandomizeValue();
     void RandomizeTipo();
@@ -88,5 +84,5 @@ const Block DNA_STOP (btFlow ,4 );
 Block RandomBlock();
 Block ParseCommand(const string &Command);
 
-extern vector<var> sysvar; //all possible sysvars
+//extern vector<var> sysvar; //all possible sysvars
 #endif

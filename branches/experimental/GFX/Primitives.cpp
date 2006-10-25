@@ -13,11 +13,11 @@ void CreatePoint(Vector3f c, float bigness)
 	glEnd();
 }
 
-void CreateCircle(Vector3f c, float radius, long divisions)
+void CreateCircle(Vector3f c, float radius, int bisections)
 {
 	float angle;
 
-    divisions = (long)pow(2, divisions);
+    long divisions = (long)pow(2.f, bisections);
 
 	glBegin(GL_LINE_LOOP);
     for(int i =0;i<divisions;i++)
@@ -28,15 +28,15 @@ void CreateCircle(Vector3f c, float radius, long divisions)
 	glEnd();
 }
 
-void CreateSphere(Vector3f c,float r,int n = 5)
+void CreateSphere(Vector3f c,float r,int m = 5)
 {
    float i,j;
    float theta1,theta2,theta3, jalt, ialt;
    Vector3f e,p;
 
-   if (n < 0)
-	 n = -n;
-   n=(int)pow(2,n);//n must be equal to a power of 2 for the iterations to meet appropriately.
+   if (m < 0)
+	 m = -m;
+   long n=(long)pow(2.f,m);//m must be equal to a power of 2 for the iterations to meet appropriately.
    
    if (r < 0) 
      r = -r;

@@ -1,6 +1,8 @@
 #include <direct.h>
 #include <time.h>
 
+#include <fstream>
+
 #include "SimOptions.h"
 #include "HardDriveRoutines.h"
 #include "Shot.h"
@@ -8,162 +10,28 @@
 
 #include "Engine.h"
 
-Engine_Class Engine;
+Simulation Engine;
 
-int counter;
-#define FORALLROBOTS \
-    for(counter = 0; counter <= MaxRobs; counter++) \
-        if(rob[counter] != NULL)
-
-void Engine_Class::UpdateSim(void)
-{
-    //the order of functions here is very important. Don't idly add or (re)move
-    //functions without _really_ thinking about how it changes the order of
-    //other functions.
-
-    this->ExecuteDNA();  //O(n)
-    this->ExecuteShots(); //Checks every shot against every bot O(mn)
-
-    ////////////////////
-	//UpdateBots
-	////////////////////
-	
-	//update counters
-
-	//Before anything else...
-	FORALLROBOTS rob[counter]->TurnGenesis();
-
-	FORALLROBOTS rob[counter]->PreTurn();
-
-	//Physics Steps:    
-    FORALLROBOTS rob[counter]->Integrate();
-
-    //CONSTRAINTS (done after movement)
-
-    //max tie length and rigid ties (if ties are hardened)
-
-    FORALLROBOTS rob[counter]->VelocityCap();
-
-    //More iterations decreases overlap between bots when stacking, but
-    //it hardly seems practical.  A better solution must exist, which
-    //more intelligently offsets colliding bots.
-
-    //perhaps collisions with edges offsets the whole world as well (or rather,
-    //offsets all objects in the world an opposite amount)
-    //or conversely, bot collisions have one of the bots moving 100%
-    //of the distance
-
-    //O(n^2)
-    
-    float maxoverlap;
-    int loopcounter = 0;
-    
-    #define ANGELOCOLLISION
-    #ifndef ANGELOCOLLISION
-    do
-    {
-        maxoverlap = 0.0f;
-        FORALLROBOTS
-        {
-            float overlap = rob[counter]->BotCollisionsPos();
-            maxoverlap = max(maxoverlap, overlap);
-        }
-
-        FORALLROBOTS rob[counter]->EdgeCollisions();
-
-        loopcounter++;
-    
-    }while(maxoverlap > 0.1f && loopcounter <= 5);
-
-    #else
-    bool Continue;
-    do
-    {
-        Continue = false;
-        maxoverlap = 0.0f;
-        FORALLROBOTS //for all robots 
-        {
-            if (rob[counter]->active)
-			{			 
-				float overlap = rob[counter]->BotCollisionsPos(); 
-				maxoverlap = max(maxoverlap, overlap);
-			}
-
-            
-        }
-
-        FORALLROBOTS rob[counter]->EdgeCollisions();
-
-        unsigned int activecounter = 0;
-        FORALLROBOTS
-        {
-            if(rob[counter]->active)
-            {
-                activecounter++;
-                Continue = true;
-            }
-        }
-
-        //cout << activecounter << endl;
-
-        //loopcounter++;
-    
-    }while(Continue);
-
-    #endif
-
-    FORALLROBOTS ManipulateEyeGrid(rob[counter]);
-    
-    //END CONSTRAINTS
-    //END Physics steps
-    
-    FORALLROBOTS rob[counter]->DuringTurn();
-    
-	FORALLROBOTS rob[counter]->PostTurn();
-    
-	FORALLROBOTS rob[counter]->TurnCleanup();
-    
-    FORALLROBOTS rob[counter]->Reproduce();
-    
-	RepopulateVeggies();
-    
-    FORALLROBOTS rob[counter]->CheckVision();
-	
-	//Write senses
-	FORALLROBOTS rob[counter]->TurnEnd();
-    
-    //update cycle count
-	SimOpts.TotRunCycle++;
-}
-
-void Engine_Class::ProgramInitialize()
+Simulation::Simulation():robotList(new RobotList),shotList(new ShotList)
 {
     char buffer[1024];
-    this->maindir = getcwd(buffer, 1024);
-    ReadSett(this->maindir + "\\settings\\lastexit.set", SimOpts);
+    this->mainDir = getcwd(buffer, 1024);
+    ReadSett(this->mainDir + "\\settings\\lastexit.set", SimOpts);
 
-    BuildSysvars();
+    parser.buildSysvars(this->mainDir+"/sysvars2.5.txt");
 
-    //initialize the robot and shot pointer array
-	for (unsigned int x = 0; x < 5000; x++)
-    {
-        rob[x] = NULL;
-        shots[x] = NULL;
-    }
-
-	MaxRobs = -1;
-    MaxShots = -1;
+    //MaxShots = -1; //TO BE REMOVED
 
     SetDNAMutationsBounds();
 }
 
-void Engine_Class::SetupSim(void)
-{	
+void Simulation::setup()
+{
 	if(SimOpts.UserSeedToggle)
         DBsrand(SimOpts.UserSeedNumber);
     else
         DBsrand(time(NULL));
-	
+
     //Load script Lists
 
 	SimOpts.MutCurrMult = 1;
@@ -171,8 +39,8 @@ void Engine_Class::SetupSim(void)
 	SimOpts.TotBorn = 0;
 	SimOpts.TotRunTime = 0;
 
-	MaxRobs = -1;
-    MaxShots = -1;
+	//MaxRobs = -1;
+    //MaxShots = -1;
 
 	this->LoadRobots();
 
@@ -186,7 +54,7 @@ void Engine_Class::SetupSim(void)
 
 	//initialize league mode
 
-	/*  
+	/*
 	If SimOpts.MaxEnergy > 1000 Then
 		If MsgBox("Your nrg allotment is set to" + Str(SimOpts.MaxEnergy) + ".  A correct value " + _
 			      "is in the neighborhood of about 10 or so.  Do you want to change your energy allotment " + _
@@ -197,69 +65,208 @@ void Engine_Class::SetupSim(void)
 	*/
 }
 
-void Engine_Class::LoadRobots(void)
+void Simulation::UpdateSim(void)
+{
+    //std::cout<<"Turn "<<SimOpts.TotRunCycle<<":";
+    //the order of functions here is very important. Don't idly add or (re)move
+    //functions without _really_ thinking about how it changes the order of
+    //other functions.
+
+    this->ExecuteDNA();  //O(n)
+    this->ExecuteShots(); //Checks every shot against every bot O(mn)
+
+    ////////////////////
+	//UpdateBots
+	////////////////////
+	RobotIterator currBot;
+	//update counters
+
+	//Before anything else...
+	/* does nothing...
+	for (currBot = robotList->begin(), currBot != robotList->end(), ++currBot)
+	   *currBot->TurnGenesis();*/
+
+	for (currBot = robotList->begin(); currBot != robotList->end(); ++currBot)
+	   (*currBot)->PreTurn();
+
+	//Physics Steps:
+    for (currBot = robotList->begin(); currBot != robotList->end(); ++currBot)
+	   (*currBot)->Integrate();
+
+    //CONSTRAINTS (done after movement)
+
+    //max tie length and rigid ties (if ties are hardened)
+
+    for (currBot = robotList->begin(); currBot != robotList->end(); ++currBot)
+	   (*currBot)->VelocityCap();
+
+    handleBotCollisions();
+
+    for (currBot = robotList->begin(); currBot != robotList->end(); ++currBot)
+	    ManipulateEyeGrid(*currBot);
+
+    //END CONSTRAINTS
+    //END Physics steps
+    //std::cout<<" phys,";
+    for (currBot = robotList->begin(); currBot != robotList->end(); ++currBot)
+        (*currBot)->DuringTurn();
+
+    //"PostTurn" phase
+	for (currBot = robotList->begin(); currBot != robotList->end(); ++currBot)
+	{
+        assert((*currBot)->dna!=NULL);
+        (*currBot)->dna->Mutate(false); //<--- mutating by point cycle
+        //this->BotDNAManipulation t <--- Things like delgene, making viruses, etc.
+        (*currBot)->Construction();
+        if ((*currBot)->isShooting())
+            createShot(*currBot);
+        (*currBot)->BodyManagement();
+        (*currBot)->FireTie();
+        (*currBot)->FeedVegSun();
+        (*currBot)->UpdateRadius();
+        (*currBot)->UpdateMass();
+	}
+
+    //Cleanup phase
+    currBot = robotList->begin();
+	while (currBot != robotList->end())
+    {
+        (*currBot)->Shock();
+        if(!(*currBot)->DeathManagement())
+        {
+            assert(*currBot != NULL && "Trying to kill an already dead bot");
+            for (RobotIterator otherBot = robotList->begin(); otherBot != robotList->end(); ++otherBot)
+                if((*otherBot)->lastopp == *currBot)
+                    (*otherBot)->lastopp = NULL;
+            delete *currBot;
+            currBot = robotList->erase(currBot);
+        }
+        else
+        {
+            ++currBot;
+        }
+    }
+    //std::cout<<" deaths,";
+    RobotList tempList;
+    for (currBot = robotList->begin(); currBot != robotList->end(); ++currBot)
+    {
+        if ((*currBot)->isReproducing())
+            tempList.push_back((*currBot)->makeBaby());
+    }
+    robotList->splice(robotList->end(), tempList); //Merges the temporary list at the end
+    //std::cout<<" repro,";
+	RepopulateVeggies();
+
+    for (currBot = robotList->begin(); currBot != robotList->end(); ++currBot)
+        (*currBot)->CheckVision();
+
+	//Write senses
+	for (currBot = robotList->begin(); currBot != robotList->end(); ++currBot)
+        (*currBot)->TurnEnd();
+
+    //update cycle count
+	++SimOpts.TotRunCycle;
+	//std::cout<<" end."<<std::endl;
+    //std::cout<<"Bot 105 has "<<getRobot(105)->nrg <<" energy at turn "<<SimOpts.TotRunCycle<<std::endl;
+}
+
+void Simulation::LoadRobots(void)
 {
     for (unsigned int y = 0; y < SimOpts.SpeciesNum; y++)
         for (unsigned int x = 0; x < SimOpts.Specie[y].qty; x++)
-            new Robot(&SimOpts.Specie[y]);
+            robotList->push_back(new Robot(&parser,&SimOpts.Specie[y]));
 }
 
-void Engine_Class::ExecuteDNA()
+void Simulation::ExecuteDNA()
 {
-    FORALLROBOTS
-        if(rob[counter]->DNA != NULL)
-            rob[counter]->ExecuteDNA();
+    RobotIterator currBot;
+    for (currBot = robotList->begin(); currBot != robotList->end(); ++currBot)
+        (*currBot)->ExecuteDNA();
 
-    FORALLROBOTS for(unsigned int x = 0; x < rob[counter]->Ties.size(); x++)
-        if(rob[counter]->Ties[x] != NULL)
-            rob[counter]->Ties[x]->ApplyCQ(); //Apply the Command Queue
+    for (currBot = robotList->begin(); currBot != robotList->end(); ++currBot)
+        for(TieList::iterator tie= (*currBot)->Ties.begin(); tie != (*currBot)->Ties.end(); ++tie)
+            (*tie)->ApplyCQ(); //Apply the Command Queue
 
-    FORALLROBOTS
-        if(rob[counter]->DNA != NULL)
-            rob[counter]->DNACommands.Apply();
+    for (currBot = robotList->begin(); currBot != robotList->end(); ++currBot)
+        (*currBot)->DNACommands.Apply();
 }
 
-void Engine_Class::ExecuteShots()
-{   
-	int counter;
-    for(counter = 0; counter <= MaxShots; counter++)
-        if(shots[counter] != NULL)
-            shots[counter]->UpdatePos();
+void Simulation::ExecuteShots()
+{
+    ShotIterator shot;
+    for (shot = shotList->begin(); shot != shotList->end(); ++shot)
+    {
+        assert(*shot != NULL);
+        (*shot)->UpdatePos();
+    }
 
-    //first iteration checks for initial collision
-    
-    for(counter = 0; counter <= MaxShots; counter++)
-        if(shots[counter] != NULL)
-            shots[counter]->UpdateShot(false);
+    //Since returned shots are added at the end of shotList, they're also
+    //checked by this loop.
+// FIXME (Ronan#1#): Need to handle correctly returned shots on the turn they're created
+    shot = shotList->begin();
+	while (shot != shotList->end())
+	{
+	    if ((*shot)->isTooOld())
+	    {
+	        shot = killShot(shot);
+	        continue;
+	    }
+	    Robot* target = (*shot)->ShotColl();
+	    if (target != NULL)
+	    {
+// FIXME (Ronan#1#): Should clear shots when new bot is born instead
+	        if (target->parent == (*shot)->parent && target->age == 0)
+	        {
+	            shot = killShot(shot); //baby bots immune to parents' shots at first
+                continue;
+            }
+            const float power=(*shot)->hit(target);
+            if((*shot)->bouncesOff(target, power))
+                shotList->push_back((*shot)->returnShot(target, power));
+            shot = killShot(shot);
+            /*(*shot)->reflect(target);
+            (*shot)->collide(target);*/
+	    }
+	    else
+            ++shot;
+	}
 
     //second iteration checks for collision of returned shots
-    for(counter = 0; counter <= MaxShots; counter++)
-        if(shots[counter] != NULL)
-            shots[counter]->UpdateShot(true);
+    /*for (shot = shotList->begin(); shot != shotList->end(); ++shot)
+    {
+        Robot* target = (*shot)->ShotColl();
+	    if (target != NULL)
+	    {
+	        if (target->parent == (*shot)->parent && target->age == 0)
+	        {
+	            shot = killShot(shot); //baby bots immune to parents' shots at first
+                break;
+            }
+            (*shot)->reflect(target);
+            (*shot)->collide(target);
+	    }
+    }*/
 }
 
 int cooldown = 0;
-void Engine_Class::RepopulateVeggies()
+void Simulation::RepopulateVeggies()
 {
     vector<int> VegSpeciesList;
     unsigned long veggcount=0;
     unsigned long notveggcount=0;
 
-    for(int x = 0; x <= MaxRobs; x++)
+    for (RobotIterator currBot = robotList->begin(); currBot != robotList->end(); ++currBot)
     {
-        if(rob[x] != NULL)
-        {
-            if(rob[x]->Veg)
-                veggcount++;
-            if(!rob[x]->Veg)
-                notveggcount++;
-        }
+        if((*currBot)->Veg)
+            veggcount++;
+        else
+            notveggcount++;
     }
 
     SimOpts.TotBotsNow = notveggcount;
     SimOpts.TotVegsNow = veggcount;
     SimOpts.TotObjects = veggcount + notveggcount;
-    
+
     if(--cooldown <= 0)
         cooldown = 0;
 
@@ -276,72 +283,186 @@ void Engine_Class::RepopulateVeggies()
 
         if(VegSpeciesList.size() == 0)
             return;
-        
+
         for(x = 0; x < SimOpts.RepopAmount; x++)
         {
-            //this needs to be changed later into something that uses all species with vegs turned on
-            unsigned int spec = frnd(0, VegSpeciesList.size() - 1);            
-            
-            new Robot(&SimOpts.Specie[spec]);            
+            unsigned int spec = frnd(0, VegSpeciesList.size() - 1);
+            robotList->push_back(new Robot(&parser,&SimOpts.Specie[spec]));
             SimOpts.TotVegsNow++;
         }
         cooldown = SimOpts.RepopCooldown;
     }
 }
 
-void Engine_Class::ManipulateEyeGrid(Robot *bot)
+void Simulation::ManipulateEyeGrid(Robot *bot)
 {
     EyeGrid.Move(bot);
 }
 
-void Engine_Class::EyeGridRemoveDeadBot(Robot *bot)
+void Simulation::EyeGridRemoveDeadBot(Robot *bot)
 {
-    EyeGrid.Remove(bot, Vector3i(int(bot->findopos().x() / GRID_DIM),
-                                 int(bot->findopos().y() / GRID_DIM),
-                                 int(bot->findopos().z() / GRID_DIM)));
+    EyeGrid.Remove(bot, Vector3i(int(bot->getOldPos().x() / GRID_DIM),
+                                 int(bot->getOldPos().y() / GRID_DIM),
+                                 int(bot->getOldPos().z() / GRID_DIM)));
 }
 
-void Engine_Class::WhatCanSeeMe(Robot *me, list<Robot *> &BotList)
+void Simulation::WhatCanSeeMe(Robot *me, list<Robot *> &BotList)
 {
     EyeGrid.WhatCanSeeMe(me, BotList);
 };
 
-void FindOpenSpace(Robot *me) //finds spot for robot in array, returns pointer to said robot
+//find a robot with this serial number or return NULL
+Robot* Simulation::getRobot(unsigned long serial) const
 {
-	int firstopenspot=0;
+    for (RobotIterator currBot = robotList->begin(); currBot != robotList->end(); ++currBot)
+        if((*currBot)->getAbsNum() == serial)
+            return *currBot;
 
-	while(rob[firstopenspot] != NULL && firstopenspot <= MaxRobs)
-	{
-		firstopenspot++;
-	}
+    return NULL;
+}
 
-    if(firstopenspot >= (int)rob.capacity())
+//sets a hard constraint that pulls bots that are too close to each other apart
+//changes by angelo
+float Simulation::BotCollisionsPos(Robot* bot)
+{
+    float maxoverlap = 0.0f;
+    bool collide = false;
+    for (RobotIterator otherBot = robotList->begin(); otherBot != robotList->end(); ++otherBot)
     {
-        unsigned int oldcapacity = rob.capacity();
-        rob.reserve(oldcapacity + 10);
-        for(unsigned int x = oldcapacity; x < oldcapacity + 10; x++)
+        if((*otherBot)->absNum != bot->absNum) //if i'm a robot, consider me
         {
-            rob[x] = NULL;
+            Vector3f normal = (*otherBot)->pos - bot->pos;
+
+            float mindist = bot->radius + (*otherBot)->radius;
+            if(abs(normal.x())>mindist || abs(normal.y())>mindist) //Square test
+                continue;
+            mindist *= mindist;
+
+            float currdist = normal.LengthSquared();
+
+            //Circle test
+            //The +1 is a fudge factor for floating point inaccuracies
+            if(currdist + 1 < mindist) //bots colliding...activate both bots
+            {
+                collide = true;
+                (*otherBot)->active = true;
+				bot->active = true;
+
+                if(currdist < 1)
+                {
+                    currdist = 1;
+                    normal.set(0, 1);
+                }
+
+                float overlap = sqrtf(mindist / currdist) - 1.0f;
+
+                //this below would be faster if we didn't do more than one iteration of position collision a cycle
+                //float overlap = (mindist) / (currdist + mindist) - 0.5f;
+
+                if(overlap > maxoverlap)
+                    maxoverlap = overlap;
+
+                //UPDATE POSITIONS
+                normal *= overlap;
+
+                //these need to be modified to deal with
+                //fixed/unfixed pairs
+                (*otherBot)->pos += normal * 0.5f;
+                bot->pos -= normal * 0.5f;
+            }
         }
     }
 
-	//push back MaxRobs if we need to
-	if (firstopenspot > MaxRobs)
-		MaxRobs = firstopenspot;
+    if(collide == false)
+        bot->active = false;
 
-	//expand dynamic array if we need to
-	//we go by 1000s
-	//if (firstopenspot >= rob.capacity())
-	//	//rob.resize(rob.capacity() + 1000, NULL);
-
-	rob[firstopenspot] = me;
+    return maxoverlap;
 }
 
-Robot *FindSerialNumber(unsigned long serial)
+//More iterations decreases overlap between bots when stacking, but
+//it hardly seems practical.  A better solution must exist, which
+//more intelligently offsets colliding bots.
+//O(n^2)
+void Simulation::handleBotCollisions()
 {
-    for(int x = 0; x <= MaxRobs; x++)
-        if(rob[x] != NULL && rob[x]->findAbsNum() == serial)
-            return rob[x];
-    
-    return NULL;
+    float maxoverlap = 0.0f;
+    int loopcounter = 0;
+
+    bool Continue = false;
+    RobotIterator currBot;
+    do
+    {
+        Continue = false;
+        for (currBot = robotList->begin(); currBot != robotList->end(); ++currBot)
+        {
+            if ((*currBot)->active)
+			{
+				float overlap = BotCollisionsPos(*currBot);
+
+				maxoverlap = max(maxoverlap, overlap);
+			}
+        }
+
+        for (currBot = robotList->begin(); currBot != robotList->end(); ++currBot)
+	       (*currBot)->EdgeCollisions();
+
+        unsigned int activecounter = 0;
+        for (currBot = robotList->begin(); currBot != robotList->end(); ++currBot)
+        {
+            if((*currBot)->active)
+            {
+                activecounter++;
+                Continue = true;
+            }
+        }
+
+        //cout << activecounter << endl;
+
+        //loopcounter++;
+
+    }while(Continue);
+
+}
+
+void Simulation::getRobotDisplayList(std::vector<SolidPrimitive>& displayList) const
+{
+    displayList.clear();
+    for (RobotIterator currBot = robotList->begin(); currBot != robotList->end(); ++currBot)
+    {
+        assert(*currBot!=NULL && "bla");
+        displayList.push_back(**currBot);
+    }
+}
+
+void Simulation::getShotDisplayList(ShotList& displayList) const
+{
+    for (ShotIterator currShot = displayList.begin(); currShot != displayList.end(); ++currShot)
+        delete *currShot;
+    displayList.clear();
+    for (ShotIterator currShot = shotList->begin(); currShot != shotList->end(); ++currShot)
+    {
+        displayList.push_back((*currShot)->clone());
+    }
+}
+
+//Clears the sim, though it'd be better to destroy it.
+void Simulation::clear()
+{
+    for (RobotIterator currBot = robotList->begin(); currBot != robotList->end(); ++currBot)
+        delete *currBot;
+    robotList->clear();
+    for (ShotIterator currShot = shotList->begin(); currShot != shotList->end(); ++currShot)
+        delete *currShot;
+    shotList->clear();
+}
+
+void Simulation::createShot(Robot* parent)
+{
+    shotList->push_back(parent->makeShot());
+}
+
+ShotIterator Simulation::killShot(ShotIterator shot)
+{
+    delete *shot;
+    return shotList->erase(shot);
 }

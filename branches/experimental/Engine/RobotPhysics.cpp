@@ -24,16 +24,16 @@ video game literature.
 #define CUBE(a) ((a)*(a)*(a))
 
 void Robot::NetForces()
-{        
+{
     this->UpdateAddedMass();
     this->UpdateMass();
 
     if (mass + AddedMass == 0)  // a catch to be sure that we don't have 0 mass
 		mass = 0.1f;
-    
+
     if(SimOpts.ZeroMomentum)
         this->vel.set(0,0,0);
-    
+
     //INDEPENDANT FORCES
     this->VoluntaryForces();
     this->GravityForces();
@@ -43,14 +43,15 @@ void Robot::NetForces()
 
     this->SpringForces();
     //tie angles
-    
-        
+
+
     //RESISTIVE FORCES
     this->BotCollisionsVel();
     //drag from tie
     //drag from bot
     this->Friction();
     //gate forces
+
 }
 
 void Robot::Integrate()
@@ -70,11 +71,11 @@ void Robot::Integrate()
            newdir.z() != olddir.z())
             Impulse.set(0,0,0);
     }*/
-    
+
     //velocity verlet integration
-    pos = opos + vel + 0.5f * oldImpulse / (mass + AddedMass);
+    pos += vel + 0.5f * oldImpulse / (mass + AddedMass);
     vel += (oldImpulse + Impulse) / (2 * (mass + AddedMass));
-    
+
     oldImpulse = Impulse;
     Impulse.set(0,0,0);
     ImpulseStatic = 0;
@@ -86,64 +87,11 @@ void Robot::Integrate()
 
     if(age <= 1)
         active = true;
-}
-
-//sets a hard constraint that pulls bots that are too close to each other apart
-//changes by angelo
-float Robot::BotCollisionsPos()
-{
-    float maxoverlap = 0.0f;
-    bool collide = false;
-    for(int x = 0; x <= MaxRobs; x++)
-    {
-        if(rob[x] != NULL && rob[x]->AbsNum != this->AbsNum) //if i'm a robot, consider me
-        {
-            Vector3f normal = rob[x]->pos - this->pos;
-            
-            float mindist = this->radius + rob[x]->radius;
-            if(abs(normal.x())>mindist || abs(normal.y())>mindist) //Square test
-                continue;
-            mindist *= mindist;
-                        
-            float currdist = normal.LengthSquared();
-            
-            //Circle test
-            //The +1 is a fudge factor for floating point inaccuracies
-            if(currdist + 1 < mindist) //bots colliding...activate both bots
-            {
-                collide = true;
-                rob[x]->active = true;
-				this->active = true;
-				
-                if(currdist < 1)
-                {
-                    currdist = 1;
-                    normal.set(0, 1);
-                }
-
-                float overlap = sqrtf(mindist / currdist) - 1.0f;
-                
-                //this below would be faster if we didn't do more than one iteration of position collision a cycle
-                //float overlap = (mindist) / (currdist + mindist) - 0.5f;
-                
-                if(overlap > maxoverlap)
-                    maxoverlap = overlap;
-                
-                //UPDATE POSITIONS
-                normal *= overlap;
-                
-                //these need to be modified to deal with
-                //fixed/unfixed pairs
-                rob[x]->pos += normal * 0.5f;
-                this->pos -= normal * 0.5f;
-            }
-        }
-    }
-
-    if(collide == false)
-        active = false;
-
-    return maxoverlap;
+    /*if (getAbsNum()==105)
+            std::cout<<"Calculated bot#"<<getAbsNum()
+                    <<" at turn "<<SimOpts.TotRunCycle
+                    <<". Velocity: "<<vel.x()<<","<<vel.y()
+                    <<". Impulse: "<<oldImpulse.x()<<","<<oldImpulse.y()<<std::endl;*/
 }
 
 void Robot::VelocityCap()
@@ -155,17 +103,17 @@ void Robot::VelocityCap()
 void Robot::EdgeCollisions()
 {
     //The Edges are perfectly damped springs that repel bots
-        
+
     Vector3f dist;
     Vector3f radvec(this->radius, this->radius);
-    
-    dist = 
+
+    dist =
     VectorMin(
     VectorMax(this->pos, radvec),
-    SimOpts.FieldDimensions - radvec); 
-    
+    SimOpts.FieldDimensions - radvec);
+
     const float CoefficientRestitution = 0.95f;
-    
+
     if(this->pos.x() < this->radius - .1 ||
        this->pos.x() - .1 > SimOpts.FieldDimensions.x() - this->radius)
     {
@@ -185,7 +133,7 @@ void Robot::EdgeCollisions()
     //speed loss in non normal direction of wall
     //represents loss of energy due to friction or
     //rolling or something like that
-    
+
     this->pos = dist;
 }
 
@@ -244,25 +192,25 @@ which Numsgil heavily contributed to.
 
 //unresolved question: should I use added mass
 //as part of the momentum equation for collisions?
-void Robot::BotCollisionsVel()
+void Robot::BotCollisionsVel()  //deactivated for now
 {
-    for(int x = 0; x <= MaxRobs; x++)
+    /*for(int x = 0; x <= MaxRobs; x++)
     {
         if(rob[x] != NULL && rob[x]->AbsNum < this->AbsNum)
         {
             Vector3f normal = rob[x]->pos - this->pos;
             float mindist = this->radius + rob[x]->radius;
             mindist *= mindist;
-                        
+
             float currdist = normal.LengthSquared();
-            
+
             if(currdist < mindist)
             {
                 //UPDATE CHANGES IN VELOCITY
                 const float e  = SimOpts.ElasticCoefficient = 0.5f;
                 const float M1 = this->mass;
                 const float M2 = rob[x]->mass;
-                
+
                 normal /= sqrtf(currdist); //normalize normal vector
 
                 Vector3f V1 = (this->vel * normal) * normal;
@@ -270,15 +218,15 @@ void Robot::BotCollisionsVel()
 
                 Vector3f V1f = ((e + 1.0f) * M2 * V2 + V1 * (M1 - e * M2))/
                             (M1 + M2);
-                
+
                 Vector3f V2f = ((e + 1.0f) * M1 * V1 + V2 * (M2 - e * M1))/
                             (M1 + M2);
-                
+
                 this->vel = V1f + (this->vel - V1);
                 rob[x]->vel = V2f + (rob[x]->vel - V2);
             }
         }
-    }
+    }*/
 }
 
 //calculates new acceleration and energy values from robot's
@@ -287,47 +235,49 @@ void Robot::VoluntaryForces()
 {
     float EnergyCost, mult;
     Vector3f NewAccel, dir;
-    
+
     if (this->Corpse == true)
         return;
-    
+
     if (this->NewMove == false)
         mult = this->mass;
     else
         mult = 1;
-    
+
     dir.set(float((*this)[dirright] - (*this)[dirleft]),
             float((*this)[dirup] - (*this)[dirdn]), 0);
-    
+
     dir = dir * mult;
-    
-    NewAccel.set(aimvector % dir, aimvector * dir);
-    
+
+    NewAccel.set(aimVector % dir, aimVector * dir);
+
     //NewAccel is the impulse vector formed by the robot's internal "engine".
     //Impulse is the integral of Force over time.
-    
+
     this->Impulse += NewAccel * SimOpts.MovingEfficiency / 100.0f;
     EnergyCost = dir.Length() * SimOpts.Costs[MOVECOST];
     this->ChargeNRG(EnergyCost);
-    
+
     (*this)[dirup] =
     (*this)[dirdn] =
     (*this)[dirright] =
     (*this)[dirleft] = 0;
+//    if (getAbsNum()==105)
+//            std::cout<<dirup<<"Calculated bot#"<<getAbsNum()
+//                    <<" at turn "<<SimOpts.TotRunCycle
+//                    <<". Specific impulse: "<<dir.x()<<","<<dir.y()<<std::endl;
 }
 
 void Robot::GravityForces()
 {
     Vector3f temp(0,1,0);
-    
+
     this->Impulse -= (this->mass * SimOpts.YGravity) * temp;
 }
 
 void Robot::BrownianForces()
 {
-    float Impulse = Gauss(SimOpts.Brownian / 2);
-    float RandomAngle = frnd(1, 1256) / 200.0f;
-    Vector3f temp(cosf(RandomAngle) * Impulse, sinf(RandomAngle) * Impulse);    
+    Vector3f temp(Gauss(SimOpts.Brownian), Gauss(SimOpts.Brownian));
     this->Impulse += temp;
 }
 
@@ -336,15 +286,15 @@ void Robot::BouyancyForces()
     if (SimOpts.YGravity == 0)
         return;
 
-    double Impulse = -SimOpts.Density * CUBE((double)this->radius)
-                                      * 4.0 / 3.0 * double(PI) * double(SimOpts.YGravity);
-    Vector3f temp(0.0f, float(Impulse), 0.0f);
+    float buoyancy = -SimOpts.Density *
+                        Body * CUBICTWIPPERBODY * SimOpts.YGravity;
+    Vector3f temp(0.0f, buoyancy, 0.0f);
     this->Impulse += temp;
 }
 
-void Robot::PlanetEaters()
+void Robot::PlanetEaters() //deactivated for now
 {
-    for(int x = 0; x <= MaxRobs; x++)
+    /*for(int x = 0; x <= MaxRobs; x++)
     {
         if(rob[x] != NULL && rob[x]->AbsNum < this->AbsNum)
         {
@@ -358,20 +308,9 @@ void Robot::PlanetEaters()
 
                 rob[x]->Impulse -= PosDiff;
                 this->Impulse   += PosDiff;
-            }            
+            }
         }
-    }
-}
-
-void Robot::UpdateAddedMass()
-{
-    //added mass is a simple enough concept.
-    //To move an object through a liquid, you must also move
-    //that liquid out of the way.
-  
-    const double AddedMassCoefficientForASphere = 0.5;
-    AddedMass = float(AddedMassCoefficientForASphere * SimOpts.Density * 
-                4.0 / 3.0 * double(PI) * CUBE(double(radius)));
+    }*/
 }
 
 void Robot::Friction()
@@ -386,7 +325,7 @@ void Robot::Friction()
             vel -= SimOpts.ZGravity * SimOpts.CoefficientKinetic * (vel / length);
         else
             vel.set(0,0,0);
-        
+
     }
     else
     {
@@ -401,7 +340,7 @@ void Robot::SpringForces()
     for(unsigned int x = 0; x < Ties.size(); x++)
         if(Ties[x] != NULL)
         {
-            if(Ties[x]->FindOther(this)->AbsNum < AbsNum)
+            if(Ties[x]->FindOther(this)->absNum < absNum)
             {
                 Vector3f Imp = Ties[x]->SpringForces(this);
                 Impulse += Imp;
@@ -414,7 +353,7 @@ Vector3f Tie::SpringForces(Robot *caller)
 {
     Vector3f dist = caller->pos - FindOther(caller)->pos;
 
-    this->NaturalLength = max(sender->rad() + receiver->rad(), this->NaturalLength);
+    this->NaturalLength = max(sender->getRadius() + receiver->getRadius(), this->NaturalLength);
 
     if(dist.LengthSquared() == NaturalLength * NaturalLength)
         return Vector3f(0,0,0);
@@ -423,7 +362,7 @@ Vector3f Tie::SpringForces(Robot *caller)
     dist /= length;
 
     Vector3f Impulse(0,0,0);
-    
+
     Impulse += k * (NaturalLength - length) * dist;
     Impulse += dist * (caller->vel - FindOther(caller)->vel) * -b * dist;
 

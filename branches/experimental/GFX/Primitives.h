@@ -3,7 +3,7 @@
 
 #include "../Common/Vectors.h"
 
-void CreateCircle(Vector3f c, float radius, long divisions);
+void CreateCircle(Vector3f c, float radius, int bisections);
 void CreateSphere(Vector3f c,float r,int n = 5);
 void CreatePoint(Vector3f c, float bigness);
 void CreateBox(Vector3f min, Vector3f max);

@@ -10,17 +10,29 @@
 class EngineThread : public FXThread
 {
     public:
+
+    Simulation* simulation;
+
     int run();
-    void ProgramInitialize();
     EngineThread();
-    
+
     long addCycles(long cycles);
     long pause();
     long play();
     long counter();
-    
+
+    std::vector<SolidPrimitive> getRobotDisplayList();
+    ShotList getShotDisplayList();
+    unsigned long findAbsNum(Vector3f pos);
+    Robot* getRobot(unsigned long selection);
+
     private:
-    long runCounter;
+        FXMutex botListMutex;
+        long runCounter;
+        std::vector<SolidPrimitive> botDisplayList;
+        ShotList shotDisplayList;
+    public:
+    bool isCancelled;
 };
 
 inline long EngineThread::addCycles(long cycles)

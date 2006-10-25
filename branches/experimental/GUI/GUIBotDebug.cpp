@@ -8,6 +8,7 @@
 #include <vector>
 #include "MainWindow.h"
 #include "../Engine/Robot.h"
+#include "../Engine/Engine.h"
 #include <FXToolBarShell.h>
 
 #include "GUIBotDebug.h"
@@ -23,7 +24,7 @@ FXDEFMAP(BotDebug_Window) BotDebug_WindowMap[] = {
   FXMAPFUNC(SEL_COMMAND, BotDebug_Window::ID_STEP, BotDebug_Window::onCmdStep),
 
   FXMAPFUNC(SEL_COMMAND, BotDebug_Window::ID_SHOWINTSTACK, BotDebug_Window::onCmdShowIntStack),
-  FXMAPFUNC(SEL_COMMAND, BotDebug_Window::ID_SHOWDNA,      BotDebug_Window::onCmdShowDNA), 
+  FXMAPFUNC(SEL_COMMAND, BotDebug_Window::ID_SHOWDNA,      BotDebug_Window::onCmdShowDNA),
   FXMAPFUNC(SEL_COMMAND, BotDebug_Window::ID_SHOWSYSVARS,  BotDebug_Window::onCmdShowSysvars),
   FXMAPFUNC(SEL_COMMAND, BotDebug_Window::ID_SHOWDETAILS,  BotDebug_Window::onCmdShowDetails)
 };
@@ -31,7 +32,7 @@ FXDEFMAP(BotDebug_Window) BotDebug_WindowMap[] = {
 // Object implementation
 FXIMPLEMENT(BotDebug_Window,FXDialogBox,BotDebug_WindowMap,ARRAYNUMBER(BotDebug_WindowMap))
 
-BotDebug_Window::BotDebug_Window(Robot *bot, FXComposite *parent) : 
+BotDebug_Window::BotDebug_Window(Robot *bot, FXComposite *parent) :
     FXDialogBox(parent, "Bot Debug Controls", DECOR_TITLE | DECOR_BORDER, 0, 0, 600, 800)
 {
     if (bot == NULL)
@@ -40,11 +41,11 @@ BotDebug_Window::BotDebug_Window(Robot *bot, FXComposite *parent) :
         this->destroy();
         return;
     }
-    
+
     point = bot;
-    
+
     //LinkBotTarget();
-    
+
     SetupToolbar();
     SetupLayout();
     //SetupSideBar();
@@ -66,19 +67,19 @@ void BotDebug_Window::SetupToolbar()
 
     FXToolBarShell *dragshell = new FXToolBarShell(this, FRAME_RAISED);
     FXToolBar *toolbar = new FXToolBar(topdock, dragshell, FRAME_RAISED);
-    
+
     FXButton *button1 = new FXButton(toolbar, "Toggle Breakpoints", 0, this,
         	     ID_BREAKPOINT, LAYOUT_FIX_WIDTH | BUTTON_TOOLBAR | FRAME_RAISED | FRAME_THICK,
                         0,0,100,0,10,10,0,0);
-    
+
     FXButton *button2 = new FXButton(toolbar, "Run to Breakpoint", 0, this,
         	     ID_CONTINUE, LAYOUT_FIX_WIDTH | BUTTON_TOOLBAR | FRAME_RAISED | FRAME_THICK,
                         0,0,100,0,10,10,0,0);
-    
+
     FXButton *button3 = new FXButton(toolbar, "Step", 0, this,
         	     ID_STEP, LAYOUT_FIX_WIDTH | BUTTON_TOOLBAR | FRAME_RAISED | FRAME_THICK,
                         0,0,100,0,10,10,0,0);
-    
+
     FXButton *button4 = new FXButton(toolbar, "Run to Cursor", 0, this,
         	     ID_TOCURSOR, LAYOUT_FIX_WIDTH | BUTTON_TOOLBAR | FRAME_RAISED | FRAME_THICK,
                         0,0,100,0,10,10,0,0);
@@ -128,7 +129,7 @@ void BotDebug_Window::SetupIntStackFrame()
         IntStackTextField[x-11] = new FXTextField(StackMatrix,10,&BotTargetInfo.datatargets.stack[x-11],
             FXDataTarget::ID_VALUE,
             TEXTFIELD_REAL|JUSTIFY_RIGHT|LAYOUT_CENTER_Y|FRAME_SUNKEN|LAYOUT_CENTER_X|FRAME_THICK|LAYOUT_FILL_ROW);*/
-    //}   
+    //}
 }
 
 void BotDebug_Window::SetupDNAFrame()
@@ -136,15 +137,15 @@ void BotDebug_Window::SetupDNAFrame()
     DNAFrame=new FXGroupBox(LayoutMatrix,
         "Bot DNA",GROUPBOX_TITLE_LEFT|FRAME_RIDGE|LAYOUT_FILL_X|LAYOUT_FILL_Y | LAYOUT_FILL_COLUMN);
 
-    DNATextBox = new FXText(DNAFrame, DNAFrame, 0, 
+    DNATextBox = new FXText(DNAFrame, DNAFrame, 0,
         TEXTFIELD_REAL|JUSTIFY_LEFT|LAYOUT_CENTER_Y|FRAME_SUNKEN|LAYOUT_CENTER_X|FRAME_THICK|
         LAYOUT_FIX_WIDTH | LAYOUT_FIX_HEIGHT, 0,0,
         200,//width
         250);
-    
-    DNATextBox->setText(point->DNA_Text().c_str(),
-                        strlen(point->DNA_Text().c_str()));
-    
+
+    DNATextBox->setText(point->getDnaText(NULL).c_str(),
+                        strlen(point->getDnaText(NULL).c_str()));
+
     DNATextBox->setDelimiters(" \n");
 
     DNATextBox->disable();
@@ -158,7 +159,7 @@ void BotDebug_Window::SetupSysvarsFrame()
         "Bot Memory",GROUPBOX_TITLE_LEFT|FRAME_RIDGE|LAYOUT_FILL_X|LAYOUT_FILL_Y | LAYOUT_FILL_COLUMN);
 
     SysvarsMatrix = new FXMatrix(SysvarsFrame,4,MATRIX_BY_COLUMNS|LAYOUT_SIDE_LEFT|LAYOUT_FILL_X|LAYOUT_FILL_Y);
-    
+
     for(int x = 0; x < 20; x++)
     {
         SysvarsLabel[x] = new FXLabel(SysvarsMatrix,"",NULL,LAYOUT_RIGHT|JUSTIFY_RIGHT);
@@ -183,10 +184,10 @@ void BotDebug_Window::AddInterestingSysvars(int number)
     SysvarsLabel[BotTargetInfo.lastmem]->setText(itoa(number, buffer, 10));
     SysvarsLabel[BotTargetInfo.lastmem]->show();
     BotTargetInfo.memory[BotTargetInfo.lastmem] = number;
-    
+
     BotTargetInfo.lastmem++;
     //SysvarsTextField[BotTargetInfo.memory.size() - 1]->setText(itoa(BotTargetInfo[number], buffer, 10));
-    
+
     /*new FXLabel(StackMatrix,"Yellow",NULL,LAYOUT_RIGHT|JUSTIFY_RIGHT);
     new FXTextField(StackMatrix,10,NULL,
             0,
@@ -201,21 +202,21 @@ void BotDebug_Window::SetupDetailsFrame()
     FXMatrix *DetailsMatrix=new FXMatrix(DetailsFrame,4,MATRIX_BY_COLUMNS|LAYOUT_SIDE_LEFT|LAYOUT_FILL_X|LAYOUT_FILL_Y);
 
     new FXLabel(DetailsMatrix,"Age",NULL,LAYOUT_RIGHT|JUSTIFY_RIGHT);
-    
+
     new FXTextField(DetailsMatrix,10,&BotTargetInfo.datatargets.age,FXDataTarget::ID_VALUE,
-        TEXTFIELD_REAL|JUSTIFY_RIGHT|LAYOUT_CENTER_Y|FRAME_SUNKEN|LAYOUT_CENTER_X|FRAME_THICK|LAYOUT_FILL_ROW);   
+        TEXTFIELD_REAL|JUSTIFY_RIGHT|LAYOUT_CENTER_Y|FRAME_SUNKEN|LAYOUT_CENTER_X|FRAME_THICK|LAYOUT_FILL_ROW);
 
     new FXLabel(DetailsMatrix,"nrg",NULL,LAYOUT_RIGHT|JUSTIFY_RIGHT);
     new FXTextField(DetailsMatrix,10,&BotTargetInfo.datatargets.nrg,FXDataTarget::ID_VALUE,
-        TEXTFIELD_REAL|JUSTIFY_RIGHT|LAYOUT_CENTER_Y|FRAME_SUNKEN|LAYOUT_CENTER_X|FRAME_THICK|LAYOUT_FILL_ROW);   
+        TEXTFIELD_REAL|JUSTIFY_RIGHT|LAYOUT_CENTER_Y|FRAME_SUNKEN|LAYOUT_CENTER_X|FRAME_THICK|LAYOUT_FILL_ROW);
 
     new FXLabel(DetailsMatrix,"Generation",NULL,LAYOUT_RIGHT|JUSTIFY_RIGHT);
     new FXTextField(DetailsMatrix,10,&BotTargetInfo.datatargets.generation,FXDataTarget::ID_VALUE,
-        TEXTFIELD_REAL|JUSTIFY_RIGHT|LAYOUT_CENTER_Y|FRAME_SUNKEN|LAYOUT_CENTER_X|FRAME_THICK|LAYOUT_FILL_ROW);   
+        TEXTFIELD_REAL|JUSTIFY_RIGHT|LAYOUT_CENTER_Y|FRAME_SUNKEN|LAYOUT_CENTER_X|FRAME_THICK|LAYOUT_FILL_ROW);
 
     new FXLabel(DetailsMatrix,"Body",NULL,LAYOUT_RIGHT|JUSTIFY_RIGHT);
     new FXTextField(DetailsMatrix,10,&BotTargetInfo.datatargets.body,FXDataTarget::ID_VALUE,
-        TEXTFIELD_REAL|JUSTIFY_RIGHT|LAYOUT_CENTER_Y|FRAME_SUNKEN|LAYOUT_CENTER_X|FRAME_THICK|LAYOUT_FILL_ROW);   
+        TEXTFIELD_REAL|JUSTIFY_RIGHT|LAYOUT_CENTER_Y|FRAME_SUNKEN|LAYOUT_CENTER_X|FRAME_THICK|LAYOUT_FILL_ROW);
 
     new FXLabel(DetailsMatrix,"New Mutations",NULL,LAYOUT_RIGHT|JUSTIFY_RIGHT);
     new FXTextField(DetailsMatrix,10,&BotTargetInfo.datatargets.newmutations,FXDataTarget::ID_VALUE,
@@ -223,35 +224,35 @@ void BotDebug_Window::SetupDetailsFrame()
 
     new FXLabel(DetailsMatrix,"Shell",NULL,LAYOUT_RIGHT|JUSTIFY_RIGHT);
     new FXTextField(DetailsMatrix,10,&BotTargetInfo.datatargets.shell,FXDataTarget::ID_VALUE,
-        TEXTFIELD_REAL|JUSTIFY_RIGHT|LAYOUT_CENTER_Y|FRAME_SUNKEN|LAYOUT_CENTER_X|FRAME_THICK|LAYOUT_FILL_ROW);   
+        TEXTFIELD_REAL|JUSTIFY_RIGHT|LAYOUT_CENTER_Y|FRAME_SUNKEN|LAYOUT_CENTER_X|FRAME_THICK|LAYOUT_FILL_ROW);
 
     new FXLabel(DetailsMatrix,"Total Mutations",NULL,LAYOUT_RIGHT|JUSTIFY_RIGHT);
     new FXTextField(DetailsMatrix,10,&BotTargetInfo.datatargets.mutations,FXDataTarget::ID_VALUE,
-        TEXTFIELD_REAL|JUSTIFY_RIGHT|LAYOUT_CENTER_Y|FRAME_SUNKEN|LAYOUT_CENTER_X|FRAME_THICK|LAYOUT_FILL_ROW);   
+        TEXTFIELD_REAL|JUSTIFY_RIGHT|LAYOUT_CENTER_Y|FRAME_SUNKEN|LAYOUT_CENTER_X|FRAME_THICK|LAYOUT_FILL_ROW);
 
     new FXLabel(DetailsMatrix,"Slime",NULL,LAYOUT_RIGHT|JUSTIFY_RIGHT);
     new FXTextField(DetailsMatrix,10,&BotTargetInfo.datatargets.slime,FXDataTarget::ID_VALUE,
-        TEXTFIELD_REAL|JUSTIFY_RIGHT|LAYOUT_CENTER_Y|FRAME_SUNKEN|LAYOUT_CENTER_X|FRAME_THICK|LAYOUT_FILL_ROW);   
+        TEXTFIELD_REAL|JUSTIFY_RIGHT|LAYOUT_CENTER_Y|FRAME_SUNKEN|LAYOUT_CENTER_X|FRAME_THICK|LAYOUT_FILL_ROW);
 
     new FXLabel(DetailsMatrix,"DNA Length",NULL,LAYOUT_RIGHT|JUSTIFY_RIGHT);
     new FXTextField(DetailsMatrix,10,&BotTargetInfo.datatargets.dnalength,FXDataTarget::ID_VALUE,
-        TEXTFIELD_REAL|JUSTIFY_RIGHT|LAYOUT_CENTER_Y|FRAME_SUNKEN|LAYOUT_CENTER_X|FRAME_THICK|LAYOUT_FILL_ROW);   
+        TEXTFIELD_REAL|JUSTIFY_RIGHT|LAYOUT_CENTER_Y|FRAME_SUNKEN|LAYOUT_CENTER_X|FRAME_THICK|LAYOUT_FILL_ROW);
 
     new FXLabel(DetailsMatrix,"Poison",NULL,LAYOUT_RIGHT|JUSTIFY_RIGHT);
     new FXTextField(DetailsMatrix,10,&BotTargetInfo.datatargets.poison,FXDataTarget::ID_VALUE,
-        TEXTFIELD_REAL|JUSTIFY_RIGHT|LAYOUT_CENTER_Y|FRAME_SUNKEN|LAYOUT_CENTER_X|FRAME_THICK|LAYOUT_FILL_ROW);   
+        TEXTFIELD_REAL|JUSTIFY_RIGHT|LAYOUT_CENTER_Y|FRAME_SUNKEN|LAYOUT_CENTER_X|FRAME_THICK|LAYOUT_FILL_ROW);
 
     new FXLabel(DetailsMatrix,"# of Genes",NULL,LAYOUT_RIGHT|JUSTIFY_RIGHT);
     new FXTextField(DetailsMatrix,10,&BotTargetInfo.datatargets.numgenes,FXDataTarget::ID_VALUE,
-        TEXTFIELD_REAL|JUSTIFY_RIGHT|LAYOUT_CENTER_Y|FRAME_SUNKEN|LAYOUT_CENTER_X|FRAME_THICK|LAYOUT_FILL_ROW);   
+        TEXTFIELD_REAL|JUSTIFY_RIGHT|LAYOUT_CENTER_Y|FRAME_SUNKEN|LAYOUT_CENTER_X|FRAME_THICK|LAYOUT_FILL_ROW);
 
     new FXLabel(DetailsMatrix,"Venom",NULL,LAYOUT_RIGHT|JUSTIFY_RIGHT);
     new FXTextField(DetailsMatrix,10,&BotTargetInfo.datatargets.venom,FXDataTarget::ID_VALUE,
-        TEXTFIELD_REAL|JUSTIFY_RIGHT|LAYOUT_CENTER_Y|FRAME_SUNKEN|LAYOUT_CENTER_X|FRAME_THICK|LAYOUT_FILL_ROW);   
+        TEXTFIELD_REAL|JUSTIFY_RIGHT|LAYOUT_CENTER_Y|FRAME_SUNKEN|LAYOUT_CENTER_X|FRAME_THICK|LAYOUT_FILL_ROW);
 
     new FXLabel(DetailsMatrix,"Waste",NULL,LAYOUT_RIGHT|JUSTIFY_RIGHT);
     new FXTextField(DetailsMatrix,10,&BotTargetInfo.datatargets.waste,FXDataTarget::ID_VALUE,
-        TEXTFIELD_REAL|JUSTIFY_RIGHT|LAYOUT_CENTER_Y|FRAME_SUNKEN|LAYOUT_CENTER_X|FRAME_THICK|LAYOUT_FILL_ROW);   
+        TEXTFIELD_REAL|JUSTIFY_RIGHT|LAYOUT_CENTER_Y|FRAME_SUNKEN|LAYOUT_CENTER_X|FRAME_THICK|LAYOUT_FILL_ROW);
 
     new FXLabel(DetailsMatrix,"PWaste",NULL,LAYOUT_RIGHT|JUSTIFY_RIGHT);
     new FXTextField(DetailsMatrix,10,&BotTargetInfo.datatargets.pwaste,FXDataTarget::ID_VALUE,
@@ -261,8 +262,8 @@ void BotDebug_Window::SetupDetailsFrame()
 void BotDebug_Window::LinkBotTarget()
 {
     //BotTargetInfo.Linkup();
-    
-    
+
+
     //for (int y = 0; y < BotTargetInfo.stack.
     //
 }
@@ -273,7 +274,7 @@ long BotDebug_Window::onCmdShowIntStack(FXObject*,FXSelector,void *ptr)
         IntStackFrame->show();
     else
         IntStackFrame->hide();
-    
+
     return 1;
 }
 long BotDebug_Window::onCmdShowDNA(FXObject*,FXSelector,void *ptr)
@@ -299,7 +300,7 @@ long BotDebug_Window::onCmdShowDetails(FXObject*,FXSelector,void *ptr)
     if (ptr)
         DetailsFrame->show();
     else
-        DetailsFrame->hide();    
+        DetailsFrame->hide();
 
     return 1;
 }
@@ -307,7 +308,7 @@ long BotDebug_Window::onCmdShowDetails(FXObject*,FXSelector,void *ptr)
 void BotDebug_Window::hide()
 {
     DEBUGMODE = false;
-    FXDialogBox::hide();   
+    FXDialogBox::hide();
 }
 
 void BotDebug_Window::show(FXuint placement)
@@ -320,9 +321,9 @@ void BotDebug_Window::Update()
 {
     for(int x = 0; x < 20; x++)
         IntStackTextField[x]->setBackColor(0xFFFFFF);
-    
+
     //color in the stack boxes that are currently on top
-    //if (BotTargetInfo.IntStack_pos > 0)    
+    //if (BotTargetInfo.IntStack_pos > 0)
     //    IntStackTextField[BotTargetInfo.IntStack_pos-1]->setBackColor(0xFFAAAA);
 }
 
@@ -331,11 +332,11 @@ long MainWindow::onBotDebug()
     //set to bot 0
 
     /*if (MainWindowHandle->BotDebug == NULL)
-        BotDebug = new BotDebug_Window(rob[0], mainview);        
+        BotDebug = new BotDebug_Window(rob[0], mainview);
     else
         BotDebug->show();*/
 
-    new BotDNAWindow_Class(rob[CurrBotUserSelected], this);
+    new BotDNAWindow_Class(engineThread->getRobot(botSelection), this);
 
     return 1;
 }
@@ -350,7 +351,7 @@ bool iswhitespace(char c)
         c == '\t' ||
         c == '\n')
     return true;
-    
+
     return false;
 }
 
@@ -359,7 +360,7 @@ int NextWord(string &text, unsigned int pos = 0)
 {
     while(text.size() != pos && !iswhitespace(text.at(pos)))
         pos++;
-    
+
     while(text.size() != pos && iswhitespace(text.at(pos)))
         pos++;
 

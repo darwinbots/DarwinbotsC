@@ -1,5 +1,6 @@
 #include "../Common/Vectors.h"
 #include "Robot.h"
+#include "Engine.h"
 
 const float TanLookup[5] = {
 0.0874886635f,
@@ -40,12 +41,12 @@ void Robot::Touch(Robot *other, float distance)
 	//dpos is now the angle unit vector
 
 	/////////////////////////////
-	angle = this->aimvector * dpos;
+	angle = this->aimVector * dpos;
 
 	if (angle > 0)
-		angle = atanf((this->aimvector % dpos) / angle);
+		angle = atanf((this->aimVector % dpos) / angle);
 	else
-		angle = atanf((this->aimvector % dpos) / angle) + PI;
+		angle = atanf((this->aimVector % dpos) / angle) + PI;
 
 	if (angle < 0)
 		angle = angle + 2*PI;
@@ -54,18 +55,18 @@ void Robot::Touch(Robot *other, float distance)
 
 	////////////////////////////////
 
-	angle = other->aimvector * dpos;
+	angle = other->aimVector * dpos;
 
 	if (angle > 0)
-		angle = atanf((other->aimvector % dpos) / angle);
+		angle = atanf((other->aimVector % dpos) / angle);
 	else
-		angle = atanf((other->aimvector % dpos) / angle) + PI;
+		angle = atanf((other->aimVector % dpos) / angle) + PI;
 
 	if (angle < 0)
 		angle = angle + 2*PI;
 
 	(*other)[HitAngsys] = iceil(angle * 200);
-	
+
 	///////////////////////////////
 
 	hitstrength = ((other->pos - other->opos) - (this->pos - this->opos)).Length();
@@ -76,7 +77,7 @@ void Robot::Touch(Robot *other, float distance)
 
 /*void Robot::Taste()
 {
-	
+
 
 
 
@@ -129,24 +130,21 @@ void Robot::EraseSenses()
 	(*this)[HitAngsys] = 0;
 	(*this)[shangsys] = 0;
 	(*this)[shflav] = 0;
-    
+
 	(*this)[edgesys] = 0;
-	    
+
 	for (x = EyeStart; x <= EyeEnd; x++)
 		(*this)[x] = 0;
-	
+
 	this->lastopp = NULL;
 }
 
 //returns a pointer to the robot in lastopp
 Robot *Robot::BasicProximity()
 {
-	for (int counter = 0; counter <= MaxRobs; counter++)
-	{
-		if (rob[counter]!= NULL && rob[counter] != this)
-			CompareRobots(rob[counter], 12);
-	}   
-
+	for (RobotIterator other = Engine.robotList->begin(); other != Engine.robotList->end(); ++other)
+		if (*other != this)
+			CompareRobots(*other, 12);
 	return this->lastopp;
 }
 
@@ -154,14 +152,14 @@ void Robot::EyeGridProximity()
 {
     list<Robot *> BotList;
     Robot *other;
-    
+
     Engine.WhatCanSeeMe(this, BotList);
 
     while(!BotList.empty())
     {
         other = BotList.front();
         BotList.pop_front();
-        assert(other != NULL && "For some reason a non existant bot has managed to find its way into the BotList");
+        assert(other != NULL && "Non-existent bot in the BotList!");
         if(other != this)
             other->CompareRobots(this, 12);
     }
@@ -208,7 +206,7 @@ void Robot::WriteRefVars(const Robot *lastopp)
     (*this)[in8] = (*lastopp)[out8];
     (*this)[in9] = (*lastopp)[out9];
     (*this)[in10] = (*lastopp)[out10];
-	
+
     (*this)[refaim] = (*lastopp)[Aimsys];
 	(*this)[reftie] = lastopp->occurr[9];
 	(*this)[refshell] = iceil(lastopp->Shell);
@@ -235,11 +233,11 @@ void Robot::WriteRefVars(const Robot *lastopp)
 
 	//these should be double checked
     Vector3f vel = lastopp->vel - this->vel;
-	(*this)[refvelup] = iceil(vel * this->aimvector);
+	(*this)[refvelup] = iceil(vel * this->aimVector);
 	(*this)[refveldn] = -iceil(float((*this)[refvelup]));
-	
+
 	//these should be double checked
-	(*this)[refveldx] = -iceil(this->aimvector % vel);
+	(*this)[refveldx] = -iceil(this->aimVector % vel);
 	(*this)[refvelsx] = -iceil(float((*this)[refveldx]));
 
     (*this)[refvelscalar] = iceil(sqrtf(float((*this)[refvelup] * (*this)[refvelup] +
@@ -253,10 +251,10 @@ void Robot::occurrList()
 	for(x = 1; x<=12;x++)
 		this->occurr[x] = 0;
 
-	if(this->DNA != NULL)
+	if(this->dna != NULL)
     {
-        this->DNA->Occurrs(this->occurr);
-	
+        this->dna->Occurrs(this->occurr);
+
 	    for(x = mystart; x<= myend; x++)
 		    (*this)[x] = occurr[x - mystart + 1];
     }
@@ -277,36 +275,36 @@ void Robot::CompareRobots(Robot *const other, const unsigned int field)
         return;
 
     //the few lines below are the most performance-critical in the whole code
-    
+
         Vector3f RelativePosition = other->pos.VectorSub2D(this->pos);
 	    float discheck = field * RobSize + other->radius;
 	    //below checks the bounding square
         if (fabs(RelativePosition.x())>discheck || fabs(RelativePosition.y())>discheck)
             return;
-    
+
     float magsquare = RelativePosition.LengthSquared();
     discheck = discheck * discheck;
 
 	//check circle distance
     if (magsquare >= discheck)
 		return; //too far away to see
-		
+
     float mag = sqrtf(magsquare);
-    
+
     unsigned int eyecellD, eyecellC;
     Vector3f ac, ad, PerpindicularLeft, PerpindicularRight;
-	
+
     //ac and ad are to either end of the bot, while RelativePosition (ab) is to the center
 	//|ac| = |ad| = |ab|
-	
+
 	//this vector fun below needs to be double checked for geometrical accuracy
 
     PerpindicularLeft = PerpindicularRight = RelativePosition / mag;
     PerpindicularLeft.set(-PerpindicularLeft.y(), PerpindicularLeft.x(), 0);
-    PerpindicularRight.set(PerpindicularRight.y(), -PerpindicularRight.x(), 0);    
+    PerpindicularRight.set(PerpindicularRight.y(), -PerpindicularRight.x(), 0);
 
-	ad = RelativePosition + PerpindicularRight * other->rad();
-    ac = RelativePosition + PerpindicularLeft * other->rad();
+	ad = RelativePosition + PerpindicularRight * other->getRadius();
+    ac = RelativePosition + PerpindicularLeft * other->getRadius();
 
 	eyecellD = EyeCells(ad);
 	eyecellC = EyeCells(ac);
@@ -314,16 +312,16 @@ void Robot::CompareRobots(Robot *const other, const unsigned int field)
 	//bot is not visible
 	if (eyecellD == 0 && eyecellC == 0)
 		return;
-	
+
 	if (eyecellC == 0)
 		eyecellC = EyeStart;
 
 	if (eyecellD == 0)
 		eyecellD = EyeEnd;
 
-	discheck = RobSize * 100 / (mag - this->rad() - other->rad() + RobSize);
+	discheck = RobSize * 100 / (mag - this->getRadius() - other->getRadius() + RobSize);
     for (unsigned int x = eyecellC; x <= eyecellD; x++)
-	{		
+	{
 		if ((*this)[x] < discheck)
 		{
 			if (x == EyeMid)
@@ -339,17 +337,17 @@ unsigned int Robot::EyeCells(const Vector3f &ab)
 	float tantheta;
 	int sign;
 	int A;
-  
-	tantheta = (ab * this->aimvector);
-	
+
+	tantheta = (ab * this->aimVector);
+
 	//check for visibility
 	if (tantheta <= 0)
 		return 0;
-	
-	tantheta = (ab % this->aimvector) / tantheta;
+
+	tantheta = (ab % this->aimVector) / tantheta;
     if (fabs(tantheta) > 1.0f)
 		return 0;
-		
+
 	if (tantheta > 0.0f)
 	{
         sign = 1;

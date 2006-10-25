@@ -3,10 +3,12 @@
 
 #include <fx.h>
 #include <fx3d.h>
+#include "../Engine/EngineThread.h"
 
 class BotDebug_Window;
 class OptionsFormDialogBox;
-class EngineThread;
+class Robot;
+class SolidPrimitive;
 
 #define PROJECT_NAME "DarwinBots 2.5"
 #define PROJECT_VERSION "2.5 Pre-Alpha"
@@ -43,7 +45,7 @@ public:
     
     virtual void create();
 
-    int MainWindow::Selection(unsigned int MouseX, unsigned int MouseY);
+    unsigned long MainWindow::Selection(unsigned int MouseX, unsigned int MouseY);
     
     enum
     {
@@ -71,7 +73,7 @@ public:
         
         ID_LAST
     };
-    
+
     long onCmdQuit              (FXObject *, FXSelector, void *);
     long onCmdNewSimulation     (FXObject *, FXSelector, void *);
     long onCmdSaveSimulation    (FXObject *, FXSelector, void *);
@@ -112,6 +114,20 @@ public:
 
     long onBotDebug             ();
     
+    //Graphics
+    void DrawWorld(double width, double height);
+    void SetupDisplayLists();
+private:
+    void DrawRobots();
+    void DrawShots();
+    void DrawTies(bool Perimeter);
+    void DrawEyeField(Robot* me) const;
+    void DrawSelectHalo();
+    void DrawEyeGrid();
+    void DrawRobotEye(const SolidPrimitive& bot) const;
+    void DrawBangs();
+    void DrawVelocity();
+    void DrawImpulse();
 };
 
 FXDEFMAP(MainWindow) MainWindowMap[] = {

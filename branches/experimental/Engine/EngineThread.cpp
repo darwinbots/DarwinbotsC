@@ -6,30 +6,51 @@ inline float round(float value)
     return float(int(value * 100))/100;
 }
 
-EngineThread::EngineThread():runCounter(0)
+EngineThread::EngineThread():runCounter(0),botDisplayList()
+                                ,simulation(&Engine)
+                                ,isCancelled(false)
 {
-    Engine.ProgramInitialize();
+
+}
+
+#include<iostream>
+
+std::vector<SolidPrimitive> EngineThread::getRobotDisplayList()
+{
+    FXMutexLock lock(botListMutex);
+    return botDisplayList;
+}
+
+ShotList EngineThread::getShotDisplayList()
+{
+    FXMutexLock lock(botListMutex);
+    return shotDisplayList;
 }
 
 int EngineThread::run()
 {
     try
-    {    
+    {
         time_t elapsed_time = clock(), second_counter = time(NULL);
         int x = 0;
-        Engine.SetupSim();
+        simulation->setup();
 
         SimOpts.CycSec = 0;
 
-        while(true)
+        while(!isCancelled)
         {
             if(runCounter >= 0)
             {
-                Engine.UpdateSim();
+                simulation->UpdateSim();
+                botListMutex.lock();
+                simulation->getRobotDisplayList(botDisplayList);
+                simulation->getShotDisplayList(shotDisplayList);
+                //std::cout<<"Updated botDisplayList, "<<botDisplayList.size()<<" bots."<<std::endl;
+                botListMutex.unlock();
                 addCycles(-1);
                 x++;
             }
-            
+
             //update cyc/sec calculation at most once every half second
             if(float(clock() - elapsed_time) / float(CLOCKS_PER_SEC) >= .5f)
             {
@@ -38,10 +59,11 @@ int EngineThread::run()
                 x = 0;
             }
 
-            //release control back to the simulation to execute GUI commands, etc. 
-            this->sleep(0, 0);
+            //release control back to the simulation to execute GUI commands, etc.
+            //this->sleep(0, 0);
         }
 
+        simulation->clear();
         return 1;
     }
     catch(...)
@@ -51,8 +73,8 @@ int EngineThread::run()
         throw;
         //int a;
 
-        
-        
+
+
         //MaxRobs = 0;
         /*MaxShots = 0;
 
@@ -77,7 +99,28 @@ int EngineThread::run()
     return 0;
 }
 
+unsigned long EngineThread::findAbsNum(Vector3f pos)
+{
+    FXMutexLock lock(botListMutex);
+    for (std::vector<SolidPrimitive>::iterator currBot = botDisplayList.begin(); currBot != botDisplayList.end(); ++currBot)
+    {
+        Vector3f diff = pos - currBot->getPos();
+        if(diff.LengthSquared() <= currBot->getRadius() * currBot->getRadius())
+        {
+            return currBot->getAbsNum();
+        }
+    }
+    return 0;  //if no robot matches the given position
+}
 
+Robot* EngineThread::getRobot(unsigned long selection)
+{
+    Robot* bot= simulation->getRobot(selection);
+    if (bot != NULL)
+        return new Robot(*bot);
+    else
+        return NULL;
+}
 
 /*
 Important Note:

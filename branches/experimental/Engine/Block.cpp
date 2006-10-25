@@ -1,9 +1,8 @@
 #include "Block.h"
-#include "DNAParse.h"
+#include "DnaParser.h"
 #include <vector>
 using namespace std;
 
-vector<var> sysvar;
 BlockValueBounds ValueBounds[20];
 
 void SetDNAMutationsBounds()
@@ -401,40 +400,7 @@ Block &MasterFlowTok(const string &s)
     return returnme;
 }
 
-string &SysvarDetok(__int16 number)
-{
-    int t;
-    char buffer[256];
-    static string detok = "UNKNOWN_SYMBOL";
-
-    detok = "UNKNOWN_SYMBOL";
-    detok = itoa(number, buffer, 10);
-
-    for(t = 0; t < (int)sysvar.size(); t++)
-        if (sysvar[t].value == number)
-            detok = "." + sysvar[t].name;
-
-    return detok;
-}
-
-__int16 SysvarTok(const string &in)
-{
-    string a = in;
-    int t;
-
-    if (a[0] == '.') //is indeed a sysvar
-    {
-        a = a.substr(1, a.size()); //get rid of the period
-
-        for (t = 0; t < (int)sysvar.size(); t++)
-            if (sysvar[t].name == a)
-                return sysvar[t].value;
-    }
-
-    return atoi(a.c_str());
-}
-
-string &Block::UnparseCommand(bool converttosysvar)
+string &Block::UnparseCommand(const DnaParser* parser, bool converttosysvar)
 {
     static string returnme;
     char buffer[256];
@@ -443,12 +409,12 @@ string &Block::UnparseCommand(bool converttosysvar)
     switch(tipo)
     {
         case btValue: //number
-            if (converttosysvar) returnme = SysvarDetok(value);
+            if (converttosysvar) returnme = parser->getSysvarName(value);
             else returnme = itoa(value, buffer, 10);
             break;
 
         case btPointer: //*.number
-            returnme = "*" + SysvarDetok(value);
+            returnme = "*" + parser->getSysvarName(value);
             break;
 
         case btBasicCommand: //basic command
@@ -477,66 +443,35 @@ string &Block::UnparseCommand(bool converttosysvar)
     return returnme;
 }
 
-
-/*
-Block ParseCommand(const string &Command)
+Block::Block(const std::string& command, const DnaParser* parser)
 {
-    Block bp;
-
-    bp.ParseCommand(Command);
-
-    return bp;
-}
-
-Block *Block::ParseCommand(const std::string& Command)
-{
-    Block bp;
-
-    if (bp.value == 0) bp = BasicCommandTok(Command);
-    if (bp.value == 0) bp = AdvancedCommandTok(Command);
-    if (bp.value == 0) bp = BitwiseCommandTok(Command);
-    if (bp.value == 0) bp = ConditionsTok(Command);
-    if (bp.value == 0) bp = LogicTok(Command);
-    if (bp.value == 0) bp = StoresTok(Command);
-    if (bp.value == 0) bp = FlowTok(Command);
-    if (bp.value == 0) bp = MasterFlowTok(Command);
-    if (bp.value == 0 && Command.at(0) == '*')
+    if (isdigit(command.at(0))||command.at(0)=='-')
     {
-        bp.tipo = btPointer;
-        bp.value = SysvarTok(Command.substr(1, Command.size()));
+        tipo = btValue;
+        value = atoi(command.c_str());
     }
-    else if (bp.value == 0)
+    else if (command.at(0) == '.')
     {
-        bp.tipo = btValue;
-        bp.value = SysvarTok(Command);
+        tipo = btValue;
+        value = parser->getSysvarNumber(command);
     }
-
-    (*this) = bp;
-    return this;
-}*/
-
-Block::Block(const std::string& command)
-{
-    Block bp;
-
-    if (bp.value == 0) bp = BasicCommandTok(command);
-    if (bp.value == 0) bp = AdvancedCommandTok(command);
-    if (bp.value == 0) bp = BitwiseCommandTok(command);
-    if (bp.value == 0) bp = ConditionsTok(command);
-    if (bp.value == 0) bp = LogicTok(command);
-    if (bp.value == 0) bp = StoresTok(command);
-    if (bp.value == 0) bp = FlowTok(command);
-    if (bp.value == 0) bp = MasterFlowTok(command);
-    if (bp.value == 0 && command.at(0) == '*')
+    else if (command.at(0) == '*')
     {
-        bp.tipo = btPointer;
-        bp.value = SysvarTok(command.substr(1, command.size()));
+        tipo = btPointer;
+        value = parser->getSysvarNumber(command.substr(1, command.size()));
     }
-    else if (bp.value == 0)
+    else
     {
-        bp.tipo = btValue;
-        bp.value = SysvarTok(command);
-    }
+        Block bp;
 
-    *this = bp;
+        if (bp.value == 0) bp = BasicCommandTok(command);
+        if (bp.value == 0) bp = AdvancedCommandTok(command);
+        if (bp.value == 0) bp = BitwiseCommandTok(command);
+        if (bp.value == 0) bp = ConditionsTok(command);
+        if (bp.value == 0) bp = LogicTok(command);
+        if (bp.value == 0) bp = StoresTok(command);
+        if (bp.value == 0) bp = FlowTok(command);
+        if (bp.value == 0) bp = MasterFlowTok(command);
+        *this = bp;
+    }
 }
