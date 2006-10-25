@@ -8,11 +8,12 @@
 #include "../GFX/DrawWorld.h"
 #include "../Engine/SimOptions.h"
 #include "../Engine/Robot.h"
+#include "../Engine/Engine.h"
 #include "../GFX/DrawWorld.h"
 
 
 
-int CurrBotUserSelected = -1;
+int botSelection = 0;
 
 enum
 {
@@ -82,9 +83,9 @@ long MainWindow::onMotion(FXObject *, FXSelector, void *ptr)
 long MainWindow::onLeftBtnPress(FXObject *, FXSelector, void *ptr)
 {
     FXEvent* event=(FXEvent*)ptr;
-    CurrBotUserSelected = Selection(event->win_x, event->win_y);
+    botSelection = Selection(event->win_x, event->win_y);
 
-    if(CurrBotUserSelected == -1)
+    if(botSelection == 0)
         mode = TRANSLATE;
     else
     {
@@ -95,7 +96,7 @@ long MainWindow::onLeftBtnPress(FXObject *, FXSelector, void *ptr)
     return 1;
 }
 
-int MainWindow::Selection(unsigned int MouseX, unsigned int MouseY)
+unsigned long MainWindow::Selection(unsigned int MouseX, unsigned int MouseY)
 {
     #define Factor(x) atanf(MainCamera.pos().z() / 100.0f) / float(PI)
     float factorx = (float)Factor(x);
@@ -115,19 +116,9 @@ int MainWindow::Selection(unsigned int MouseX, unsigned int MouseY)
     ActualX += SimOpts.FieldDimensions.x() * factorx;
     ActualY += SimOpts.FieldDimensions.y() * factory;
 
-    Vector3f ActualPos(ActualX, ActualY, 0.0f);
+    Vector3f actualPos(ActualX, ActualY, 0.0f);
 
-    for(int x = 0; x <= MaxRobs; x++)
-        if(rob[x] != NULL)
-        {
-            Vector3f Delta = ActualPos - rob[x]->findpos();
-            if(Delta.LengthSquared() <= rob[x]->rad() * rob[x]->rad())
-            {
-                return x;
-            }
-        }
-
-    return -1;
+    return engineThread->findAbsNum(actualPos);
 }
 
 long MainWindow::onLeftBtnRelease(FXObject *, FXSelector, void *ptr)
@@ -141,7 +132,7 @@ long MainWindow::onRightBtnPress(FXObject *, FXSelector, void *ptr)
 {
     FXEvent* event=(FXEvent*)ptr;
 
-    if(CurrBotUserSelected > -1 && rob[CurrBotUserSelected] != NULL)
+    if(botSelection != 0 && engineThread->getRobot(botSelection)!=NULL)
         this->onBotDebug();
 
     return 1;

@@ -53,9 +53,9 @@ void EyeGrid_Class::Insert(Robot *bot, Vector3i GridIndex)
 //Check what grids the bot can see and insert it into all such grids
 void EyeGrid_Class::Insert(Robot *me)
 {
-    Vector3i GridCenter = Vector3i(int(me->findpos().x() / GRID_DIM),
-                                   int(me->findpos().y() / GRID_DIM),
-                                   int(me->findpos().z() / GRID_DIM));
+    Vector3i GridCenter = Vector3i(int(me->getPos().x() / GRID_DIM),
+                                   int(me->getPos().y() / GRID_DIM),
+                                   int(me->getPos().z() / GRID_DIM));
 
     Vector3i xBounds(-1, 1), yBounds(-1, 1);
     
@@ -85,13 +85,13 @@ void EyeGrid_Class::Move(Robot *bot)
     
     Vector3i xBound, yBound;
 
-    Vector3i GridCenter(int(bot->findpos().x() / GRID_DIM),
-                        int(bot->findpos().y() / GRID_DIM),
-                        int(bot->findpos().z() / GRID_DIM));
+    Vector3i GridCenter(int(bot->getPos().x() / GRID_DIM),
+                        int(bot->getPos().y() / GRID_DIM),
+                        int(bot->getPos().z() / GRID_DIM));
     
-    Vector3f leftover(bot->findpos().x() - GridCenter.x() * GRID_DIM,
-                      bot->findpos().y() - GridCenter.y() * GRID_DIM,
-                      bot->findpos().z() - GridCenter.z() * GRID_DIM);
+    Vector3f leftover(bot->getPos().x() - GridCenter.x() * GRID_DIM,
+                      bot->getPos().y() - GridCenter.y() * GRID_DIM,
+                      bot->getPos().z() - GridCenter.z() * GRID_DIM);
     
     if(leftover.x() < GRID_DIM / 2)
         xBound(0) = -1, xBound(1) = 0;
@@ -113,24 +113,24 @@ void EyeGrid_Class::Move(Robot *bot)
 //The bots returned will still need to be checked by CompareRobots
 void EyeGrid_Class::WhatCanSeeMe(Robot *me, list<Robot *> &BotList)
 {
-    Vector3i GridCenter(int(me->findpos().x() / GRID_DIM),
-                        int(me->findpos().y() / GRID_DIM),
-                        int(me->findpos().z() / GRID_DIM));
+    Vector3i GridCenter(int(me->getPos().x() / GRID_DIM),
+                        int(me->getPos().y() / GRID_DIM),
+                        int(me->getPos().z() / GRID_DIM));
     
-    Vector3f LeftOver(me->findpos().x() - GridCenter.x() * GRID_DIM,
-                      me->findpos().y() - GridCenter.y() * GRID_DIM,
-                      me->findpos().z() - GridCenter.z() * GRID_DIM);
+    Vector3f LeftOver(me->getPos().x() - GridCenter.x() * GRID_DIM,
+                      me->getPos().y() - GridCenter.y() * GRID_DIM,
+                      me->getPos().z() - GridCenter.z() * GRID_DIM);
 
     Vector3i xBounds(0,0), yBounds(0,0);
     list<Robot *> *InsertMe;
 
-    if(LeftOver.x() - me->rad() < 0)
+    if(LeftOver.x() - me->getRadius() < 0)
         xBounds(0) = -1; //check out left hand side
-    if(LeftOver.x() + me->rad() >= GRID_DIM)
+    if(LeftOver.x() + me->getRadius() >= GRID_DIM)
         xBounds(1) = 1; //check out right hand side
-    if(LeftOver.y() + me->rad() >= GRID_DIM)
+    if(LeftOver.y() + me->getRadius() >= GRID_DIM)
         yBounds(1) = 1; //check out top side
-    if(LeftOver.y() - me->rad() < 0)
+    if(LeftOver.y() - me->getRadius() < 0)
         yBounds(0) = -1 ;//check out bottom side
 
     Vector3i GridIndex;

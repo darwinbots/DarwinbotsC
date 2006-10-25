@@ -14,17 +14,17 @@ int main(int argc, char **argv){
     FXApp app(PROJECT_NAME, "");
     app.init(argc, argv);
 
-    MainWindow* MainWindowHandle = new MainWindow(&app);
+    MainWindow* mainWindow = new MainWindow(&app);
 
     app.create();
 
-    MainWindowHandle->show(PLACEMENT_CURSOR);
-    MainWindowHandle->maximize();
-    MainWindowHandle->setFocus();
+    mainWindow->show(PLACEMENT_CURSOR);
+    mainWindow->maximize();
+    mainWindow->setFocus();
 
-    app.addTimeout(MainWindowHandle, MainWindow::ID_UpdGfx);
+    app.addTimeout(mainWindow, MainWindow::ID_UpdGfx);
 
-    MainWindowHandle->engineThread->start();
+    mainWindow->engineThread->start();
 
     app.run();
 

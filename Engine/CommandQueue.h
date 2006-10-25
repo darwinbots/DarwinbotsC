@@ -29,7 +29,7 @@ class CommandQueueClass
     __int16 FilterRead(__int16 location);
     __int16 Add(__int16 location, __int16 value);
     void Clear();
-    CommandQueueClass();
+    explicit CommandQueueClass(Robot* robot = NULL);
     void SetBase(Robot *_base);
     void Apply();
 };

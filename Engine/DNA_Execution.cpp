@@ -44,7 +44,6 @@ __int32 StackCeil(float value)
         return (__int32)value;
 }
 
-//intstack.pos points to the Least Upper Bound element of the stack
 void PushIntStack(__int32 value)
 {
     IntStack.push(value);
@@ -104,61 +103,64 @@ void DNA_Class::Execute(Robot* bot)
     currgene = 0;
     CurrentCondFlag = NEXTBODY;
     CurrentFlow = CLEAR;
-    
+
     while(!IntStack.empty())
         IntStack.pop();
-    
+
     unsigned long pointer=0;
-    
-    while(this->Code[pointer] != DNA_END)
+
+    for(std::vector<Block>::iterator currBlock = Code.begin();
+                                        currBlock != Code.end(); ++currBlock)
     {
-        switch (this->Code[pointer].tipo)
+        switch (currBlock->tipo)
         {
             case btValue: //number
             {
                 if (CurrentFlow != CLEAR)
-                    PushIntStack (this->Code[pointer].value);
-                bot->ChargeNRG(SimOpts.Costs[btValue]);
+                {
+                    PushIntStack (currBlock->value);
+                    bot->ChargeNRG(SimOpts.Costs[btValue]);
+                }
                 break;
             }
             case btPointer:
             {
-                if (CurrentFlow != CLEAR && this->Code[pointer].value > 0)
+                if (CurrentFlow != CLEAR && currBlock->value > 0)
                 {
-                    __int16 loc = (this->Code[pointer].value - 1) % 1000 + 1;
-                    PushIntStack(currbot->DNACommands.FilterRead(loc));
+                    __int16 loc = (currBlock->value - 1) % 1000 + 1;
+                    PushIntStack((*bot)[loc]);
                     if (loc > EyeStart && loc < EyeEnd)
-                        currbot->View = true;
+                        bot->View = true;
                     bot->ChargeNRG(SimOpts.Costs[btPointer]);
                 }
                 break;
             }
-            
+
             case btBasicCommand:
             {
                 if (CurrentFlow != CLEAR)
                 {
-                    ExecuteBasicCommand(this->Code[pointer].value);
+                    ExecuteBasicCommand(currBlock->value);
                     bot->ChargeNRG(SimOpts.Costs[btBasicCommand]);
                 }
                 break;
             }
-            
+
             case btAdvancedCommand:
             {
                 if (CurrentFlow != CLEAR)
                 {
-                    ExecuteAdvancedCommand(this->Code[pointer].value);
+                    ExecuteAdvancedCommand(currBlock->value);
                     bot->ChargeNRG(SimOpts.Costs[btAdvancedCommand]);
                 }
                 break;
             }
-            
+
             case btBitwiseCommand:
             {
                 if (CurrentFlow != CLEAR)
                 {
-                    ExecuteBitwiseCommand(this->Code[pointer].value);
+                    ExecuteBitwiseCommand(currBlock->value);
                     bot->ChargeNRG(SimOpts.Costs[btBitwiseCommand]);
                 }
                 break;
@@ -168,7 +170,7 @@ void DNA_Class::Execute(Robot* bot)
             {
                 if (CurrentFlow == COND)
                 {
-                    ExecuteConditions(this->Code[pointer].value);
+                    ExecuteConditions(currBlock->value);
                     bot->ChargeNRG(SimOpts.Costs[btCondition]);
                 }
                 break;
@@ -178,7 +180,7 @@ void DNA_Class::Execute(Robot* bot)
             {
                 if (CurrentFlow == COND)
                 {
-                    ExecuteLogic(this->Code[pointer].value);
+                    ExecuteLogic(currBlock->value);
                     bot->ChargeNRG(SimOpts.Costs[btLogic]);
                 }
                 break;
@@ -189,7 +191,7 @@ void DNA_Class::Execute(Robot* bot)
                 if (CurrentFlow == BODY || CurrentFlow == ELSEBODY)
                 {
                     //costs calculated inside
-                    ExecuteStores(this->Code[pointer].value);
+                    ExecuteStores(currBlock->value);
                 }
                 break;
             }
@@ -198,7 +200,7 @@ void DNA_Class::Execute(Robot* bot)
             {
                 if (CurrentFlow == BODY || CurrentFlow == ELSEBODY)
                 {
-                    ExecuteTies(Code[pointer].value);
+                    ExecuteTies(currBlock->value);
                     currbot->ChargeNRG(SimOpts.Costs[btTies]);
                 }
                 break;
@@ -206,11 +208,11 @@ void DNA_Class::Execute(Robot* bot)
 
             case btFlow:
             {
-                //execute flow command seeks forward until it finds executable DNA
-                ExecuteFlowCommands(this->Code[pointer].value);
+                //seeks forward until it finds executable DNA
+                ExecuteFlowCommands(currBlock->value);
 
                 currbot->ChargeNRG(SimOpts.Costs[btFlow]);
-                currbot->DNACommands.Add(thisgene, (__int16)currgene);
+                (*bot)[thisgene] = (__int16)currgene;
 
                 break;
             }
@@ -218,15 +220,13 @@ void DNA_Class::Execute(Robot* bot)
             case btMasterFlow:
             {
                 //ONLY end exists at this point, so this is sort of pointless
-                //ExecuteMasterFlow(this->Code[pointer].value);
+                //ExecuteMasterFlow(currBlock->value);
             }
 
             default:
                 break;
         }
-        
-        pointer++;
-    }    
+    }
 }
 
 
@@ -239,7 +239,7 @@ void DNAadd()
     //floats to handle overflows
     __int32 a;
 
-    a = StackCeil(float(PopIntStack()) + float(PopIntStack()));
+    a = StackCeil(__int32(PopIntStack()) + __int32(PopIntStack()));
     PushIntStack(a);
 }
 
@@ -248,7 +248,7 @@ void DNAsub()
     //floats to handle overflows
     __int32 a;
 
-    a = StackCeil(float(-PopIntStack()) + float(PopIntStack()));
+    a = StackCeil(__int32(-PopIntStack()) + __int32(PopIntStack()));
     PushIntStack(a);
 }
 
@@ -257,7 +257,7 @@ void DNAmult()
     //floats to handle overflows
     __int32 a;
 
-    a = StackCeil(float(PopIntStack()) * float(PopIntStack()));
+    a = StackCeil(__int32(PopIntStack()) * __int32(PopIntStack()));
     PushIntStack(a);
 }
 
@@ -289,7 +289,10 @@ void DNAderef()
         currbot->View = true;
 
     if (b > 0)
-        PushIntStack(currbot->DNACommands.FilterRead((__int16)((b - 1) % 1000 + 1)));
+    {
+        __int16 loc((b - 1) % 1000 + 1);
+        PushIntStack((*currbot)[loc]);
+    }
     else
         PushIntStack(0);
 }
@@ -337,7 +340,7 @@ void ExecuteBasicCommand(int n)
     {
         case 1:
         {
-            DNAadd();      
+            DNAadd();
             break;
         }
         case 2:
@@ -463,7 +466,7 @@ void DNAfloor()
     if (b > a)
         PushIntStack(b);
     else
-        PushIntStack(a);    
+        PushIntStack(a);
 }
 
 void DNAsqr()
@@ -482,7 +485,7 @@ void DNApow()
 {
     double b = PopIntStack();
     double a = PopIntStack();
-    
+
     double c = pow(b,a);
 
     PushIntStack(StackCeil(float(c)));
@@ -539,30 +542,30 @@ void DNABitwiseCompliment()
 void DNABitwiseAND()
 {
     __int32 a,b;
-    
+
     b = PopIntStack();
     a = PopIntStack();
-    
+
     PushIntStack(a & b);
 }
 
 void DNABitwiseOR()
 {
     __int32 a,b;
-    
+
     b = PopIntStack();
     a = PopIntStack();
-    
+
     PushIntStack(a | b);
 }
 void DNABitwiseXOR()
 {
     __int32 a,b;
-    
+
     b = PopIntStack();
     a = PopIntStack();
-    
-    PushIntStack(a ^ b);   
+
+    PushIntStack(a ^ b);
 }
 
 void DNABitwiseINC()
@@ -603,7 +606,7 @@ void ExecuteBitwiseCommand(int n)
             DNABitwiseCompliment();
             break;
         case 2:
-            DNABitwiseAND();            
+            DNABitwiseAND();
             break;
         case 3:
             DNABitwiseOR();
@@ -624,7 +627,7 @@ void ExecuteBitwiseCommand(int n)
             DNABitwiseShiftLeft();
             break;
         case 9: // >>
-            DNABitwiseShiftRight();      
+            DNABitwiseShiftRight();
             break;
         default:
             break;
@@ -640,7 +643,7 @@ void ExecuteConditions(int n)
     bool cond = true;
     switch(n)
     {
-        case 1: // <
+        case 1: // 'a b <' === (b>a)
             cond = (PopIntStack() > PopIntStack());
             break;
         case 2: // >
@@ -653,10 +656,10 @@ void ExecuteConditions(int n)
             cond = (PopIntStack() != PopIntStack());
             break;
         case 5: //>=
-            cond = (PopIntStack() >= PopIntStack());
+            cond = (PopIntStack() <= PopIntStack());
             break;
         case 6: //<=
-            cond = (PopIntStack() <= PopIntStack());
+            cond = (PopIntStack() >= PopIntStack());
             break;
         default:
             break;
@@ -704,8 +707,12 @@ void DNAstore()
     if (b > 0)
     {
         b = (b - 1) % 1000 + 1; //place into range 1-1000 if > 1000
-        currbot->DNACommands.Add((__int16)b, (__int16)PopIntStack());
-        currbot->ChargeNRG(SimOpts.Costs[btStores]); 
+        __int32 c = PopIntStack();
+        (*currbot)[(__int16)b] = (__int16)c;
+        currbot->ChargeNRG(SimOpts.Costs[btStores]);
+        /*if (currbot->getAbsNum()==105)
+            std::cout<<"Bot#"<<currbot->getAbsNum()<<"stored "<<c<<" in "<<b
+                    <<" at turn "<<SimOpts.TotRunCycle<<std::endl;*/
     }
     else
         PopIntStack();
@@ -720,8 +727,8 @@ void DNAinc()
     if (a > 0)
     {
         a = (a - 1) % 1000 + 1;
-        currbot->DNACommands.Add((__int16)a, currbot->DNACommands.FilterRead(a) + 1);
-        currbot->ChargeNRG(SimOpts.Costs[btStores] / 10); 
+        (*currbot)[(__int16)a]++;
+        currbot->ChargeNRG(SimOpts.Costs[btStores] / 10);
     }
 }
 
@@ -734,8 +741,8 @@ void DNAdec()
     if (a > 0)
     {
         a = (a - 1) % 1000 + 1;
-        currbot->DNACommands.Add((__int16)a, currbot->DNACommands.FilterRead(a) - 1);
-        currbot->ChargeNRG(SimOpts.Costs[btStores] / 10); 
+        (*currbot)[(__int16)a]--;
+        currbot->ChargeNRG(SimOpts.Costs[btStores] / 10);
     }
 }
 
@@ -806,7 +813,7 @@ void DNAwritetie()
 void DNAreadtie()
 {
     __int16 a, b = 0;
-    
+
     if(currbot->CurrTie() != NULL)
     {
         a = __int16(PopIntStack()); //location

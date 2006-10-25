@@ -8,21 +8,18 @@ class BotDNAWindow_Class : public FXDialogBox
 {
     FXDECLARE(BotDNAWindow_Class)
 
-    private:
-    Robot *point;
-    
     public:
-    const Robot *ThatBot() const
-    {
-        return point;
-    }
+    //const Robot *ThatBot() const
+    //{
+    //    return point;
+    //}
     
     long onCmdStep(FXObject*,FXSelector,void*) {return 0;}
     long onCmdContinue(FXObject*,FXSelector,void*) {return 0;}
     long onCmdBreakpoint(FXObject*,FXSelector,void*) {return 0;}
     long onCmdToCursor(FXObject*,FXSelector,void*) {return 0;}
     
-    BotDNAWindow_Class(Robot *bot = NULL, FXComposite *parent = NULL);
+    BotDNAWindow_Class(Robot* bot = NULL, FXComposite *parent = NULL);
     
     enum
     {

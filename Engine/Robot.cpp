@@ -3,30 +3,103 @@ Class containing all the info for robots
 ******************************************/
 
 #include "Robot.h"
+#include "Engine.h"
 
 using namespace std;
 
-vector<Robot *> rob(5000, (Robot *)NULL);
-int MaxRobs; //how far into the robot array to go
+//vector<Robot *> rob(5000, (Robot *)NULL);
+//int MaxRobs; //how far into the robot array to go
 
-inline Robot::~Robot()
+Robot::Robot(DnaParser* parser, datispecie *myspecies):
+                SolidPrimitive(),
+                aim(0.0f),AngularMomentum(0.0f),
+                Ties(),currtie(0),
+                Impulse(0,0,0), ImpulseStatic(0.0f), oldImpulse(0.0f,0.0f,0.0f),
+                ovel(vel),
+                Veg(false),Wall(false),Corpse(false),Fixed(false),
+                Dead(false),Multibot(false),NewMove(false),
+                nrg(1000.0f),onrg(nrg),
+                Body(1000.0f),obody(Body),
+                AddedMass(0.0f),mass(1.0f),
+                Shell(0.0f),Slime(0.0f),Waste(0.0f),Pwaste(0.0f),Poison(0.0f),Venom(0.0f),
+                Paralyzed(false),ParaCount(0),Vloc(0),Vval(0),
+                Poisoned(false),PoisonCount(0),Ploc(0),
+                DecayTimer(0),Kills(0),
+                dna(NULL),
+                lastopp(0),
+                SonNumber(0),parent(0),BirthCycle(0),genenum(0),generation(0),
+                LastOwner(""),fname(""),
+                virusshot(0),Vtimer(0),
+                View(false),
+                DNACommands(this)
 {
-	this->KillRobot();
+    memset(&mem[0], 0, sizeof(mem));
+    memset(&occurr[0], 0, sizeof(occurr));
+    init(parser, myspecies);
 }
 
-/****************************************
-Sets up a truly BASIC robot
-Does not even set up color, nrg, etc.
-****************************************/
+Robot::Robot(const Robot* mother):SolidPrimitive(*mother),
+                Ties(),currtie(0),
+                ovel(vel),
+                Impulse(0,0,0), ImpulseStatic(0.0f), oldImpulse(0.0f,0.0f,0.0f),
+                Veg(mother->Veg), Wall(mother->Wall), Corpse(mother->Corpse),Fixed(mother->Corpse),
+                Dead(mother->Dead),Multibot(mother->Multibot),NewMove(mother->NewMove),
+                nrg(mother->nrg),onrg(nrg),
+                Body(mother->Body),obody(Body),
+                AddedMass(mother->AddedMass),mass(mother->mass),
+                Shell(mother->Shell),Slime(mother->Slime),
+                Waste(mother->Waste),Pwaste(mother->Pwaste),
+                Poison(mother->Poison),Venom(mother->Venom),
+                Paralyzed(mother->Paralyzed),ParaCount(mother->ParaCount),
+                Vloc(mother->Vloc),Vval(mother->Vval),
+                Poisoned(mother->Poisoned),PoisonCount(mother->PoisonCount),Ploc(mother->Ploc),
+                DecayTimer(0),Kills(0),
+                dna(new DNA_Class(*(mother->dna))),
+                lastopp(NULL),
+                SonNumber(0),parent(mother->getAbsNum()),BirthCycle(SimOpts.TotRunCycle),
+                genenum(mother->genenum),generation(mother->generation + 1),
+                LastOwner(mother->LastOwner),fname(mother->fname),
+                virusshot(0),Vtimer(0),
+                View(mother->View),
+                DNACommands(this)
+{
+    memset(&mem[0], 0, sizeof(mem));
+    memset(&occurr[0], 0, sizeof(occurr));
+    this->absNum = ++SimOpts.TotBorn;
+}
+
+Robot::~Robot()
+{
+	if (this->dna != NULL)
+    {
+        delete this->dna;
+        this->dna = NULL;
+    }
+
+	RemoveAllTies();
+    Engine.EyeGridRemoveDeadBot(this);
+}
+
+
+void Robot::init(DnaParser* parser,datispecie *myspecies)
+{
+	this->BasicRobotSetup();
+	if(myspecies != NULL)
+        this->Setup(myspecies,parser);
+	this->SetMems();
+}
+
+/* Sets up a truly BASIC robot
+Does not even set up color, nrg, etc.*/
 void Robot::BasicRobotSetup()
 {
     SimOpts.TotBorn++;
-	this->AbsNum = SimOpts.TotBorn;
-	
+	this->absNum = SimOpts.TotBorn;
+
 	//set random aim
 	aim = DBrand() * PI * 2;
     AngularMomentum = 0.0f;
-	aimvector.set(cosf(aim), sinf(aim));
+	aimVector.set(cosf(aim), sinf(aim));
 
 	this->BirthCycle = SimOpts.TotRunCycle;
 	(*this)[timersys] = (__int16)frnd(-32000, 32000);
@@ -34,11 +107,11 @@ void Robot::BasicRobotSetup()
     this->View = false;
 }
 
-void Robot::Setup(datispecie *myspecies)
+void Robot::Setup(datispecie *myspecies, DnaParser* parser)
 {
 	this->Veg = myspecies->Veg;
     this->Fixed = myspecies->Fixed;
-	
+
 	this->fname = myspecies->Name;
 
 	//do I need to set up *.fixed?
@@ -51,10 +124,10 @@ void Robot::Setup(datispecie *myspecies)
 	this->Body = (float)myspecies->body;
     if(this->Body <= 0)
         this->Body = 1000;
-    
+
     this->color = Vector3f(float(FXREDVAL(myspecies->color))   / 255.0f,
                            float(FXGREENVAL(myspecies->color)) / 255.0f,
-                           float(FXBLUEVAL(myspecies->color))  / 255.0f);    
+                           float(FXBLUEVAL(myspecies->color))  / 255.0f);
 
 	this->UpdateRadius();
 	this->UpdateMass();
@@ -64,39 +137,28 @@ void Robot::Setup(datispecie *myspecies)
 
     float y = (const float)frnd(long(myspecies->PosLowRight[1] * SimOpts.FieldDimensions[1] - this->radius),
                                 long(myspecies->PosTopLeft[1]  * SimOpts.FieldDimensions[1] + this->radius));
-    
+
     this->pos.set(x, y, 0);
 	this->opos = this->pos;
-    
+
 	this->Dead = false;
 
 	//this->color = myspecies->color;
 
-    this->DNA = new DNA_Class;
-    
     string truePath(myspecies->path);
     if (truePath.substr(0,2)=="&#") //apparently, VB uses "&#" to represent app's directory
         truePath.replace(0,2,Engine.MainDir(),0,(Engine.MainDir()).length());
-
-    this->DNA->LoadDNA(truePath + "\\" + myspecies->Name);
-    this->DNA->Mutables = myspecies->Mutables;
+    truePath += "\\" + myspecies->Name;
+    dna = new DNA_Class(parser->loadFile(truePath));
+    this->dna->Mutables = myspecies->Mutables;
     this->occurrList();
-}
-
-void Robot::init(datispecie *myspecies)
-{
-	FindOpenSpace(this);
-	this->BasicRobotSetup();
-	if(myspecies != NULL)
-        this->Setup(myspecies);
-	this->SetMems();
 }
 
 void Robot::ExecuteDNA()
 {
     assert(this != NULL && "Attempting to access non existant bot's DNA in Robot::ExecuteDNA()");
-    assert(this->DNA != NULL && "Attempting to access non existant DNA in Robot::ExecuteDNA()");
-    this->DNA->Execute(this);
+    assert(this->dna != NULL && "Attempting to access non existant DNA in Robot::ExecuteDNA()");
+    this->dna->Execute(this);
 }
 
 void Robot::UpdateRadius()
@@ -111,7 +173,7 @@ void Robot::UpdateRadius()
 void Robot::UpdateMass()
 {
 	this->mass = (this->Body / 1000) + (this->Shell / 200);
-	
+
     //massless bots would wreak havoc
     if (this->mass < 0)
 		this->mass = .00000001f;
@@ -119,12 +181,24 @@ void Robot::UpdateMass()
 	(*this)[masssys] = iceil(mass * 100);
 }
 
+void Robot::UpdateAddedMass()
+{
+    //added mass is a simple enough concept.
+    //To move an object through a liquid, you must also move
+    //that liquid out of the way.
+
+    const double AddedMassCoefficientForASphere = 0.5;
+    AddedMass = float(AddedMassCoefficientForASphere * SimOpts.Density *
+                        Body * CUBICTWIPPERBODY);
+}
+
+
 //returns true if the bot is alive, false if it died
 bool Robot::ChargeNRG(float amount)
 {
     this->nrg = this->nrg - amount;
     this->Waste = this->Waste + amount / 10;
-    
+
     return true;
 }
 
@@ -145,19 +219,19 @@ void Robot::UpdateAim()
 	}
 
     Aim /= 200.0f;
-    
+
     I = this->mass * this->radius * this->radius * 2.0f/5.0f;
     W = AngularMomentum / I; //in bot angles
-    
+
     NewW = Aim - this->aim;
 
     DeltaW = (NewW - W);
     DeltaW = (float)fmod(DeltaW, 2.0f * PI);
     Force = I * (float)fabs(DeltaW) / this->radius;
     Cost = Force * SimOpts.Costs[TURNCOST];
-    
+
 	Aim = (float)fmod(Aim, 2.0f * PI);
-    
+
     if(Aim < 0)
         Aim += 2.0f * PI;
 
@@ -169,8 +243,8 @@ void Robot::UpdateAim()
     //would be cheaper
     if(Cost > 0)
         this->ChargeNRG(Cost);
-	
-	aimvector.set(cosf(aim), sinf(aim));
+
+	aimVector.set(cosf(aim), sinf(aim));
 
 	(*this)[aimright] = 0;
 	(*this)[aimleft] = 0;
@@ -180,9 +254,11 @@ void Robot::UpdateAim()
 
 void Robot::UpdatePosition()
 {
-	if ((*this)[fixpos] > 0) Fixed = true;
-	else Fixed = false;
-	
+	if ((*this)[fixpos] > 0)
+        Fixed = true;
+	else
+        Fixed = false;
+
 	if (Fixed==true)
 	{
 		pos = opos;
@@ -194,11 +270,11 @@ void Robot::UpdatePosition()
 	(*this)[dirdn] = 0;
 	(*this)[dirright] = 0;
 	(*this)[dirleft] = 0;
-	
+
 	(*this)[velscalar] = iceil(this->vel.Length());
-	(*this)[velup] = iceil(vel * aimvector); //dot product of direction
+	(*this)[velup] = iceil(vel * aimVector); //dot product of direction
 	(*this)[veldn] = -(*this)[velup];
-	(*this)[veldx] = iceil((vel % aimvector)); //the magnitude for a 2D vector crossed in 3D is the Z element
+	(*this)[veldx] = iceil((vel % aimVector)); //the magnitude for a 2D vector crossed in 3D is the Z element
 	(*this)[velsx] = -(*this)[veldx];
 
 	(*this)[xpos] = iceil(pos.x() / 120); //returns the grid square we're in
@@ -227,7 +303,7 @@ void Robot::MakeShell()
 	cost = (Shell - oldshell) * SimOpts.Costs[SHELLCOST];
 	if (cost < 0)
 		cost = 0;
-    
+
     this->ChargeNRG(cost);
 }
 
@@ -246,7 +322,7 @@ void Robot::MakeSlime()
 		Slime = 0;
 
 	(*this)[slimesys] = iceil(Slime);
-	
+
 	cost = (Slime - oldslime) * SimOpts.Costs[SLIMECOST];
 	if (cost < 0)
 		cost = 0;
@@ -309,7 +385,7 @@ void Robot::WasteManagement()
 
 	if (SimOpts.BadWasteLevel != -1 && Pwaste + Waste > SimOpts.BadWasteLevel)
 	{
-		//Altzheimer's
+		//Alzheimer's
 		long loops;
 		loops = long((Pwaste + Waste - SimOpts.BadWasteLevel) / 4);
 
@@ -326,7 +402,7 @@ void Robot::WasteManagement()
 	{
 		Pwaste = Waste * .01f;
 		Waste *= .99f;
-	}		
+	}
 
 	(*this)[wastesys] = iceil(Waste);
 	(*this)[pwastesys] = iceil(Pwaste);
@@ -336,10 +412,10 @@ void Robot::Upkeep()
 {
     //'BODY UPKEEP
     this->ChargeNRG(Body * SimOpts.Costs[BODYUPKEEP]);
-    
+
     //'DNA upkeep cost
-    if(this->DNA != NULL)
-        this->ChargeNRG(this->DNA->length() * SimOpts.Costs[BPCYCCOST]);
+    if(this->dna != NULL)
+        this->ChargeNRG(this->dna->length() * SimOpts.Costs[BPCYCCOST]);
 }
 
 /*
@@ -406,13 +482,13 @@ void Robot::Aging()
 {
 	//aging
 	age++;
-	
+
 	(*this)[robage] = iceil(float(age));
-	
+
 	//epigenetic timer.  It's okay if the robot modifies this memory location,
 	//we only guarentee that it'll increment each cycle and that it's value
 	//will be passed to children such that they stay in sync
-	
+
 	(*this)[timersys]++;  //update epigenetic timer
 	if ((*this)[timersys] > 32000)
 	{
@@ -428,10 +504,10 @@ void Robot::BodyManagement()
 	DeltaBody((*this)[strbody] - (*this)[fdbody]);
 	(*this)[strbody] = 0;
 	(*this)[fdbody] = 0;
-	
+
 	if (Wall == true)
 		Body = 1;
-	
+
 	(*this)[bodysys] = iceil(Body);
 	UpdateRadius();
 }
@@ -439,7 +515,7 @@ void Robot::BodyManagement()
 void Robot::DeltaBody(int value)
 {
 	//only 100 nrg can be spent/gained at a time max
-	
+
 	if (abs(value) > 100)
 		value = 100 * value / abs(value);
 
@@ -468,9 +544,9 @@ void Robot::Shock()
 	temp = long(this->onrg - this->nrg);
 	if (temp > (onrg / 2) )
 	{
-		Body = Body + nrg / 10;
-		Body = iceil(Body);
+		Body += nrg / 10;
 		nrg = 0;
+		Dead = true;
 	}
 }
 
@@ -491,10 +567,10 @@ bool Robot::DeathManagement()
 			fname = "Corpse";
 			RemoveAllTies();
 			this->color.set(1,1,1); //corpses are white
-            if(this->DNA != NULL)
+            if(this->dna != NULL)
             {
-                delete this->DNA;
-                this->DNA = NULL;
+                delete dna;
+                dna = NULL;
             }
 
             this->occurrList();
@@ -513,113 +589,8 @@ bool Robot::DeathManagement()
         }
 	}
 
-	if (Dead == true)
-	{
-    	this->KillRobot();
-        return false;
-    }
-
-    return true;    
+    return (!Dead);
 }
-
-/*Returns false if some really really weird error is occurring*/
-bool Robot::KillRobot()
-{
-	assert(this != NULL && "Trying to kill an already dead bot");
-    
-	int counter = 0;
-    
-	//find where in the array this robot is
-	while(rob[counter] != this && counter <= MaxRobs)
-	    counter++;
-    
-    if (counter > MaxRobs)
-        return false;
-    
-	if (MaxRobs == counter)
-	{
-		MaxRobs = -1;
-		for(int x = counter-1; x >= 0; x--)
-		{
-			if (rob[x] != NULL)
-			{
-				MaxRobs = x;
-				break;
-			}
-		}
-	}
-
-    for(int x = 0; x <= MaxRobs; x++)
-        if(rob[x] && rob[x]->lastopp == this)
-            rob[x]->lastopp = NULL;
-    
-    if (this->DNA != NULL)
-    {
-        delete this->DNA;
-        this->DNA = NULL;
-    }
-    rob[counter] = NULL;
-    
-	RemoveAllTies();
-    Engine.EyeGridRemoveDeadBot(this);
-	
-    //remember that shots may still exist that think of us as the parents
-	//make poff
-
-    delete this;
-    
-    return true;
-}
-
-//call this very last along with the death management above
-void Robot::Reproduction()
-{
-	Robot *baby=NULL;
-    float mutmult, costmult;
-    assert(!this->Corpse && "Corpse attempting to reproduce");
-    assert(this != NULL && "Non existant bot trying to reproduce");
-    
-    if ((*this)[Repro] > 0)
-	{
-		if ((*this)[Repro] >= 100)
-			(*this)[Repro] = 99;
-		
-        if((*this)[mrepro] == 0)
-        {
-            mutmult = 1;
-            costmult = 1;
-        }
-        else if((*this)[mrepro] < 0)
-        {
-            costmult = 1.0f + abs((*this)[mrepro]) / 100;
-            mutmult = float (log(35000 / fabs((*this)[mrepro])) / log(2) / 15.1);
-        }
-        else
-        {
-            mutmult = 1.0f + abs((*this)[mrepro]) / 100;
-            costmult = float (log(35000 / fabs((*this)[mrepro])) / log(2) / 15.1);
-        }
-        
-        float percentage = (*this)[Repro]/100.0f;
-        if (this->nrg > SimOpts.Costs[BPCOPYCOST] * (float)this->DNA->length() * costmult)
-        {
-            baby = this->Split(percentage);
-            if (baby != NULL)
-            {
-                assert(this->DNA != NULL && "Bot with no DNA trying to reproduce");
-                baby->DNA = new DNA_Class((*this->DNA));
-                baby->occurrList();
-                //still need to program code for mrepro
-                baby->DNA->Mutate(true, mutmult);
-                baby->occurrList();
-                this->ChargeNRG(SimOpts.Costs[BPCOPYCOST] * (float)this->DNA->length() * (1 - percentage) * costmult);
-                baby->ChargeNRG(SimOpts.Costs[BPCOPYCOST] * (float)this->DNA->length() * percentage * costmult);
-                (*this)[Repro] = 0;
-            }            
-        }    
-    }
-}
-    
 
 /********************************
 /////////////////////////////////
@@ -651,10 +622,10 @@ void Robot::DuringTurn()
 	this->UpdateTies(); //Carries out all tie routines (but not physics)
 }
 
-void Robot::PostTurn()
+/*void Robot::PostTurn()
 {
-	if(this->DNA != NULL)
-        this->DNA->Mutate(false); //<--- mutating by point cycle
+	if(this->dna != NULL)
+        this->dna->Mutate(false); //<--- mutating by point cycle
 	//this->BotDNAManipulation t <--- Things like delgene, making viruses, etc.
     this->Construction();
 	this->ShotManagement();
@@ -663,20 +634,13 @@ void Robot::PostTurn()
     this->FeedVegSun();
 	this->UpdateRadius();
 	this->UpdateMass();
-}
+}*/
 
-void Robot::TurnCleanup()
+/*void Robot::TurnCleanup()
 {
 	this->Shock();
-	this->DeathManagement();        
-}
-
-void Robot::Reproduce()
-{
-    assert(this != NULL && "Non existant bot attempting to replicate");
-    if(!this->Corpse)
-        this->Reproduction();
-}
+	this->DeathManagement();
+}*/
 
 void Robot::CheckVision()
 {
@@ -696,141 +660,26 @@ void Robot::TurnEnd()
 
 //sharing functions go here!
 
-//Reproduce
-//basic reproduction function that mitosis and "sexRepro" will call
-//function does NOT:
 
-//1.  Copy DNA, or set any DNA related sysvars or variables
-//  a.  Mutate the DNA
-
-//returns pointer to baby, or NULL if error
-Robot* Robot::Split(float percentage)
-{
-	long sondist;
-	Vector3f babypos;
-	Vector3f thispos;
-
-	if( Wall == true || Corpse == true || Dead == true)
-		return NULL;
-	
-	if (Body <= 2)
-		return NULL; //too small to repro (this prevents effects of cancer from being so totally
-                     //debilitating to game speed
-
-	//insert check for too many vegs
-
-	if (percentage < .01f)
-		percentage = .01f;
-	if (percentage > .99f)
-		percentage = .99f;
-	
-	Robot *baby = new Robot();
-	
-	baby->obody = baby->Body = this->Body * percentage;
-	this->obody = this->Body = this->Body * (1.0f - percentage);
-	
-	baby->onrg = baby->nrg = this->nrg * percentage;
-	this->onrg = this->nrg = this->nrg * (1.0f - percentage);
-	
-	baby->aim = this->aim - PI;
-    baby->AngularMomentum = 0;
-    if (baby->aim < 0)
-		baby->aim += 2 * PI;
-
-	baby->aimvector.set(cosf(baby->aim), sinf(baby->aim));
-		
-	baby->Veg = this->Veg;
-	baby->Fixed = this->Fixed;
-	
-	baby->Shell = baby->Shell = this->Shell * percentage;
-	this->Shell = this->Shell *= (1.0f - percentage);
-	
-	baby->Slime = baby->Slime = this->Slime * percentage;
-	this->Slime = this->Slime *= (1.0f - percentage);
-
-	baby->Waste = baby->Waste = this->Waste * percentage;
-	this->Waste = this->Waste *= (1.0f - percentage);
-
-	baby->Pwaste = baby->Pwaste = this->Pwaste * percentage;
-	this->Pwaste = this->Pwaste *= (1.0f - percentage);
-
-	baby->Poison = baby->Poison = this->Poison * percentage;
-	this->Poison = this->Poison *= (1.0f - percentage);
-
-	baby->Venom = baby->Venom = this->Venom * percentage;
-	this->Venom = this->Venom *= (1.0f - percentage);
-
-	baby->Paralyzed = this->Paralyzed;
-	baby->ParaCount = baby->ParaCount = this->ParaCount * percentage;
-	this->ParaCount = this->ParaCount *= (1.0f - percentage);
-	baby->Vloc = this->Vloc;
-	baby->Vval = this->Vval;
-
-	baby->Poisoned = this->Poisoned;
-	baby->Ploc = this->Ploc;
-	baby->PoisonCount = baby->PoisonCount = this->PoisonCount * percentage;
-	this->PoisonCount = this->PoisonCount *= (1.0f - percentage);
-
-	this->SonNumber++;
-	
-    baby->parent = this->AbsNum;
-	baby->generation = this->generation + 1;
-	baby->LastOwner = this->LastOwner;
-	baby->fname = this->fname;
-	
-	baby->UpdateMass();
-	this->UpdateMass();
-
-	this->UpdateRadius();
-	baby->UpdateRadius();
-
-	sondist = long(this->radius + baby->radius);
-	Vector3f vel = this->pos - this->opos;
-    
-    this->pos = this->pos - percentage * sondist * this->aimvector;
-	baby->pos = this->pos + float(sondist) * this->aimvector;
-
-	this->opos = this->pos - vel;
-	baby->opos = baby->pos - vel;
-
-    baby->vel = this->vel;
-    baby->oldImpulse.set(0,0,0);
-    baby->Impulse.set(0,0,0);
-    baby->ImpulseStatic = 0.0f;
-    
-	baby->color = this->color;
-
-	(*baby)[timersys] = (*this)[timersys];//epigenetic timer
-
-	//make the birth tie
-	//Tie::MakeTie(this, baby, -1);
-
-    baby->fname = this->fname;
-
-	baby->SetMems();
-	this->SetMems();
-    
-    return baby;
-}
 
 void Robot::SetMems()
 {
 	/********************************
 	Readbacks
 	********************************/
-	
+
 	(*this)[xpos] = iceil(this->pos.x()/120);
 	(*this)[ypos] = iceil(this->pos.y()/120);
-	
+
 	(*this)[maxvelsys] = iceil(float(SimOpts.MaxSpeed));
 
 	(*this)[masssys] = iceil(this->mass * 100);
 
 	Vector3f vel = this->pos - this->opos;
     (*this)[velscalar] = iceil(vel.Length());
-	(*this)[velup] = iceil(vel * this->aimvector); //dot product of direction
+	(*this)[velup] = iceil(vel * this->aimVector); //dot product of direction
 	(*this)[veldn] = -(*this)[velup];
-	(*this)[veldx] = iceil(vel % this->aimvector); //the magnitude for a 2D vector crossed in 3D is the Z element
+	(*this)[veldx] = iceil(vel % this->aimVector); //the magnitude for a 2D vector crossed in 3D is the Z element
 	(*this)[velsx] = -(*this)[veldx];
 
 	(*this)[wastesys] = iceil(this->Waste);
@@ -946,4 +795,191 @@ void Robot::FeedVegSun()
         this->UpdateRadius();
         this->UpdateMass();
     }
+}
+
+const std::string Robot::getDnaText(const DnaParser* parser) const
+{
+    if (parser == NULL)
+        return std::string("");
+    else
+        return parser->getText(*dna);
+}
+
+/*********************************************
+        Shooting
+*********************************************/
+
+//As a side effect, this normalises the 'shoot' memval
+bool Robot::isShooting()
+{
+    __int16 type = (*this)[shoot];
+
+    //mod values to be in the right range
+    if (type > 1000)
+        type = (type - 1) % 1000 + 1;
+
+    if (type < -10)
+        type = (type + 1) % 10 - 1;
+
+	//range is invalid for creating a shot
+	if (type == 0 || type < -6 || type == -5)
+		return false;
+
+    (*this)[shoot] = type;
+    return true;
+}
+
+Shot* Robot::makeShot()
+{
+    assert(this->isShooting());
+    this->ChargeNRG(SimOpts.Costs[SHOTCOST]);
+	//////////////////////////////////////////////////////
+
+    Shot *temp;
+    switch((*this)[shoot])
+	{
+		//basic feeding shot
+		case -1:
+            temp = new FeedingShot(this);
+		break;
+		//give nrg shot
+		case -2:
+            temp = new EnergyShot(this);
+		break;
+		//Venom shot
+		case -3:
+            temp = new VenomShot(this);
+		break;
+		//Waste Shot
+		case -4:
+            temp = new WasteShot(this);
+		break;
+		//Body Shot
+		case -6:
+            temp = new BodyShot(this);
+		break;
+		//"Info" shots
+		default:
+            temp = new InfoShot(this);
+		break;
+	}
+    (*this)[shoot] = 0;
+	(*this)[shootval] = 0;
+	return temp;
+}
+
+/***********************************
+        Reproduction
+***********************************/
+
+const bool Robot::isReproducing() const
+{
+    /*if(this==(const Robot* const)0xfeeefeee)
+        throw;*/
+    return (((*this)[Repro] > 0) &&
+            !Corpse && !Wall && !Dead
+            && (Body > 2)); //too small to repro (this prevents effects of cancer
+                            //from being so totally debilitating to game speed)
+}
+
+//call this very last along with the death management above
+Robot* Robot::makeBaby()
+{
+	std::cout<<"Bot#"<<absNum;
+	assert(this != NULL && "Non existant bot trying to reproduce");
+    assert(!this->Corpse && "Corpse attempting to reproduce");
+    assert((*this)[Repro] > 0 );
+    assert(this->dna != NULL && "Bot with no DNA trying to reproduce");
+
+    if ((*this)[Repro] >= 100)
+        (*this)[Repro] = 99;
+
+    float mutmult = 1.;
+    float costmult = 1.;
+
+    if((*this)[mrepro] != 0)
+    {
+        costmult = 1.0f + abs((*this)[mrepro]) / 100;
+        mutmult = float (log(35000 / fabs((*this)[mrepro])) / log(2) / 15.1);
+    }
+
+    ChargeNRG(SimOpts.Costs[BPCOPYCOST] * (float)dna->length() * costmult);
+
+    float percentage = (*this)[Repro]/100.0f;
+    (*this)[Repro] = 0;
+
+    Robot* baby = this->Split(percentage);
+
+    baby->dna = new DNA_Class((*this->dna));
+        //still need to program code for mrepro
+    baby->dna->Mutate(true, mutmult);
+    baby->occurrList();
+    std::cout<<" reproduced on turn "<<SimOpts.TotRunCycle<<std::endl;
+    return baby;
+}
+
+//Reproduce
+//basic reproduction function that mitosis and "sexRepro" will call
+//function does NOT:
+
+//1.  Copy DNA, or set any DNA related sysvars or variables
+//  a.  Mutate the DNA
+
+//returns pointer to baby, or NULL if error
+Robot* Robot::Split(float percentage)
+{
+	//insert check for too many vegs
+
+	Robot *baby = new Robot(this);
+	this->scaleMaterials(1-percentage);
+	baby->scaleMaterials(percentage);
+
+	this->SonNumber++;
+
+	baby->UpdateMass();
+	this->UpdateMass();
+
+	this->UpdateRadius();
+	baby->UpdateRadius();
+
+	long sondist = long(this->radius + baby->radius);
+	Vector3f vel = this->pos - this->opos;
+
+    this->pos = this->pos - percentage * sondist * this->aimVector;
+	baby->pos = this->pos + float(sondist) * this->aimVector;
+
+	this->opos = this->pos - vel;
+	baby->opos = baby->pos - vel;
+
+    baby->oldImpulse.set(0,0,0);
+    baby->Impulse.set(0,0,0);
+    baby->ImpulseStatic = 0.0f;
+
+	(*baby)[timersys] = (*this)[timersys];//epigenetic timer
+
+	//make the birth tie
+	//Tie::MakeTie(this, baby, -1);
+
+    baby->fname = this->fname;
+
+	baby->SetMems();
+	this->SetMems();
+
+    return baby;
+}
+
+void Robot::scaleMaterials(float factor)
+{
+    nrg *= factor;
+	onrg *= factor;
+	Body *= factor;
+	obody *= factor;
+	AddedMass *= factor;
+	mass *= factor;
+	Shell *= factor;
+	Slime *= factor;
+	Waste *= factor;
+	Pwaste *= factor;
+	Poison *= factor;
+	Venom *= factor;
 }

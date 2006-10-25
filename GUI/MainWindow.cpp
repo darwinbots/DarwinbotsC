@@ -5,20 +5,20 @@
 #include "../Engine/Engine.h"
 #include "../Engine/EngineThread.h"
 #include "../Engine/HardDriveRoutines.h"
-#include "../GFX/Icons/icons.h" 
+#include "../GFX/Icons/icons.h"
 
 FXIMPLEMENT(MainWindow, FXMainWindow, MainWindowMap, ARRAYNUMBER(MainWindowMap))
 
 void StatusBar(MainWindow *object)
 {
     FXHorizontalFrame *statusbar = new FXHorizontalFrame(object, LAYOUT_SIDE_BOTTOM | FRAME_RAISED);
-    
+
     new FXLabel(statusbar, "Cyc/Sec: ", NULL, FRAME_SUNKEN | JUSTIFY_LEFT);
 
     new FXTextField(statusbar,7,new FXDataTarget(SimOpts.CycSec),
             FXDataTarget::ID_VALUE,
             TEXTFIELD_REAL|JUSTIFY_LEFT|LAYOUT_CENTER_Y|FRAME_SUNKEN|LAYOUT_CENTER_X|FRAME_THICK|LAYOUT_FILL_ROW);
-    
+
     new FXLabel(statusbar, "Objects: ", NULL, FRAME_SUNKEN | JUSTIFY_LEFT);
 
     new FXTextField(statusbar,4,new FXDataTarget((FXulong &) SimOpts.TotObjects),
@@ -73,7 +73,7 @@ MainWindow::MainWindow(FXApp *app)
     new FXMenuCommand(fileMenu, "&Auto save\t\tAuto save Simulation.", 0, this, ID_AutoSave);
     new FXMenuCommand(fileMenu, "&Quit\tF4\tClose DarwinBots.", 0, this, ID_Quit);
     new FXMenuTitle(menubar, "&File", 0, fileMenu);
-    
+
     editMenu = new FXMenuPane(this);
     new FXMenuCommand(editMenu, "&Insert organism", 0, 0, 0);
     new FXMenuCommand(editMenu, "&Global mutation rates", 0, 0, 0);
@@ -82,7 +82,7 @@ MainWindow::MainWindow(FXApp *app)
     new FXMenuCommand(editMenu, "&Draw walls", 0, 0, 0);
     new FXMenuCommand(editMenu, "&Find best", 0, 0, 0);
     new FXMenuTitle(menubar, "&Edit", 0, editMenu);
-    
+
     robotOptionsMenu = new FXMenuPane(this);
     new FXMenuCommand(robotOptionsMenu, "&Show robot info", 0, 0, 0);
     new FXMenuCommand(robotOptionsMenu, "&Show family ties", 0, 0, 0);
@@ -96,16 +96,16 @@ MainWindow::MainWindow(FXApp *app)
     new FXMenuCommand(robotOptionsMenu, "&Save entire organism", 0, 0, 0);
     new FXMenuCommand(robotOptionsMenu, "&Kill entire organism", 0, 0, 0);
     new FXMenuTitle(menubar, "&Robot Options", 0, robotOptionsMenu);
-    
+
     internetMenu = new FXMenuPane(this);
     new FXMenuCommand(internetMenu, "Show &Options\t\tShow options.", 0, this, ID_ShowOptions);
     new FXMenuCommand(internetMenu, "&Show Log\t\t Show log.", 0, this, ID_ShowLog);
     new FXMenuTitle(menubar, "&Internet", 0, internetMenu);
-    
+
     helpMenu = new FXMenuPane(this);
     new FXMenuCommand(helpMenu, "&about\t\tAbout DarwinBots.", 0, this, ID_About);
     new FXMenuTitle(menubar, "&Help", 0, helpMenu);
-    
+
     GLWindow();
 
     OptionsForm = new OptionsFormDialogBox(this);
@@ -176,9 +176,11 @@ long MainWindow::onUpdToggleGraphics(FXObject* sender, FXSelector, void *)
 
 long MainWindow::onStartNew(FXObject *, FXSelector, void *)
 {
-    engineThread->cancel();
+    engineThread->isCancelled = true;
+    engineThread->join();
     std::cout<<"New sim"<<std::endl;
     SimOpts = TmpOpts;
+    engineThread->isCancelled = false;
     engineThread->start();
     return 1;
 }

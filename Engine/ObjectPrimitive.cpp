@@ -20,13 +20,15 @@ SolidPrimitive::SolidPrimitive
             Vector3f startVel,
             unsigned long startAge,
             Vector3f startAimVec,
-            float startRadius):
+            float startRadius,
+            unsigned long id):
                     ObjectPrimitive(startPos, startVel, startAge),
-                    aimvector(startAimVec),
-                    radius(startRadius)
+                    aimVector(startAimVec),
+                    radius(startRadius),
+                    absNum(id)
 {};
 
-const float SolidPrimitive::getAim()
+const float SolidPrimitive::getAim() const
 {
-    return atan2f(aimvector.x(),aimvector.y());
+    return atan2f(aimVector.x(),aimVector.y());
 }

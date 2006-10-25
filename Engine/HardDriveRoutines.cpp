@@ -10,8 +10,8 @@
 #include "Engine.h"
 #include "HardDriveRoutines.h"
 #include "Block.h"
-#include "..\GUI\OptionsForm.h"
-#include "..\GUI\MainWindow.h"
+//#include "..\GUI\OptionsForm.h"
+//#include "..\GUI\MainWindow.h"
 
 ofstream settingsout;
 
@@ -36,7 +36,7 @@ bool ReadSett(const string &path, SimOptions &Options)
 	//otherwise it's not a valid settings file
 
 	string line = GetLine(settingsin);
-	
+
 	if (line == "-2")
 	{
 		ReadSettPre2_4(settingsin, Options);
@@ -44,7 +44,7 @@ bool ReadSett(const string &path, SimOptions &Options)
 	else if (line == "-3")
 	{
 		ReadSettPort(settingsin, Options);
-	}		
+	}
 	else
 	{
 		std::cout << "Unknown settings file version." << endl;
@@ -69,12 +69,12 @@ string ChopOffComments(istream &in)
     {
         while(line == "" || line == "  ")
             line = GetLine(in);
-    
+
         line.append(";");
-        line = line.substr(0, line.find_first_of(";")); //chop off comments        
+        line = line.substr(0, line.find_first_of(";")); //chop off comments
     }
     ChopWhiteSpace(line);
-    
+
     return line;
 }
 
@@ -94,7 +94,7 @@ string EatWord(string &line)
 void ReadSettPort(istream &in, SimOptions &Options)
 {
     string line;
-    
+
     line = ChopOffComments(in);
 
     Options.SpeciesNum = atoi(line.c_str());
@@ -208,7 +208,7 @@ void ReadSettPort(istream &in, SimOptions &Options)
         GO
         {
             Options.Density = atof(EatWord(line).c_str());
-            Options.Viscosity = atof(EatWord(line).c_str());            
+            Options.Viscosity = atof(EatWord(line).c_str());
         }
 
         GO
@@ -240,7 +240,7 @@ void ReadSettPort(istream &in, SimOptions &Options)
         }
 
         GO Options.MaxSpeed = atoi(EatWord(line).c_str());
-        
+
         while(line != "End Physics")
             line = ChopOffComments(in);
     }
@@ -302,7 +302,7 @@ void ReadSettPort(istream &in, SimOptions &Options)
             Options.Costs[POISONCOST] = (float)atof(EatWord(line).c_str());
             Options.Costs[SHELLCOST] = (float)atof(EatWord(line).c_str());
         }
-        
+
         while(line != "End Costs")
             line = ChopOffComments(in);
     }
@@ -341,19 +341,19 @@ bool WriteSett(const string &path, SimOptions &Options)
 
         settingsout << (int)FXREDVAL(Options.Specie[x].color) << " " <<
                        (int)FXGREENVAL(Options.Specie[x].color) << " " <<
-                       (int)FXBLUEVAL(Options.Specie[x].color) << " " << 
+                       (int)FXBLUEVAL(Options.Specie[x].color) << " " <<
                        ";Color (Red Green Blue) [0-255]" << END;
 
         settingsout << ((Options.Specie[x].Veg == true) ? "veg" : "notveg") << END;
 
         settingsout << Options.Specie[x].PosLowRight.z() << " " <<
                        Options.Specie[x].PosLowRight.y() << " " <<
-                       Options.Specie[x].PosLowRight.x() << " " << 
+                       Options.Specie[x].PosLowRight.x() << " " <<
                        ";PosLowRight z y x" << END;
 
         settingsout << Options.Specie[x].PosTopLeft.z() << " " <<
                        Options.Specie[x].PosTopLeft.y() << " " <<
-                       Options.Specie[x].PosTopLeft.x() << " " << 
+                       Options.Specie[x].PosTopLeft.x() << " " <<
                        ";PosTopLeft z y x" << endl;
 
         settingsout << "End Species" << endl;
@@ -366,7 +366,7 @@ bool WriteSett(const string &path, SimOptions &Options)
                        Options.FieldDimensions.y() << " " <<
                        Options.FieldDimensions.z() << "; Field Dimensions" << END;
 
-        settingsout << (Options.UserSeedToggle ? "true" : "false") << " " << 
+        settingsout << (Options.UserSeedToggle ? "true" : "false") << " " <<
                         Options.UserSeedNumber << "; User Seed toggle and number" << END;
 
         settingsout << (Options.Dxsxconnected ? "true" : "false") << " "
@@ -398,8 +398,8 @@ bool WriteSett(const string &path, SimOptions &Options)
         settingsout << (Options.DayNight ? "DayOn" : "DayOff") << " "
                     << Options.CycleLength << " " <<
                     ";Day On/Off / Day Length";
-        
-        settingsout << endl << "End Veggies" << endl << endl;        
+
+        settingsout << endl << "End Veggies" << endl << endl;
     }
 
     settingsout << ";Physics Settings" << END;
@@ -431,7 +431,7 @@ bool WriteSett(const string &path, SimOptions &Options)
                        "; Energy hit type / fixed return value / proportional shot power" << END;
 
         settingsout << Options.MaxSpeed << " ;Max Speed";
-        
+
         settingsout << endl << "End Physics" << endl << endl;
 
     }
@@ -439,7 +439,7 @@ bool WriteSett(const string &path, SimOptions &Options)
     settingsout << ";Costs Settings" << END;
     {
         settingsout << ";DNA Costs" << END;
-        
+
         settingsout << Options.Costs[btValue] << " " <<
                        Options.Costs[btPointer] << " " <<
                        "; Value Pointer" << END;
@@ -481,11 +481,11 @@ bool WriteSett(const string &path, SimOptions &Options)
                        Options.Costs[POISONCOST] << " " <<
                        Options.Costs[SHELLCOST] << " " <<
                        ";Venom Slime Poison Shell" << END;
-        
+
         settingsout << endl << "End Costs" << endl << endl;
-    }    
-    
-    return true;  
+    }
+
+    return true;
 }
 
 string GetLine(istream &in)
@@ -549,14 +549,14 @@ void ReadSettPre2_4(istream &in, SimOptions &Options)
 										 0.0f);
 		/////////////////////////////////////////
 
-		
+
 		/*Options.Specie[x].Mutables.mutarray[0] =*/ GrabNumber(in);
 		Options.Specie[x].path =				 GrabString(in);
 		Options.Specie[x].qty =					 GrabNumber(in);
 		Options.Specie[x].Name =				 GrabString(in);
 		Options.Specie[x].Veg =					 GrabBool(in);
 		                                         GrabBool(in);
-				
+
 		Options.Specie[x].color =	             GrabNumber(in);
 		line =									 GrabString(in);  //obsolete
 		Options.Specie[x].nrg =					 GrabNumber(in);
@@ -611,7 +611,7 @@ void ReadSettPre2_4(istream &in, SimOptions &Options)
 	Options.DBName =							GrabString(in);
 	Options.DBEnable =							GrabBool(in);
 	Options.DBExcludeVegs =						GrabBool(in);
-	
+
 	if (!in.eof()) Options.PondMode =			GrabBool(in);
 	if (!in.eof()) line =						GrabString(in); //obsolete
 	if (!in.eof()) Options.LightIntensity =		GrabNumber(in);
@@ -626,9 +626,9 @@ void ReadSettPre2_4(istream &in, SimOptions &Options)
 
 	if (!in.eof()) Options.F1 =					GrabBool(in);
 	if (!in.eof()) Options.Restart =			GrabBool(in);
-	
+
 	for (x = 0; x < 9; x++)
-	{	
+	{
 		if (!in.eof()) line =					GrabString(in);
 		if (!in.eof()) line =					GrabString(in);
 		if (!in.eof()) line =					GrabString(in);
@@ -641,8 +641,8 @@ void ReadSettPre2_4(istream &in, SimOptions &Options)
 	if (!in.eof()) Options.ZeroMomentum  =		GrabBool(in);
 	if (!in.eof()) Options.UserSeedToggle  =	GrabBool(in);
 	if (!in.eof()) Options.UserSeedNumber  =	GrabNumber(in);
-	
-	
+
+
 	for (x = 0; x < Options.SpeciesNum; x++)
 	{
 		for (int k = 14; k <= 20; k++)
@@ -654,10 +654,10 @@ void ReadSettPre2_4(istream &in, SimOptions &Options)
 		if (!in.eof())
 				/*Options.Specie[x].Mutables.Mutations =*/ GrabBool(in);
 	}
-	
+
 	if (!in.eof()) Options.VegFeedingMethod =	GrabNumber(in);
 	if (!in.eof()) Options.VegFeedingToBody =	GrabNumber(in); else Options.VegFeedingToBody = 0.1f;
-	
+
 	if (!in.eof()) Options.CoefficientStatic =	GrabNumber(in);
 	if (!in.eof()) Options.CoefficientKinetic =	GrabNumber(in);
 
@@ -666,7 +666,7 @@ void ReadSettPre2_4(istream &in, SimOptions &Options)
 
 	if (!in.eof()) Options.Viscosity   =		GrabNumber(in);
 	if (!in.eof()) Options.Density =			GrabNumber(in);
-	
+
 	//above this line reads correctly from the old VB version
 
 	for (x = 0; x < Options.SpeciesNum ; x++)
@@ -688,7 +688,7 @@ void ReadSettPre2_4(istream &in, SimOptions &Options)
 
 	//extra cost we're not storing
 	if (!in.eof()) line = GrabString(in);
-	
+
 	/*if (!in.eof())
 	{
 		cout << "This settings file is to a newer version." << endl;
@@ -713,59 +713,6 @@ void ReadSettPre2_4(istream &in, SimOptions &Options)
     if (Options.MaxSpeed == 0)
         Options.MaxSpeed = 60;
 }
-//enable warnings about conversions
-#pragma warning(default: 4244)
-
-bool BuildSysvars()
-{
-    string line;
-
-    string path = Engine.MainDir() + "\\sysvars2.5.txt";
-	ifstream in(path.c_str());
-
-    if (in.fail() == true)
-    {
-        //can't find sysvars file
-        std::cout << "Sysvars file " << path.c_str() << " not found." << endl;
-		in.close();
-		return false;
-    }
-
-    while (!in.eof())
-    {
-        var temp;
-
-        in >> line;
-        temp.value = atoi(line.c_str());
-        
-        in >> line;
-        temp.name = line;
-
-        sysvar.push_back(temp);
-    }
-
-    in.close();
-
-    return true;
-}
-
-bool DNA_Class::LoadDNA(string path)
-{
-    ifstream DNAfile(path.c_str() );
-	if (DNAfile.fail() == true)
-	{
-		//this isn't a valid robot DNA file
-		cout << "Robot file " << path.c_str() << " not found." << endl;
-		DNAfile.close();
-		return false;
-	}
-    
-    this->load(DNAfile);
-    
-    DNAfile.close();
-    return true;
-}
-
 
 // This is an all purpose tokenizer respecting Darwinbots' conventions
 // Spaces and linebreaks count as delimiters and everything after "'" is
@@ -829,16 +776,16 @@ bool LoadSysvars(string path) {
         tmpPair.first=*tIter;
         vSysvars.push_back(tmpPair);
     }
-  
+
   int i=0;
-  
-  
+
+
   for(vector<pair<string,__int16> >::iterator iter = vSysvars.begin(); iter!=vSysvars.end(); ++iter){
     sysvar[i].name=iter->first;
     sysvar[i].value=iter->second;
     i++;
   }
-  
+
   maxsysvar=vSysvars.size();
   return true;
 };

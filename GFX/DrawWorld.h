@@ -7,9 +7,7 @@ enum
     BOT_PERIMETER
 };
 
-extern void SetupDisplayLists();
-extern void DrawWorld(double width, double height);
-extern int CurrBotUserSelected;
+extern int botSelection;
 
 #endif
 

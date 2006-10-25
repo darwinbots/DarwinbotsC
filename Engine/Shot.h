@@ -4,73 +4,89 @@
 #include "ObjectPrimitive.h"
 #include "Robot.h"
 
+const float minShotPower = 0.1f;
+const float returnShotVelocityFactor = 0.5f;
+#define SHOTDECAY 40.0f //increase to have shots lose power slower
+#define SHELLEFFECTIVENESS 20
+
+//this POWERMUTLIPLIER below is horribly complicated:  allow me to explain:
+//nrg dissipates in a non-linear fashion.  Very little nrg disappears until you
+//get near the last 10% of the journey or so.
+//here's what the graph would look like for nrg with respect to time:
+/*
+|________
+|        \
+|          \
+|           \
+|            |
+|            |
+|____________|
+*/
+#define POWERMULTIPLIER(age, range) (atanf(float(age)/float(range) * SHOTDECAY - SHOTDECAY) / atanf(-SHOTDECAY))
+
+
+
 class Robot;
 
 class Shot : public ObjectPrimitive
 {
-    #ifdef _MSC_VER
-    friend class Shot;
-    #endif
+    public:
+        Shot();
+        Shot(Vector3f pos, Vector3f vel, unsigned long age, const Robot* parent);
+        explicit Shot(Robot *parent);
+        virtual ~Shot();
 
-    private:
-    //I would do a pointer for this, except Robots come and go, but their serial numbers
-    //are unique to a robot over the entire life of a sim.
-    unsigned long parent;   // parent absolute number
+        void UpdatePos();
+        void reflect(Robot* collide);
+        Robot *ShotColl();
 
-    float range;        // max age the shot can exist
-    
-    __int16 value;      //power of a shot for negative shots, value to write for > 0
-    __int16 shottype;   //shot type (memloc spot for > 0)
-    
-    __int16 Memloc;
-    __int16 Memval;     //for poison and venom
-    
-    //DNA() As block         ' Somewhere to store genetic code for a virus
-    //genenum As Integer     ' which gene to copy in host bot
-    //stored As Boolean      ' for virus shots (and maybe future types) this shot is stored
+        bool isTooOld();
+
+//I would do a pointer for this, except Robots come and go, but their serial numbers
+//are unique to a robot over the entire life of a sim.
+        unsigned long parent;   // parent absolute number
+
+        //Virtual Constructor Idiom
+        virtual Shot* clone()  const = 0;
+        virtual Shot* create() const = 0;
+
+    //protected:
+
+
+        float range;        // max age the shot can exist
+
+        __int16 value;      //power of a shot for negative shots, value to write for > 0
+        __int16 shottype;   //shot type (memloc spot for > 0)
+
+        __int16 Memloc;
+        __int16 Memval;     //for poison and venom
+
+        //DNA() As block         ' Somewhere to store genetic code for a virus
+        //genenum As Integer     ' which gene to copy in host bot
+        //stored As Boolean      ' for virus shots (and maybe future types) this shot is stored
                              //' inside the bot until it's ready to be launched
-    public:
-    Shot();
-    Shot(Robot *parent);
-    ~Shot();
-    const Vector3f &findpos() const
-    {
-        return pos;
-    }
-
-    const Vector3f &findopos() const
-    {
-        return opos;
-    }
-
-    void UpdateShot(bool again);
-    void UpdatePos();
+        float collisionTime(const Robot *const target) const;
 
     private:
-    void CreateShotBasic();
+        void CreateShotBasic();
 
-    Robot *ShotColl();
 
     public:
-    void Shot::CreatePoisonShot(Robot *parent, __int16 power);
-    void CreateNRGStealingShot(Robot *parent);
-    void CreateNRGGivingShot(Robot *parent);
-    void CreateVenomShot(Robot *parent);
-    void CreateWasteShot(Robot *parent);
-    void CreateBodyShot(Robot *parent);
-    void CreateInfoShot(Robot *parent);
-    
-    private:
-    void CollideInfoShot(Robot *collide);
-    void CollideFeedingShot(Robot *collide);
-    void CollideNrgShot(Robot *collide);
-    void CollideVenomShot(Robot *collide);
-    void CollideWasteShot(Robot *collide);
-    void CollidePoisonShot(Robot *collide);
-    void CollideBodyShot(Robot *collide);
+        //virtual void collide(Robot* target) = 0;
+        virtual const float hit(Robot* target) const = 0;
+        virtual const bool bouncesOff(const Robot *const target, const float &power) const = 0;
+        virtual Shot* returnShot(const Robot* target, const float &power) const = 0;
 };
 
-extern vector<Shot *> shots;
-extern int MaxShots; //how far into the shot array to go
+//extern vector<Shot *> shots;
+//extern int MaxShots; //how far into the shot array to go
+
+#include "Shots/BodyShot.h"
+#include "Shots/EnergyShot.h"
+#include "Shots/FeedingShot.h"
+#include "Shots/InfoShot.h"
+#include "Shots/PoisonShot.h"
+#include "Shots/VenomShot.h"
+#include "Shots/WasteShot.h"
 
 #endif //SHOTS_H

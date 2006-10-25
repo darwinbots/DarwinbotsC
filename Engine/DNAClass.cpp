@@ -2,7 +2,7 @@
 #include "DNAClass.h"
 
 long DNA_Class::genenum()
-{    
+{
     assert(this != NULL && "Attempting to count the number of genes in non existant DNA in DNA_Class::genenum()");
     long counter=0;
     long genecounter = 0;
@@ -11,14 +11,14 @@ long DNA_Class::genenum()
     {
         while(this->Code[counter] != DNA_END)
         {
-            if (this->Code[counter] == DNA_START || 
+            if (this->Code[counter] == DNA_START ||
                 this->Code[counter] == DNA_ELSE)
                 genecounter++;
             counter++;
         }
 
         DNAgenenum = genecounter;
-    } 
+    }
 
     return this->DNAgenenum;
 }
@@ -38,33 +38,33 @@ DNA_Class::DNA_Class()//:contMutations(),reproMutations()
 }
 
 DNA_Class::DNA_Class(const DNA_Class &other):Code(other.Code),
-                     Private_Variables(other.Private_Variables),
+                     //Private_Variables(other.Private_Variables),
                      DNAgenenum(other.DNAgenenum),
                      Mutables(other.Mutables),
                      LastMutDetail(other.LastMutDetail),
                      Mutations(other.Mutations),
                      LastMut(other.LastMut)
 {
-    
+
 }
 
 DNA_Class::~DNA_Class()
 {
-    
+
 }
 
 bool DNA_Class::Mutate(bool reproducing, float multiplier) //returns wether we should mutate colors or not
 {
     assert(this != NULL && "Attempting to mutate non existant DNA in DNAClass::Mutate()");
-    unsigned long oldMut = this->LastMut;    
+    unsigned long oldMut = this->LastMut;
 
     if (this->Mutables.On == false)
         return false;
-        
+
     if (!reproducing)
     {
         //Point Mutations and Delta Mutations
-        
+
         if(Mutables.Point.On) MutatePoint(multiplier);
         if(Mutables.Delta.On) MutateDelta(multiplier);
     }
@@ -75,7 +75,7 @@ bool DNA_Class::Mutate(bool reproducing, float multiplier) //returns wether we s
         if(Mutables.Translocation.On)   MutateTranslocation(multiplier);
         if(Mutables.Insertion.On)       MutateInsertion(multiplier);
         if(Mutables.Amplification.On)   MutateAmplification(multiplier);
-        if(Mutables.Deletion.On)        MutateDeletion(multiplier);     
+        if(Mutables.Deletion.On)        MutateDeletion(multiplier);
     }
 
     if (LastMut > oldMut)
@@ -88,7 +88,7 @@ void DNA_Class::Occurrs(int *OccurrArray)
 {
     assert(this != NULL && "Attempting to count up the occurr array for non existant DNA in DNA_Class::Occurrs()");
     int counter = 0;
-    
+
     while(this->Code[counter] != DNA_END)
     {
         //myshoot
@@ -111,7 +111,7 @@ void DNA_Class::Occurrs(int *OccurrArray)
             if(Code[counter].value == mtie)
                OccurrArray[9]++;
 
-            if(Code[counter].value == mkpoison || 
+            if(Code[counter].value == mkpoison ||
                Code[counter].value == poison)
                OccurrArray[10]++;
 
