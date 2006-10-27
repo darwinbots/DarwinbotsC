@@ -9,6 +9,8 @@ Numsgil Feb. 09 2006
 #include "Engine.h"
 #include "Shot.h"
 #include "SimOptions.h"
+#include "Robot.h"
+
 
 /****************************************
 Presently, shots have the following physical characteristics:
@@ -48,7 +50,7 @@ Shot::Shot(Robot *parent)
     this->parent = parent->getAbsNum();
     this->color  = parent->color;
 
-    float const AngleSpread = 0.35f;
+    const float AngleSpread = 0.35f;
 
 // FIXME (Ronan#1#): Restore random shot direction
     this->pos = parent->getPos() + parent->getRadius() * parent->getAimVector();
@@ -151,6 +153,8 @@ void Shot::reflect(Robot* collide)
         //this->opos = this->pos - this->vel;
 }
 
+
+// FIXME (Ronan#1#): This function MUST be optimised
 Robot* Shot::ShotColl()
 {
     //perform checks for torroidal edge wraparound

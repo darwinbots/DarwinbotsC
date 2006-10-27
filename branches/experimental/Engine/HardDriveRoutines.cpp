@@ -10,8 +10,6 @@
 #include "Engine.h"
 #include "HardDriveRoutines.h"
 #include "Block.h"
-//#include "..\GUI\OptionsForm.h"
-//#include "..\GUI\MainWindow.h"
 
 ofstream settingsout;
 
@@ -745,49 +743,5 @@ vector<string> tokenize(istream& inputStream)
 
     return tokenList;
 };
-/*
-bool LoadSysvars() {
-    string path = Engine.MainDir() + "\\sysvars2.4.txt";
-    return LoadSysvars(path);
-};
 
-bool LoadSysvars(string path) {
-    vector<string> tokenList;
-    ifstream in(path.c_str() );
-
-    if (in.fail() == true)
-    {
-        //can't find sysvars file
-        cout << "Sysvars file " << path.c_str() << " not found." << endl;
-		in.close();
-		return false;
-    }
-    tokenList=tokenize(in);
-    if (tokenList.size() % 2 == 1) return false;
-
-    vector<string>::iterator tIter;
-    pair<string,short> tmpPair;
-    for(tIter = tokenList.begin(); tIter!=tokenList.end(); tIter++){
-        if(!from_string<short>(tmpPair.second, *tIter, std::dec)) {
-            std::cout<<"from_string failed while loading sysvars."<<std::endl;
-            return false;
-        }
-        tIter++;
-        tmpPair.first=*tIter;
-        vSysvars.push_back(tmpPair);
-    }
-
-  int i=0;
-
-
-  for(vector<pair<string,__int16> >::iterator iter = vSysvars.begin(); iter!=vSysvars.end(); ++iter){
-    sysvar[i].name=iter->first;
-    sysvar[i].value=iter->second;
-    i++;
-  }
-
-  maxsysvar=vSysvars.size();
-  return true;
-};
-*/
 

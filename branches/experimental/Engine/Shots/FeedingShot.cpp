@@ -1,3 +1,5 @@
+#include "../Robot.h"
+
 #include "FeedingShot.h"
 
 FeedingShot::FeedingShot():Shot()

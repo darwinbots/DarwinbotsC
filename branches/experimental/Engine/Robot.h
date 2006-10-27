@@ -107,9 +107,9 @@ public:
 
 
 
-    Robot::Robot(DnaParser* parser = NULL, datispecie *myspecies = NULL);
+    Robot::Robot(DnaParser* parser = NULL, datispecie *myspecies = NULL, DNA_Class* speciesDna = NULL);
     Robot::Robot(const Robot* mother);
-    void init(DnaParser*, datispecie *myspecies = NULL);      //be called whenever a bot is created
+    void init(DnaParser* parser = NULL, datispecie *myspecies = NULL, DNA_Class* speciesDna = NULL);      //be called whenever a bot is created
 
 
 	~Robot();
@@ -208,7 +208,7 @@ private:
 
 	Robot* Split(float percentage);
 	void BasicRobotSetup();
-	void Setup(datispecie *myspecies, DnaParser*);
+	void Setup(datispecie *myspecies, DnaParser*,DNA_Class* speciesDna);
 	void scaleMaterials(float factor);
 
 	//SENSES

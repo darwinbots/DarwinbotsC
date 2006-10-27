@@ -17,8 +17,6 @@ typedef std::list<Shot *>::iterator ShotIterator;
 
 class Simulation
 {
-	//friend void DrawEyeGrid();
-
     public:
         RobotList* robotList;
         ShotList* shotList;
@@ -34,7 +32,6 @@ class Simulation
         void SetMainDir(string newDir) {mainDir=newDir;}
 
         void WhatCanSeeMe(Robot *me, list<Robot *> &BotList);
-        void EyeGridRemoveDeadBot(Robot *bot);
 
         Robot* getRobot(unsigned long serial) const;  //find a robot with this serial number or return NULL
         void getRobotDisplayList(std::vector<SolidPrimitive> &displayList) const;
@@ -44,11 +41,14 @@ class Simulation
 
         void clear(); //poor man's destructor
 	private:
+        string mainDir;
+        EyeGrid_Class EyeGrid;
+        DnaParser parser;
+
         void LoadRobots();
         void ExecuteShots();
         void RepopulateVeggies();
-        string mainDir;
-        EyeGrid_Class EyeGrid;
+
         void ManipulateEyeGrid(Robot *bot);
         void handleBotCollisions();
         float BotCollisionsPos(Robot* bot);
@@ -56,12 +56,7 @@ class Simulation
         void createShot(Robot* parent);
         ShotIterator killShot(ShotIterator shot);
 
-        DnaParser parser;
+        RobotIterator killBot(RobotIterator currBot);
 }extern Engine;
-
-inline std::string Simulation::getDnaText(unsigned long serial) const
-{
-    return parser.getText(*(getRobot(serial)->dna));
-}
 
 #endif
