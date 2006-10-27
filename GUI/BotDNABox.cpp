@@ -12,7 +12,7 @@ FXIMPLEMENT(BotDNAWindow_Class,FXDialogBox,BotDNAWindow_ClassMap,ARRAYNUMBER(Bot
 BotDNAWindow_Class::BotDNAWindow_Class(Robot* bot, FXComposite *parent) :
     FXDialogBox(parent, "Bot DNA", DECOR_TITLE | DECOR_BORDER)
 {
-    if (bot != NULL)
+    if (bot == NULL)
     {
         this->detach();
         this->destroy();

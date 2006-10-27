@@ -54,16 +54,26 @@ void Simulation::setup()
 
 	//initialize league mode
 
-	/*
-	If SimOpts.MaxEnergy > 1000 Then
-		If MsgBox("Your nrg allotment is set to" + Str(SimOpts.MaxEnergy) + ".  A correct value " + _
-			      "is in the neighborhood of about 10 or so.  Do you want to change your energy allotment " + _
-				  "to 10?", vbYesNo, "Energy allotment suspicously high.") = vbYes Then
-			SimOpts.MaxEnergy = 10
-		End If
-	End If
-	*/
 }
+
+void Simulation::LoadRobots(void)
+{
+    DNA_Class* speciesDna;
+    string truePath;
+    for (unsigned int y = 0; y < SimOpts.SpeciesNum; y++)
+    {
+        truePath = SimOpts.Specie[y].path;
+        if (truePath.substr(0,2)=="&#") //apparently, VB uses "&#" to represent app's directory
+            truePath.replace(0,2,MainDir(),0,MainDir().length());
+        truePath += "\\" + SimOpts.Specie[y].Name;
+        speciesDna = new DNA_Class(parser.loadFile(truePath));
+        for (unsigned int x = 0; x < SimOpts.Specie[y].qty; x++)
+            robotList->push_back(new Robot(&parser,&SimOpts.Specie[y],speciesDna));
+        delete speciesDna;
+    }
+}
+
+
 
 void Simulation::UpdateSim(void)
 {
@@ -133,20 +143,11 @@ void Simulation::UpdateSim(void)
     {
         (*currBot)->Shock();
         if(!(*currBot)->DeathManagement())
-        {
-            assert(*currBot != NULL && "Trying to kill an already dead bot");
-            for (RobotIterator otherBot = robotList->begin(); otherBot != robotList->end(); ++otherBot)
-                if((*otherBot)->lastopp == *currBot)
-                    (*otherBot)->lastopp = NULL;
-            delete *currBot;
-            currBot = robotList->erase(currBot);
-        }
+            currBot=killBot(currBot);
         else
-        {
             ++currBot;
-        }
     }
-    //std::cout<<" deaths,";
+
     RobotList tempList;
     for (currBot = robotList->begin(); currBot != robotList->end(); ++currBot)
     {
@@ -170,12 +171,7 @@ void Simulation::UpdateSim(void)
     //std::cout<<"Bot 105 has "<<getRobot(105)->nrg <<" energy at turn "<<SimOpts.TotRunCycle<<std::endl;
 }
 
-void Simulation::LoadRobots(void)
-{
-    for (unsigned int y = 0; y < SimOpts.SpeciesNum; y++)
-        for (unsigned int x = 0; x < SimOpts.Specie[y].qty; x++)
-            robotList->push_back(new Robot(&parser,&SimOpts.Specie[y]));
-}
+
 
 void Simulation::ExecuteDNA()
 {
@@ -230,22 +226,6 @@ void Simulation::ExecuteShots()
 	    else
             ++shot;
 	}
-
-    //second iteration checks for collision of returned shots
-    /*for (shot = shotList->begin(); shot != shotList->end(); ++shot)
-    {
-        Robot* target = (*shot)->ShotColl();
-	    if (target != NULL)
-	    {
-	        if (target->parent == (*shot)->parent && target->age == 0)
-	        {
-	            shot = killShot(shot); //baby bots immune to parents' shots at first
-                break;
-            }
-            (*shot)->reflect(target);
-            (*shot)->collide(target);
-	    }
-    }*/
 }
 
 int cooldown = 0;
@@ -287,7 +267,13 @@ void Simulation::RepopulateVeggies()
         for(x = 0; x < SimOpts.RepopAmount; x++)
         {
             unsigned int spec = frnd(0, VegSpeciesList.size() - 1);
-            robotList->push_back(new Robot(&parser,&SimOpts.Specie[spec]));
+            std::string truePath = SimOpts.Specie[spec].path;
+            if (truePath.substr(0,2)=="&#") //apparently, VB uses "&#" to represent app's directory
+                truePath.replace(0,2,MainDir(),0,MainDir().length());
+            truePath += "\\" + SimOpts.Specie[spec].Name;
+            DNA_Class speciesDna = parser.loadFile(truePath);
+
+            robotList->push_back(new Robot(&parser, &SimOpts.Specie[spec], &speciesDna));
             SimOpts.TotVegsNow++;
         }
         cooldown = SimOpts.RepopCooldown;
@@ -297,13 +283,6 @@ void Simulation::RepopulateVeggies()
 void Simulation::ManipulateEyeGrid(Robot *bot)
 {
     EyeGrid.Move(bot);
-}
-
-void Simulation::EyeGridRemoveDeadBot(Robot *bot)
-{
-    EyeGrid.Remove(bot, Vector3i(int(bot->getOldPos().x() / GRID_DIM),
-                                 int(bot->getOldPos().y() / GRID_DIM),
-                                 int(bot->getOldPos().z() / GRID_DIM)));
 }
 
 void Simulation::WhatCanSeeMe(Robot *me, list<Robot *> &BotList)
@@ -465,4 +444,27 @@ ShotIterator Simulation::killShot(ShotIterator shot)
 {
     delete *shot;
     return shotList->erase(shot);
+}
+
+RobotIterator Simulation::killBot(RobotIterator currBot)
+{
+    assert(*currBot != NULL && "Trying to kill an already dead bot");
+    for (RobotIterator otherBot = robotList->begin(); otherBot != robotList->end(); ++otherBot)
+        if((*otherBot)->lastopp == *currBot)
+            (*otherBot)->lastopp = NULL;
+    EyeGrid.Remove(*currBot, Vector3i(int((*currBot)->getOldPos().x() / GRID_DIM),
+                                      int((*currBot)->getOldPos().y() / GRID_DIM),
+                                      int((*currBot)->getOldPos().z() / GRID_DIM)));
+    delete *currBot;
+    currBot = robotList->erase(currBot);
+
+}
+
+std::string Simulation::getDnaText(unsigned long serial) const
+{
+    Robot* bot = getRobot(serial);
+    if (bot != NULL)
+        return parser.getText(*(bot->dna));
+    else
+        return std::string();
 }

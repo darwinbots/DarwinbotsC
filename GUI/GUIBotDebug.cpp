@@ -35,7 +35,7 @@ FXIMPLEMENT(BotDebug_Window,FXDialogBox,BotDebug_WindowMap,ARRAYNUMBER(BotDebug_
 BotDebug_Window::BotDebug_Window(Robot *bot, FXComposite *parent) :
     FXDialogBox(parent, "Bot Debug Controls", DECOR_TITLE | DECOR_BORDER, 0, 0, 600, 800)
 {
-    if (bot == NULL)
+    if (bot != NULL)
     {
         this->detach();
         this->destroy();

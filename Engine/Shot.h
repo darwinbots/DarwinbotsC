@@ -2,7 +2,6 @@
 #define SHOTS_H
 
 #include "ObjectPrimitive.h"
-#include "Robot.h"
 
 const float minShotPower = 0.1f;
 const float returnShotVelocityFactor = 0.5f;

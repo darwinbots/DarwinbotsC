@@ -1,3 +1,5 @@
+#include "../Robot.h"
+
 #include "InfoShot.h"
 
 InfoShot::InfoShot()

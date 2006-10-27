@@ -1,3 +1,5 @@
+#include "../Robot.h"
+
 #include "PoisonShot.h"
 
 PoisonShot::PoisonShot()

@@ -8,7 +8,6 @@
 using namespace std;
 
 #include "DNAClass.h"
-#include "Engine.h"
 #include "HardDriveRoutines.h"
 #include "Block.h"
 
@@ -122,42 +121,6 @@ Block DnaParser::toBlock(const std::string &token) const
     return Block(token,this);
 }
 
-/*std::string &DNA_Class::text()
-{
-    long t=0;
-    static string returnme("");
-    string temp;
-    unsigned int gene = 0;
-
-    returnme = "";
-    while(this->Code[t] != DNA_END)
-    {
-        temp = Code[t].UnparseCommand(Code[t+1].tipo == btStores);
-        if (temp == "")
-            temp = "VOID";
-
-        if (Code[t].tipo == btCondition ||
-            Code[t].tipo == btLogic ||
-            Code[t].tipo == btStores ||
-            Code[t].tipo == btFlow)
-        {
-            temp = temp + "\n";
-
-            if (Code[t] == DNA_START || Code[t] == DNA_ELSE)
-                gene++;
-
-            if(Code[t] == DNA_STOP)
-                temp += "\n";
-        }
-        else
-            temp = temp + " ";
-
-        returnme += temp;
-        t++;
-    }
-
-    return returnme;
-}*/
 
 //yet to be implemented:
 //parsing for use, def, and shp
@@ -248,8 +211,6 @@ string DnaParser::getSysvarName(__int16 number) const
 __int16 DnaParser::getSysvarNumber(const string &in) const
 {
     string a = in;
-// NOTE (Ronan#1#): debug
-    char first = a[0];
     if (a[0] == '.') //is indeed a sysvar
     {
         a = a.substr(1, a.size()); //get rid of the period

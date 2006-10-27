@@ -1,3 +1,5 @@
+#include "../Robot.h"
+
 #include "WasteShot.h"
 
 WasteShot::WasteShot()

@@ -1,3 +1,4 @@
+#include "../Robot.h"
 #include "EnergyShot.h"
 
 EnergyShot::EnergyShot()

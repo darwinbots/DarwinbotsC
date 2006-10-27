@@ -10,7 +10,7 @@ using namespace std;
 //vector<Robot *> rob(5000, (Robot *)NULL);
 //int MaxRobs; //how far into the robot array to go
 
-Robot::Robot(DnaParser* parser, datispecie *myspecies):
+Robot::Robot(DnaParser* parser, datispecie *myspecies, DNA_Class* speciesDna):
                 SolidPrimitive(),
                 aim(0.0f),AngularMomentum(0.0f),
                 Ties(),currtie(0),
@@ -35,7 +35,7 @@ Robot::Robot(DnaParser* parser, datispecie *myspecies):
 {
     memset(&mem[0], 0, sizeof(mem));
     memset(&occurr[0], 0, sizeof(occurr));
-    init(parser, myspecies);
+    init(parser, myspecies, speciesDna);
 }
 
 Robot::Robot(const Robot* mother):SolidPrimitive(*mother),
@@ -77,15 +77,14 @@ Robot::~Robot()
     }
 
 	RemoveAllTies();
-    Engine.EyeGridRemoveDeadBot(this);
 }
 
 
-void Robot::init(DnaParser* parser,datispecie *myspecies)
+void Robot::init(DnaParser* parser, datispecie *myspecies, DNA_Class* speciesDna)
 {
 	this->BasicRobotSetup();
 	if(myspecies != NULL)
-        this->Setup(myspecies,parser);
+        this->Setup(myspecies,parser, speciesDna);
 	this->SetMems();
 }
 
@@ -107,7 +106,7 @@ void Robot::BasicRobotSetup()
     this->View = false;
 }
 
-void Robot::Setup(datispecie *myspecies, DnaParser* parser)
+void Robot::Setup(datispecie *myspecies, DnaParser* parser, DNA_Class* speciesDna)
 {
 	this->Veg = myspecies->Veg;
     this->Fixed = myspecies->Fixed;
@@ -145,11 +144,7 @@ void Robot::Setup(datispecie *myspecies, DnaParser* parser)
 
 	//this->color = myspecies->color;
 
-    string truePath(myspecies->path);
-    if (truePath.substr(0,2)=="&#") //apparently, VB uses "&#" to represent app's directory
-        truePath.replace(0,2,Engine.MainDir(),0,(Engine.MainDir()).length());
-    truePath += "\\" + myspecies->Name;
-    dna = new DNA_Class(parser->loadFile(truePath));
+    dna = new DNA_Class(*speciesDna);
     this->dna->Mutables = myspecies->Mutables;
     this->occurrList();
 }
