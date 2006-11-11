@@ -54,3 +54,11 @@ void BotBotCollisionGrid::SetupLevel(vector< vector< list< Robot* > > > &Grid, V
         }
     }
 }
+
+void BotBotCollisionGrid::Insert(Robot *bot)
+{
+    /*
+    1.  Find Radius
+    2.  Place bot in grid that's grid size is the Least Upper Bound of
+        its diameter (ie: 2x radius)*/
+}

@@ -3,24 +3,16 @@
 #include "Robot.h"
 
 // *PRIVATE* and only constructor
-Tie::Tie(Robot *_sender,
-         Robot *_receiver,
-         int _phase,
-         float _k,
-         float _b,
-         int _type)
-
+Tie::Tie(Robot *_sender, Robot *_receiver, int _phase)
         :age(0),
         Sharing(false),
         Communicating(false),
         Feeding(false),
-        k(_k),
-        b(_b),
+        Phase(_phase),
         sender(_sender),
         receiver (_receiver)
 {
     NaturalLength = (sender->pos - receiver->pos).Length();
-    this->Phase = _phase;
     SenderCQ.SetBase(sender);
     ReceiverCQ.SetBase(receiver);
 }
@@ -111,7 +103,7 @@ bool Tie::MakeTie(Robot *shooter, Robot *target, int _port)
     target->RemoveTie(shooter);
 
 	//create tie
-	Tie* temp = new Tie(shooter, target, _port, .05f, .05f);
+	Tie* temp = new Tie(shooter, target, _port);
 
 	shooter->AddTie(temp);
 	target->AddTie(temp);

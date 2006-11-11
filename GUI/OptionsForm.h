@@ -3,10 +3,9 @@
 
 #include <fx.h>
 #include "../Engine/SimOptions.h"
-#include "../Engine/HardDriveRoutines.h"
-#include "../Engine/Engine.h"
 #include "../Engine/EngineThread.h"
-#include "../Engine/Mutations.h"
+
+#include "MainWindow.h"
 
 #define LAYOUT_FILL_XY LAYOUT_FILL_X|LAYOUT_FILL_Y
 #define LAYOUT_FILL_RC LAYOUT_FILL_COLUMN|LAYOUT_FILL_ROW
@@ -22,8 +21,10 @@ class OptionsFormDialogBox : public FXDialogBox
     FXList *SpeciesList;
 
     private:
-    int mode;
+    bool recover;
+    MainWindow* main;
     FXDataTarget currentMutationMode;
+
     void BottomToolbar(FXMatrix *LayoutMatrix);
     void Species                (FXTabBook *TabBook);
     void Veggy                  (FXTabBook *TabBook);
@@ -35,13 +36,13 @@ class OptionsFormDialogBox : public FXDialogBox
     void InternetOptions        (FXTabBook *TabBook);
     void Recording              (FXTabBook *TabBook);
 
-    long ReConnectToSpecies(unsigned int SpeciesNumber);    
+    long ReConnectToSpecies(unsigned int SpeciesNumber);
 
     public:
-    OptionsFormDialogBox(FXComposite *parent = NULL);
+    OptionsFormDialogBox(MainWindow *parent = NULL);
 
     //Commands
-    
+
     long onStartNew             (FXObject *, FXSelector, void *);
     long onChange               (FXObject *, FXSelector, void *);
     long onSaveSettings         (FXObject *, FXSelector, void *);
@@ -53,7 +54,7 @@ class OptionsFormDialogBox : public FXDialogBox
     long onClearListSpecies     (FXObject *, FXSelector, void *);
     long onCloneSpecies        (FXObject *, FXSelector, void *);
     long onInheritSpecies        (FXObject *, FXSelector, void *);
-    
+
     long onNrgButton20K         (FXObject *, FXSelector, void *);
     long onNrgButton30K         (FXObject *, FXSelector, void *);
 
@@ -72,10 +73,20 @@ class OptionsFormDialogBox : public FXDialogBox
     void hide()
     {
         FXDialogBox::hide();
+        if(recover)
+            main->engineThread->play();
     }
 
     void show(FXuint placement)
     {
+        if(main->engineThread->running())
+        {
+            recover = true;
+            main->engineThread->pause();
+        }
+        else
+            recover = false;
+
         SpeciesList->clearItems();
         for (int x = 0; x < 50; x++)
         {
@@ -122,17 +133,17 @@ class OptionsFormDialogBox : public FXDialogBox
 FXDEFMAP(OptionsFormDialogBox) OptionsFormDialogBoxMap[] = {
     FXMAPFUNC(SEL_COMMAND, OptionsFormDialogBox::ID_STARTNEW,   OptionsFormDialogBox::onStartNew),
     FXMAPFUNC(SEL_COMMAND, OptionsFormDialogBox::ID_CHANGE,     OptionsFormDialogBox::onChange),
-    
+
     FXMAPFUNC(SEL_COMMAND, OptionsFormDialogBox::ID_SAVESETTINGS,   OptionsFormDialogBox::onSaveSettings),
     FXMAPFUNC(SEL_COMMAND, OptionsFormDialogBox::ID_LOADSETTINGS,   OptionsFormDialogBox::onLoadSettings),
-    
+
     FXMAPFUNC(SEL_COMMAND, OptionsFormDialogBox::ID_SELECTSPECIES,     OptionsFormDialogBox::onSelectNewSpecies),
     FXMAPFUNC(SEL_COMMAND, OptionsFormDialogBox::ID_DELETESPECIES,     OptionsFormDialogBox::onDeleteSpecies),
     FXMAPFUNC(SEL_COMMAND, OptionsFormDialogBox::ID_DELETEALLSPECIES,     OptionsFormDialogBox::onClearListSpecies),
-    FXMAPFUNC(SEL_COMMAND, OptionsFormDialogBox::ID_CLONESPECIES,     OptionsFormDialogBox::onCloneSpecies),    
-    FXMAPFUNC(SEL_COMMAND, OptionsFormDialogBox::ID_INHERITSPECIES,     OptionsFormDialogBox::onInheritSpecies),    
-    FXMAPFUNC(SEL_COMMAND, OptionsFormDialogBox::ID_ADDSPECIES,     OptionsFormDialogBox::onAddNewSpecies),    
-    
+    FXMAPFUNC(SEL_COMMAND, OptionsFormDialogBox::ID_CLONESPECIES,     OptionsFormDialogBox::onCloneSpecies),
+    FXMAPFUNC(SEL_COMMAND, OptionsFormDialogBox::ID_INHERITSPECIES,     OptionsFormDialogBox::onInheritSpecies),
+    FXMAPFUNC(SEL_COMMAND, OptionsFormDialogBox::ID_ADDSPECIES,     OptionsFormDialogBox::onAddNewSpecies),
+
     FXMAPFUNC(SEL_COMMAND, OptionsFormDialogBox::ID_NRG_20K,     OptionsFormDialogBox::onNrgButton20K),
     FXMAPFUNC(SEL_COMMAND, OptionsFormDialogBox::ID_NRG_30K,     OptionsFormDialogBox::onNrgButton30K),
 
@@ -142,7 +153,7 @@ FXDEFMAP(OptionsFormDialogBox) OptionsFormDialogBoxMap[] = {
     FXMAPFUNC(SEL_COMMAND, OptionsFormDialogBox::ID_WORLDDIMENSIONSLIDER,     OptionsFormDialogBox::onWorldDimensionSlider),
 
     FXMAPFUNC(SEL_COMMAND, OptionsFormDialogBox::ID_MUTATIONSPECIES,     OptionsFormDialogBox::onMutationsSpecies),
-    
+
     FXMAPFUNC(SEL_COMMAND, OptionsFormDialogBox::ID_CLEARCOSTS,     OptionsFormDialogBox::onClearCosts),
     FXMAPFUNC(SEL_COMMAND, OptionsFormDialogBox::ID_COSTSF1DEFAULT,     OptionsFormDialogBox::onCostsF1Default),
     FXMAPFUNC(SEL_COMMAND, OptionsFormDialogBox::ID_COSTSGUESS,     OptionsFormDialogBox::onCostsDecentGuess)

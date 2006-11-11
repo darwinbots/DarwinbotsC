@@ -22,19 +22,19 @@ class SolidPrimitive;
 class MainWindow : public FXMainWindow
 {
     FXDECLARE(MainWindow)
-    
+
     FXMenuPane *fileMenu ,*editMenu ,*robotOptionsMenu,*SimOptionsMenu ,*internetMenu, *helpMenu;
 
 protected:
     MainWindow(){}
-    
+
     FXGLVisual     *glvisual;
     FXGLCanvas     *canvas;
     bool GraphicsOn;
 
     FXMDIClient *mdiclient;
     FXMDIChild *mainview;
-    
+
 public:
     EngineThread* engineThread;
 
@@ -42,11 +42,11 @@ public:
 
     MainWindow(FXApp *app);
     ~MainWindow();
-    
+
     virtual void create();
 
     unsigned long MainWindow::Selection(unsigned int MouseX, unsigned int MouseY);
-    
+
     enum
     {
         ID_MainView = FXMainWindow::ID_LAST,
@@ -70,7 +70,7 @@ public:
         ID_ToggleGraphics,
 
         ID_STARTNEW,
-        
+
         ID_LAST
     };
 
@@ -82,22 +82,22 @@ public:
     long onCmdAbout             (FXObject *, FXSelector, void *);
     long onCmdShowOptions       (FXObject *, FXSelector, void *);
     long onCmdShowLog           (FXObject *, FXSelector, void *);
-    
+
     long onCmdNewViewer         (FXObject*,FXSelector,void*);
     long onUpdGfx               (FXObject*,FXSelector,void*);
-    
+
     long DrawScene              (FXObject *, FXSelector, void *);
     long DrawScene              ();
 
     long onMouseWheel           (FXObject *, FXSelector, void *);
     long onMotion               (FXObject *, FXSelector, void *);
-    
+
     long onLeftBtnPress         (FXObject *, FXSelector, void *);
     long onLeftBtnRelease       (FXObject *, FXSelector, void *);
 
     long onRightBtnPress        (FXObject *, FXSelector, void *);
     long onRightBtnRelease      (FXObject *, FXSelector, void *);
-    
+
     long onUpdSim               (FXObject *, FXSelector, void *);
 
     long onCycle                (FXObject *, FXSelector, void *);
@@ -106,14 +106,14 @@ public:
 
     long onCmdToggleGraphics    (FXObject *, FXSelector, void *);
     long onUpdToggleGraphics    (FXObject *, FXSelector, void *);
-    
+
     long onStartNew             (FXObject *, FXSelector, void *);
 
     long GLWindow               ();
 
 
     long onBotDebug             ();
-    
+
     //Graphics
     void DrawWorld(double width, double height);
     void SetupDisplayLists();
@@ -121,7 +121,7 @@ private:
     void DrawRobots();
     void DrawShots();
     void DrawTies(bool Perimeter);
-    void DrawEyeField(Robot* me) const;
+    void DrawEyeField(const Robot* me) const;
     void DrawSelectHalo();
     void DrawEyeGrid();
     void DrawRobotEye(const SolidPrimitive& bot) const;
@@ -145,16 +145,16 @@ FXDEFMAP(MainWindow) MainWindowMap[] = {
   FXMAPFUNC(SEL_COMMAND,   MainWindow::ID_NewViewer,        MainWindow::onCmdNewViewer),
   FXMAPFUNC(SEL_KEYPRESS,  0,			                    MainWindow::onKeyPress),
   FXMAPFUNC(SEL_TIMEOUT,   MainWindow::ID_UpdGfx,           MainWindow::onUpdGfx),
-  
+
   FXMAPFUNC(SEL_MOUSEWHEEL,MainWindow::ID_MainView,         MainWindow::onMouseWheel),
   FXMAPFUNC(SEL_MOTION    ,MainWindow::ID_MainView,         MainWindow::onMotion),
-  
+
   FXMAPFUNC(SEL_LEFTBUTTONPRESS, MainWindow::ID_MainView,   MainWindow::onLeftBtnPress),
   FXMAPFUNC(SEL_LEFTBUTTONRELEASE, MainWindow::ID_MainView, MainWindow::onLeftBtnRelease),
 
   FXMAPFUNC(SEL_RIGHTBUTTONPRESS, MainWindow::ID_MainView,   MainWindow::onRightBtnPress),
   FXMAPFUNC(SEL_RIGHTBUTTONRELEASE, MainWindow::ID_MainView, MainWindow::onRightBtnRelease),
-  
+
   FXMAPFUNC(SEL_COMMAND, MainWindow::ID_StepEngine, MainWindow::onCycle),
   FXMAPFUNC(SEL_COMMAND, MainWindow::ID_PlayEngine, MainWindow::onPlay),
   FXMAPFUNC(SEL_COMMAND, MainWindow::ID_PauseEngine, MainWindow::onPause),

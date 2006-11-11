@@ -1,5 +1,6 @@
 #include "..\GUI\MainWindow.h"
 #include "EngineThread.h"
+#include<iostream>
 
 inline float round(float value)
 {
@@ -11,20 +12,6 @@ EngineThread::EngineThread():runCounter(0),botDisplayList()
                                 ,isCancelled(false)
 {
 
-}
-
-#include<iostream>
-
-std::vector<SolidPrimitive> EngineThread::getRobotDisplayList()
-{
-    FXMutexLock lock(botListMutex);
-    return botDisplayList;
-}
-
-ShotList EngineThread::getShotDisplayList()
-{
-    FXMutexLock lock(botListMutex);
-    return shotDisplayList;
 }
 
 int EngineThread::run()
@@ -45,6 +32,7 @@ int EngineThread::run()
                 botListMutex.lock();
                 simulation->getRobotDisplayList(botDisplayList);
                 simulation->getShotDisplayList(shotDisplayList);
+                updateWatchedBots();
                 //std::cout<<"Updated botDisplayList, "<<botDisplayList.size()<<" bots."<<std::endl;
                 botListMutex.unlock();
                 addCycles(-1);
@@ -99,6 +87,18 @@ int EngineThread::run()
     return 0;
 }
 
+std::vector<SolidPrimitive> EngineThread::getRobotDisplayList()
+{
+    FXMutexLock lock(botListMutex);
+    return botDisplayList;
+}
+
+ShotList EngineThread::getShotDisplayList()
+{
+    FXMutexLock lock(botListMutex);
+    return shotDisplayList;
+}
+
 unsigned long EngineThread::findAbsNum(Vector3f pos)
 {
     FXMutexLock lock(botListMutex);
@@ -115,21 +115,29 @@ unsigned long EngineThread::findAbsNum(Vector3f pos)
 
 Robot* EngineThread::getRobot(unsigned long selection)
 {
-    Robot* bot= simulation->getRobot(selection);
-    if (bot != NULL)
-        return new Robot(*bot);
+    FXMutexLock lock(botListMutex);
+    WatchMap::iterator entry = watchedBots.find(selection);
+    if (entry != watchedBots.end())
+        return entry->second;
     else
         return NULL;
 }
 
-/*
-Important Note:
+void EngineThread::updateWatchedBots()
+{
+// FIXME (Ronan#1#): Need to handle bot's death properly
+    for(WatchMap::iterator entry=watchedBots.begin(); entry != watchedBots.end(); ++entry)
+    {
+        Robot* bot= simulation->getRobot(entry->first);
+        if (bot != NULL)
+            *(entry->second) = Robot(*bot);
+    }
+}
 
-Presently (though you should check to be sure if you're interested
-since it's possible that I've forgotten to get rid of this comment)
-the engine and GFX both read from the world data without mutual ex-
-clusion.  This isn't a technical problem, since the GFX engine
-doesn't update anything, only reads data.  However, some display
-abnormalities are possible unless some thread-safe devices (mutex's
-for example) are used to limit access to world data.
-*/
+void EngineThread::addWatch(unsigned long selection)
+{
+    FXMutexLock lock(botListMutex);
+    Robot* bot= simulation->getRobot(selection);
+    if (bot != NULL)
+        watchedBots[selection] = new Robot(*bot);
+}

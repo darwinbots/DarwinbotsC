@@ -76,8 +76,8 @@ void MainWindow::DrawWorld(double width, double height)
     glEnable(GL_LINE_SMOOTH);
     glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
 
-    DrawTies(false);
-    DrawTies(true);
+    //DrawTies(false);
+    //DrawTies(true);
     DrawRobots();
     DrawShots();
     DrawSelectHalo();
@@ -159,6 +159,7 @@ void MainWindow::DrawShots()
     }
 }
 
+/*
 void MainWindow::DrawTies(bool Perimeter)
 {
     for (RobotIterator currBot = engineThread->simulation->robotList->begin();
@@ -229,7 +230,7 @@ void MainWindow::DrawTies(bool Perimeter)
         }
 
     }
-}
+}*/
 
 //draws the voluntary translational movement vector
 void MainWindow::DrawBangs()
@@ -272,7 +273,7 @@ void MainWindow::DrawImpulse()
     }*/
 }
 
-void MainWindow::DrawEyeField(Robot* me) const
+void MainWindow::DrawEyeField(const Robot* me) const
 {
     if(me == NULL)
         return;
@@ -304,7 +305,6 @@ void MainWindow::DrawEyeField(Robot* me) const
 
         left += 10;
     }
-    delete me;
 }
 
 void MainWindow::DrawRobotEye(const SolidPrimitive& bot) const
@@ -345,11 +345,10 @@ void MainWindow::DrawEyeGrid()
 
 void MainWindow::DrawSelectHalo()
 {
-    Robot* bot = engineThread->getRobot(botSelection);
-    if(botSelection && bot!=NULL)
+    const Robot* bot = engineThread->getRobot(botSelection);
+    if(botSelection != 0 && bot!=NULL)
     {
         glColor3f(1,1,1);
         CreateCircle(bot->getPos(), bot->getRadius() + 50, 8);
-        delete bot;
     }
 }

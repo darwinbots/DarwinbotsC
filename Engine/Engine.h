@@ -43,7 +43,9 @@ class Simulation
 	private:
         string mainDir;
         EyeGrid_Class EyeGrid;
+        public:
         DnaParser parser;
+        private:
 
         void LoadRobots();
         void ExecuteShots();

@@ -10,6 +10,8 @@
 #include "../Engine/Robot.h"
 #include "../Engine/Engine.h"
 #include "../GFX/DrawWorld.h"
+#include "../GUI/BotInfoWindow.h"
+#include "../GUI/BotDNABox.h"
 
 
 
@@ -39,15 +41,15 @@ long MainWindow::onMouseWheel(FXObject *, FXSelector, void *ptr)
 long MainWindow::onMotion(FXObject *, FXSelector, void *ptr)
 {
     FXEvent *event = (FXEvent *)ptr;
-    
+
     switch(mode)
     {
         case NONE: break;
-        
+
         case ROTATE:
         {
             MainCamera.Rotate(float(event->win_y - event->last_y), float(event->win_x - event->last_x));
-        }            
+        }
         break;
 
         case TRANSLATE:
@@ -70,7 +72,7 @@ long MainWindow::onMotion(FXObject *, FXSelector, void *ptr)
 
             MainCamera.Translate(-DeltaMovementX,
                                  DeltaMovementY);
-            
+
             getApp()->addChore(this, ID_UpdGfx, 0);
             #undef Factor
         }
@@ -91,24 +93,24 @@ long MainWindow::onLeftBtnPress(FXObject *, FXSelector, void *ptr)
     {
         mode = SELECT_BOT;//we've picked a robot
         //select bot
+        engineThread->addWatch(botSelection);
+        std::cout<<"selected bot "<<botSelection<<std::endl;
     }
-    
+
     return 1;
 }
 
-unsigned long MainWindow::Selection(unsigned int MouseX, unsigned int MouseY)
+unsigned long MainWindow::Selection(const unsigned int MouseX, const unsigned int MouseY)
 {
     #define Factor(x) atanf(MainCamera.pos().z() / 100.0f) / float(PI)
     float factorx = (float)Factor(x);
     float factory = (float)Factor(y);
 
-    MouseY = canvas->getHeight() - MouseY;
-
     float screeny = SimOpts.FieldDimensions.y() * (1.0f - 2 * factory);
     float screenx = SimOpts.FieldDimensions.x() * (1.0f - 2 * factorx);
 
     float ActualX = MouseX / (float)canvas->getWidth() * screenx;
-    float ActualY = MouseY / (float)canvas->getHeight() * screeny;
+    float ActualY = (canvas->getHeight() - MouseY) / (float)canvas->getHeight() * screeny;
 
     ActualX += MainCamera.pos().x();
     ActualY += MainCamera.pos().y();
@@ -124,7 +126,7 @@ unsigned long MainWindow::Selection(unsigned int MouseX, unsigned int MouseY)
 long MainWindow::onLeftBtnRelease(FXObject *, FXSelector, void *ptr)
 {
     mode = NONE;
-    
+
     return 1;
 }
 
@@ -138,8 +140,17 @@ long MainWindow::onRightBtnPress(FXObject *, FXSelector, void *ptr)
     return 1;
 }
 
+long MainWindow::onBotDebug()
+{
+    new BotInfoWindow(engineThread->getRobot(botSelection), this);
+    new BotDNAWindow_Class(engineThread->getRobot(botSelection), this);
+    std::cout<<"Debugging bot "<<botSelection<<std::endl;
+
+    return 1;
+}
+
 long MainWindow::onRightBtnRelease(FXObject *, FXSelector, void *ptr)
 {
-    mode = NONE;    
+    mode = NONE;
     return 1;
 }

@@ -2,6 +2,7 @@
 //ALWAYS assume that DNA is sized right
 //ALWAYS size DNA correctly when mutating
 
+#include "DNAClass.h"
 #include "Mutations.h"
 #include "../Common/Random.h"
 
@@ -71,21 +72,24 @@ string &MutationType(int mode)
             temp = "Translocation";
             break;
     }
-    
+
     return temp;
 }
 
 /////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////
 
+#define BASICMUTATIONWORK(XXX)                          \
+    float mutprob = 1.0f / ((float)Mutables[ XXX ]->Prob * multiplier);  \
+    if( powf(mutprob, (float)length()) > DBrand())
+
 void DNA_Class::MutatePoint(float multiplier)
 {
-    float mutprob = 1.0f / ((float)Mutables.Point.Prob * multiplier);
-    if( powf(mutprob, (float)length()) > DBrand())
+    BASICMUTATIONWORK(PointUP)
     {
         unsigned int location = frnd(1, length()) - 1;
 
-        if(DBrand() > Mutables.Point.DeltaValue)
+        if(DBrand() > Mutables[PointUP]->DeltaValue)
             Code[location].RandomizeTipo();
         else
             Code[location].RandomizeValue();
@@ -96,44 +100,42 @@ void DNA_Class::MutatePoint(float multiplier)
 
 void DNA_Class::MutateDelta(float multiplier)
 {
-    float mutprob = 1.0f / ((float)Mutables.Delta.Prob * multiplier);
-    if( powf(mutprob, (float)length()) > DBrand())
+    BASICMUTATIONWORK(DeltaUP)
     {
         int muttype = frnd(PointUP, MaxUP - 1);
         float percentage = 0.0f;
-        
+
         int x = 0;
         while(percentage == 0)
         {
-            percentage = (float)fabs(Gauss(Mutables.Delta.StdDev,
-                                           Mutables.Delta.Mean));
+            percentage = (float)fabs(Gauss(Mutables[DeltaUP]->StdDev,
+                                           Mutables[DeltaUP]->Mean));
             if(++x > 100)
                 percentage = 1;
         }
 
-        #define MUT(x) Mutables. x .Prob = (unsigned long) ((float)Mutables. x .Prob * (percentage / 100))
+        #define MUT(x) Mutables[ x ]->Prob = (unsigned long) ((float)Mutables[ x ]->Prob * (percentage / 100))
         switch(muttype)
-        {            
-            case PointUP:           MUT(Point);             break;
-            case DeltaUP:           MUT(Delta);             break;
-            case DeletionUP:        MUT(Deletion);          break;
-            case ReversalUP:        MUT(Reversal);          break;
-            case TranslocationUP:   MUT(Translocation);     break;
-            case CopyErrorUP:       MUT(CopyError);         break;
-            case AmplificationUP:   MUT(Amplification);     break;
-            case InsertionUP:       MUT(Insertion);         break;            
+        {
+            case PointUP:           MUT(PointUP);             break;
+            case DeltaUP:           MUT(DeltaUP);             break;
+            case DeletionUP:        MUT(DeletionUP);          break;
+            case ReversalUP:        MUT(ReversalUP);          break;
+            case TranslocationUP:   MUT(TranslocationUP);     break;
+            case CopyErrorUP:       MUT(CopyErrorUP);         break;
+            case AmplificationUP:   MUT(AmplificationUP);     break;
+            case InsertionUP:       MUT(InsertionUP);         break;
         }
         #undef MUT
-    }    
+    }
 }
 
 void DNA_Class::MutateCopyError(float multiplier)
 {
-    float mutprob = 1.0f / ((float)Mutables.CopyError.Prob * multiplier);
-    if( powf(mutprob, (float)length()) > DBrand())
+    BASICMUTATIONWORK(CopyErrorUP)
     {
         unsigned int location = frnd(1, length()) - 1;
-        if(DBrand() > Mutables.CopyError.DeltaValue)
+        if(DBrand() > Mutables[CopyErrorUP]->DeltaValue)
             Code[location].RandomizeTipo();
         else
             Code[location].RandomizeValue();
@@ -144,16 +146,15 @@ void DNA_Class::MutateCopyError(float multiplier)
 
 void DNA_Class::MutateReversal(float multiplier)
 {
-    float mutprob = 1.0f / ((float)Mutables.Reversal.Prob * multiplier);
-    if( powf(mutprob, (float)length()) > DBrand())
+    BASICMUTATIONWORK(ReversalUP)
     {
         unsigned int ReversalLength = 0;
 
         int x = 0;
         while(ReversalLength == 0)
         {
-            ReversalLength = (unsigned int)fabs(Gauss(Mutables.Reversal.StdDev,
-                                                      Mutables.Reversal.Mean));
+            ReversalLength = (unsigned int)fabs(Gauss(Mutables[ReversalUP]->StdDev,
+                                                      Mutables[ReversalUP]->Mean));
             if(++x > 100)
                 ReversalLength = 1;
         }
@@ -169,16 +170,15 @@ void DNA_Class::MutateReversal(float multiplier)
 
 void DNA_Class::MutateTranslocation(float multiplier)
 {
-    float mutprob = 1.0f / ((float)Mutables.Translocation.Prob * multiplier);
-    if( powf(mutprob, (float)length()) > DBrand())
+    BASICMUTATIONWORK(TranslocationUP)
     {
         unsigned int TranslocationLength = 0;
-        
+
         int x = 0;
         while(TranslocationLength == 0)
         {
-            TranslocationLength = (unsigned int)fabs(Gauss(Mutables.Translocation.StdDev,
-                                                           Mutables.Translocation.Mean));
+            TranslocationLength = (unsigned int)fabs(Gauss(Mutables[TranslocationUP]->StdDev,
+                                                           Mutables[TranslocationUP]->Mean));
             if(++x > 100)
                 TranslocationLength = 1;
         }
@@ -194,16 +194,15 @@ void DNA_Class::MutateTranslocation(float multiplier)
 
 void DNA_Class::MutateInsertion(float multiplier)
 {
-    float mutprob = 1.0f / ((float)Mutables.Insertion.Prob * multiplier);
-    if( powf(mutprob, (float)length()) > DBrand())
+    BASICMUTATIONWORK(InsertionUP)
     {
         unsigned int InsertLength = 0;
 
         unsigned int x = 0;
         while(InsertLength == 0)
         {
-            InsertLength = (unsigned int)fabs(Gauss(Mutables.Insertion.StdDev,
-                                                    Mutables.Insertion.Mean));
+            InsertLength = (unsigned int)fabs(Gauss(Mutables[InsertionUP]->StdDev,
+                                                    Mutables[InsertionUP]->Mean));
             if(++x > 100)
                 InsertLength = 1;
         }
@@ -228,21 +227,20 @@ void DNA_Class::MutateInsertion(float multiplier)
         {
             Code[location + x] = temp[x];
         }
-    }    
+    }
 }
 
 void DNA_Class::MutateAmplification(float multiplier)
 {
-    float mutprob = 1.0f / ((float)Mutables.Amplification.Prob * multiplier);
-    if( powf(mutprob, (float)length()) > DBrand())
+    BASICMUTATIONWORK(AmplificationUP)
     {
         unsigned int AmpLength = 0;
 
         unsigned int x = 0;
         while(AmpLength == 0)
         {
-            AmpLength = (unsigned int)fabs(Gauss(Mutables.Amplification.StdDev,
-                                                 Mutables.Amplification.Mean));
+            AmpLength = (unsigned int)fabs(Gauss(Mutables[AmplificationUP]->StdDev,
+                                                 Mutables[AmplificationUP]->Mean));
             if(++x > 100)
                 AmpLength = 1;
         }
@@ -262,20 +260,19 @@ void DNA_Class::MutateAmplification(float multiplier)
         Code.insert(Code.begin() + location + 1, AmpLength, Block());
         for(unsigned int z = location, y = 0; z < AmpLength + location; z++, y++)
             Code[z] = temp[y];
-    }    
+    }
 }
 void DNA_Class::MutateDeletion(float multiplier)
 {
-    float mutprob = 1.0f / ((float)Mutables.Deletion.Prob * multiplier);
-    if( powf(mutprob, (float)length()) > DBrand())
+    BASICMUTATIONWORK(DeletionUP)
     {
         unsigned int DeleteLength = 0;
-        
+
         int x = 0;
         while(DeleteLength == 0)
         {
-            DeleteLength = (unsigned int)fabs(Gauss(Mutables.Deletion.StdDev,
-                                                    Mutables.Deletion.Mean));
+            DeleteLength = (unsigned int)fabs(Gauss(Mutables[DeletionUP]->StdDev,
+                                                    Mutables[DeletionUP]->Mean));
             if(++x > 100)
                 DeleteLength = 1;
         }

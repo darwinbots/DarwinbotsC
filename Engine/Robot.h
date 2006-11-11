@@ -23,7 +23,7 @@ class BotDebug_Window;
 class Shot;
 typedef std::vector<Tie *> TieList;
 
-using namespace std;
+//using namespace std;
 
 //////////CONSTANTS////////////
 const int CUBICTWIPPERBODY = 905;
@@ -33,7 +33,8 @@ class Robot : public SolidPrimitive
 {
     friend class Tie; //tie class has access to bot memory among other things
     friend class Simulation;
-    friend void DrawTies(bool Perimeter);
+    //friend void DrawTies(bool Perimeter);
+    friend class BotInfoWindow;
 
 public:     //temporary
 	TieList Ties;                           //linked list of ties
@@ -57,7 +58,7 @@ public:
 	bool Dead;								// Allows program to define a robot; dead after a certain operation
 	bool Multibot;        					// Is robot part of a multi-bot
     bool NewMove;                           // does this bot use the new movement controls or is it a pussy?
-    bool active;                            // used in collision detection
+    bool CollisionActive;                   // used in collision detection
     bool View;
 
 private:
@@ -108,6 +109,7 @@ public:
 
 
     Robot::Robot(DnaParser* parser = NULL, datispecie *myspecies = NULL, DNA_Class* speciesDna = NULL);
+    Robot(const Robot& other);
     Robot::Robot(const Robot* mother);
     void init(DnaParser* parser = NULL, datispecie *myspecies = NULL, DNA_Class* speciesDna = NULL);      //be called whenever a bot is created
 
@@ -144,6 +146,7 @@ public:
     const float y() const{return pos.y();}
     const float &findaim() const{return this->aim;}
 
+    const std::string getName() const {return fname;};
     const std::string getDnaText(const DnaParser* parser) const;
     void ExecuteDNA();
     bool ChargeNRG(float amount);

@@ -21,6 +21,8 @@ video game literature.
 
 #include "Robot.h"
 
+//could be implemented as an inline, but this way I don't have to
+//worry about type safety
 #define CUBE(a) ((a)*(a)*(a))
 
 void Robot::NetForces()
@@ -80,13 +82,14 @@ void Robot::Integrate()
     Impulse.set(0,0,0);
     ImpulseStatic = 0;
 
-    if(vel.x() == 0 && vel.y() == 0 && vel.z() == 0)
-        active = false;
+    //Used for the fast local search during constraints after physics
+    if(vel == Vector3f(0,0,0))
+        CollisionActive = false;
     else
-        active = true;
+        CollisionActive = true;
 
     if(age <= 1)
-        active = true;
+        CollisionActive = true;
     /*if (getAbsNum()==105)
             std::cout<<"Calculated bot#"<<getAbsNum()
                     <<" at turn "<<SimOpts.TotRunCycle
@@ -119,7 +122,7 @@ void Robot::EdgeCollisions()
     {
         vel(0) = -ovel.x();
         vel *= CoefficientRestitution;
-        active = true;
+        CollisionActive = true;
     }
 
     if(this->pos.y() < this->radius - .1 ||
@@ -127,7 +130,7 @@ void Robot::EdgeCollisions()
     {
         vel(1) = -ovel.y();
         vel *= CoefficientRestitution;
-        active = true;
+        CollisionActive = true;
     }
 
     //speed loss in non normal direction of wall
@@ -167,7 +170,7 @@ the algorithm for implementing this is detailed in
 Tricks of the Windows game programming gurus 2nd edition
 by Andre LaMothe
 page 847
-"Real 2D Object-to-Object Collision Response (Advanced)
+"Real 2D Object-to-Object Collision Response (Advanced)"
 
 Basically, the algorithm looks like:
 1.  Compute normal and tangent unit vectors to collision (n and t)
@@ -190,8 +193,6 @@ Also, see http://en.wikipedia.org/wiki/Coefficient_of_restitution
 which Numsgil heavily contributed to.
 */
 
-//unresolved question: should I use added mass
-//as part of the momentum equation for collisions?
 void Robot::BotCollisionsVel()  //deactivated for now
 {
     /*for(int x = 0; x <= MaxRobs; x++)
@@ -363,8 +364,8 @@ Vector3f Tie::SpringForces(Robot *caller)
 
     Vector3f Impulse(0,0,0);
 
-    Impulse += k * (NaturalLength - length) * dist;
-    Impulse += dist * (caller->vel - FindOther(caller)->vel) * -b * dist;
+    //Impulse += k * (NaturalLength - length) * dist;
+    //Impulse += dist * (caller->vel - FindOther(caller)->vel) * -b * dist;
 
     return Impulse;
 }
