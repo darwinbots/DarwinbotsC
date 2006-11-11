@@ -7,9 +7,6 @@ Class containing all the info for robots
 
 using namespace std;
 
-//vector<Robot *> rob(5000, (Robot *)NULL);
-//int MaxRobs; //how far into the robot array to go
-
 Robot::Robot(DnaParser* parser, datispecie *myspecies, DNA_Class* speciesDna):
                 SolidPrimitive(),
                 aim(0.0f),AngularMomentum(0.0f),
@@ -54,7 +51,7 @@ Robot::Robot(const Robot* mother):SolidPrimitive(*mother),
                 Vloc(mother->Vloc),Vval(mother->Vval),
                 Poisoned(mother->Poisoned),PoisonCount(mother->PoisonCount),Ploc(mother->Ploc),
                 DecayTimer(0),Kills(0),
-                dna(new DNA_Class(*(mother->dna))),
+                dna(NULL),
                 lastopp(NULL),
                 SonNumber(0),parent(mother->getAbsNum()),BirthCycle(SimOpts.TotRunCycle),
                 genenum(mother->genenum),generation(mother->generation + 1),
@@ -68,11 +65,40 @@ Robot::Robot(const Robot* mother):SolidPrimitive(*mother),
     this->absNum = ++SimOpts.TotBorn;
 }
 
+Robot::Robot(const Robot& other):SolidPrimitive(other),
+                Ties(),currtie(other.currtie),
+                ovel(other.ovel),
+                Impulse(other.Impulse), ImpulseStatic(other.ImpulseStatic), oldImpulse(other.oldImpulse),
+                Veg(other.Veg), Wall(other.Wall), Corpse(other.Corpse),Fixed(other.Corpse),
+                Dead(other.Dead),Multibot(other.Multibot),NewMove(other.NewMove),
+                nrg(other.nrg),onrg(other.onrg),
+                Body(other.Body),obody(other.obody),
+                AddedMass(other.AddedMass),mass(other.mass),
+                Shell(other.Shell),Slime(other.Slime),
+                Waste(other.Waste),Pwaste(other.Pwaste),
+                Poison(other.Poison),Venom(other.Venom),
+                Paralyzed(other.Paralyzed),ParaCount(other.ParaCount),
+                Vloc(other.Vloc),Vval(other.Vval),
+                Poisoned(other.Poisoned),PoisonCount(other.PoisonCount),Ploc(other.Ploc),
+                DecayTimer(other.DecayTimer), Kills(other.Kills),
+                dna(new DNA_Class(*(other.dna))),
+                lastopp(other.lastopp),
+                SonNumber(other.SonNumber), parent(other.parent), BirthCycle(other.BirthCycle),
+                genenum(other.genenum), generation(other.generation),
+                LastOwner(other.LastOwner),fname(other.fname),
+                virusshot(other.virusshot),Vtimer(other.Vtimer),
+                View(other.View),
+                DNACommands(other.DNACommands)
+{
+    memcpy(&mem[0], &other.mem[0], sizeof(mem));
+    memcpy(&occurr[0], &other.mem[0], sizeof(occurr));
+}
+
 Robot::~Robot()
 {
 	if (this->dna != NULL)
     {
-        delete this->dna;
+        delete dna;
         this->dna = NULL;
     }
 
@@ -118,6 +144,7 @@ void Robot::Setup(datispecie *myspecies, DnaParser* parser, DNA_Class* speciesDn
 	this->Impulse.set(0,0,0);
     this->oldImpulse.set(0,0,0);
     this->vel.set(0,0,0);
+    this->ovel = vel;
 
 	this->nrg = (float)myspecies->nrg;
 	this->Body = (float)myspecies->body;
@@ -774,7 +801,7 @@ void Robot::FeedVegSun()
                 this->nrg += tok * (1 - SimOpts.VegFeedingToBody / 100) * this->Body / 1000;
                 this->Body += tok * (SimOpts.VegFeedingToBody / 100) / 10 * this->Body / 1000;
             }break;
-            case 2: //quadtratically based on body.  Close to type 0 near 1000 body points, but quickly diverges at about 5K body points
+            case 2: //quadratically based on body.  Close to type 0 near 1000 body points, but quickly diverges at about 5K body points
             {
                 tok *= ((this->Body * this->Body * QuadConstant) + (1 - QuadConstant * 1000 * 1000));
                 this->nrg += tok * (1 - SimOpts.VegFeedingToBody / 100);
@@ -828,7 +855,6 @@ Shot* Robot::makeShot()
 {
     assert(this->isShooting());
     this->ChargeNRG(SimOpts.Costs[SHOTCOST]);
-	//////////////////////////////////////////////////////
 
     Shot *temp;
     switch((*this)[shoot])
@@ -869,8 +895,6 @@ Shot* Robot::makeShot()
 
 const bool Robot::isReproducing() const
 {
-    /*if(this==(const Robot* const)0xfeeefeee)
-        throw;*/
     return (((*this)[Repro] > 0) &&
             !Corpse && !Wall && !Dead
             && (Body > 2)); //too small to repro (this prevents effects of cancer
@@ -880,7 +904,7 @@ const bool Robot::isReproducing() const
 //call this very last along with the death management above
 Robot* Robot::makeBaby()
 {
-	std::cout<<"Bot#"<<absNum;
+	//std::cout<<"Bot #"<<absNum;
 	assert(this != NULL && "Non existant bot trying to reproduce");
     assert(!this->Corpse && "Corpse attempting to reproduce");
     assert((*this)[Repro] > 0 );
@@ -909,7 +933,7 @@ Robot* Robot::makeBaby()
         //still need to program code for mrepro
     baby->dna->Mutate(true, mutmult);
     baby->occurrList();
-    std::cout<<" reproduced on turn "<<SimOpts.TotRunCycle<<std::endl;
+    //std::cout<<" reproduced on turn "<<SimOpts.TotRunCycle<<std::endl;
     return baby;
 }
 

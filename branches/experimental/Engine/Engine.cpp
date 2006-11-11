@@ -20,8 +20,6 @@ Simulation::Simulation():robotList(new RobotList),shotList(new ShotList)
 
     parser.buildSysvars(this->mainDir+"/sysvars2.5.txt");
 
-    //MaxShots = -1; //TO BE REMOVED
-
     SetDNAMutationsBounds();
 }
 
@@ -30,7 +28,7 @@ void Simulation::setup()
 	if(SimOpts.UserSeedToggle)
         DBsrand(SimOpts.UserSeedNumber);
     else
-        DBsrand(time(NULL));
+        DBsrand((long)time(NULL));
 
     //Load script Lists
 
@@ -38,9 +36,6 @@ void Simulation::setup()
 	SimOpts.TotRunCycle = 0;
 	SimOpts.TotBorn = 0;
 	SimOpts.TotRunTime = 0;
-
-	//MaxRobs = -1;
-    //MaxShots = -1;
 
 	this->LoadRobots();
 
@@ -179,12 +174,12 @@ void Simulation::ExecuteDNA()
     for (currBot = robotList->begin(); currBot != robotList->end(); ++currBot)
         (*currBot)->ExecuteDNA();
 
-    for (currBot = robotList->begin(); currBot != robotList->end(); ++currBot)
+    /*for (currBot = robotList->begin(); currBot != robotList->end(); ++currBot)
         for(TieList::iterator tie= (*currBot)->Ties.begin(); tie != (*currBot)->Ties.end(); ++tie)
             (*tie)->ApplyCQ(); //Apply the Command Queue
 
     for (currBot = robotList->begin(); currBot != robotList->end(); ++currBot)
-        (*currBot)->DNACommands.Apply();
+        (*currBot)->DNACommands.Apply();*/
 }
 
 void Simulation::ExecuteShots()
@@ -324,8 +319,8 @@ float Simulation::BotCollisionsPos(Robot* bot)
             if(currdist + 1 < mindist) //bots colliding...activate both bots
             {
                 collide = true;
-                (*otherBot)->active = true;
-				bot->active = true;
+                (*otherBot)->CollisionActive = true;
+				bot->CollisionActive = true;
 
                 if(currdist < 1)
                 {
@@ -353,7 +348,7 @@ float Simulation::BotCollisionsPos(Robot* bot)
     }
 
     if(collide == false)
-        bot->active = false;
+        bot->CollisionActive = false;
 
     return maxoverlap;
 }
@@ -374,7 +369,7 @@ void Simulation::handleBotCollisions()
         Continue = false;
         for (currBot = robotList->begin(); currBot != robotList->end(); ++currBot)
         {
-            if ((*currBot)->active)
+            if ((*currBot)->CollisionActive)
 			{
 				float overlap = BotCollisionsPos(*currBot);
 
@@ -388,7 +383,7 @@ void Simulation::handleBotCollisions()
         unsigned int activecounter = 0;
         for (currBot = robotList->begin(); currBot != robotList->end(); ++currBot)
         {
-            if((*currBot)->active)
+            if((*currBot)->CollisionActive)
             {
                 activecounter++;
                 Continue = true;

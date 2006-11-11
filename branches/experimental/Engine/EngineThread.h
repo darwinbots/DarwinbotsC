@@ -3,15 +3,15 @@
 
 #include <fx.h>
 #include <time.h>
+#include <map>
 
 #include "Engine.h"
 #include "SimOptions.h"
 
 class EngineThread : public FXThread
 {
+    typedef std::map<unsigned long, Robot*> WatchMap;
     public:
-
-    Simulation* simulation;
 
     int run();
     EngineThread();
@@ -20,17 +20,24 @@ class EngineThread : public FXThread
     long pause();
     long play();
     long counter();
+    //bool isRunning() const;
 
     std::vector<SolidPrimitive> getRobotDisplayList();
     ShotList getShotDisplayList();
     unsigned long findAbsNum(Vector3f pos);
     Robot* getRobot(unsigned long selection);
+    void addWatch(unsigned long selection);
 
     private:
+        Simulation* simulation;
+
         FXMutex botListMutex;
         long runCounter;
         std::vector<SolidPrimitive> botDisplayList;
         ShotList shotDisplayList;
+        WatchMap watchedBots;
+
+        void updateWatchedBots();
     public:
     bool isCancelled;
 };

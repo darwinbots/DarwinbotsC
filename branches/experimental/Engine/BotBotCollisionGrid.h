@@ -33,6 +33,8 @@ class BotBotCollisionGrid
     BotBotCollisionGrid();
 	virtual ~BotBotCollisionGrid();
 
+    void Insert(Robot *bot);
+
     void Setup(Vector3i Dimensions);
 
 };

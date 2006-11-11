@@ -13,6 +13,11 @@ vector3 ^ vector3 = 3D cross product = Vector3
 #include <math.h>
 
 //the below pre processor directive groups sort of act like a template
+#undef VECTOR
+#undef SCALAR
+#undef SQRT
+#undef FLOOR
+#undef CEIL
 
 #define VECTOR Vector3i
 #define SCALAR int

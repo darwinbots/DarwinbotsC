@@ -64,6 +64,7 @@ class SolidPrimitive : public ObjectPrimitive
     const Vector3f& getAimVector() const;
     const float getAim() const;
     const unsigned long& getAbsNum() const;
+    const unsigned long& getAge() const {return age;};
 };
 
 inline const float& SolidPrimitive::getRadius() const

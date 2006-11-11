@@ -12,15 +12,15 @@ class Tie;
 class Robot;
 #include "CommandQueue.h"
 
-enum substance_ID
+enum substance_ID //mirrors the way shots work (sort of)
 {
     UNKNOWN = 0,
-    BODY_ID,
-    POISON_ID,
-    WASTE_ID,
-    VENOM_ID,
     NRG_ID,
     SHELL_ID,
+    VENOM_ID,
+    WASTE_ID,
+    POISON_ID,
+    BODY_ID,    
     SLIME_ID
 };
 
@@ -50,18 +50,6 @@ class Tie
 	// b and k are constants between 0 and 1
 
 	float NaturalLength;
-	float k;
-	float b;
-	
-    int type;
-    //'0 = damped spring, lower b and k values, birth ties here
-    //'1 = string (only applies force if longer than
-    //  "natural length", not if too short) b and k values high
-    //'2 = bone (very high b and k values).  (Or perhaps something better?)
-    //'3 = anti-rope - only applies force if shorter than
-    //  '"natural length", not if too long) b and k values high
-
-	//class Tie *next; //for linked list use with robots
 
 	//Functions
     public:
@@ -85,10 +73,11 @@ class Tie
     __int16 Tie::FindAngle(Robot *me);
 
     void ApplyCQ();
+    void LengthConstraints();
+    void VelocityConstraints();
            
     private:
-    Tie(Robot* _sender, Robot* _receiver, int _port,
-                float _k = 0.005f, float _b = 0.01f, int _type=0);    
+    Tie(Robot* _sender, Robot* _receiver, int _port);    
         
 };
 

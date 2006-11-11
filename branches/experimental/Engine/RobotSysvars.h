@@ -80,17 +80,9 @@ const int currtiesys = 552;
 const int readtielen = 553;
 const int writetielen = 554;
 const int tieangle = 555;
-SETSYSVAR(556, tieK);
-SETSYSVAR(556, tiek);
-SETSYSVAR(557, tieB);
-SETSYSVAR(557, tieb);
-SETSYSVAR(558, tietype);
-SETSYSVAR(559, settietype);
-SETSYSVAR(560, numties);
-SETSYSVAR(561, birthtietype);
-SETSYSVAR(562, lastport);
-SETSYSVAR(563, lastphase);
-
+SETSYSVAR(556, numties);
+SETSYSVAR(557, lastport);
+SETSYSVAR(558, lastphase);
 
 const int refmulti = 686;
 const int refshell = 687;

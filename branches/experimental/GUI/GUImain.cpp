@@ -6,7 +6,7 @@
     #include "windows.h"
 INT WINAPI WinMain( HINSTANCE hInst, HINSTANCE, LPSTR strCmdLine, INT ){
     int argc = 1;
-    char *argv[] = {""};
+    char *argv[] = {"Blah", "blah"};
 #else
 int main(int argc, char **argv){
 #endif
@@ -24,7 +24,7 @@ int main(int argc, char **argv){
 
     app.addTimeout(mainWindow, MainWindow::ID_UpdGfx);
 
-    mainWindow->engineThread->start();
+    mainWindow->engineThread->start(); //for debugging convenience
 
     app.run();
 
