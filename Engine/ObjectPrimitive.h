@@ -15,23 +15,23 @@ class ObjectPrimitive
                     Vector3f vel=Vector3f(0,0,0),
                     unsigned long age=0);
     Vector3f color;
-    const Vector3f getPos() const;
-    const Vector3f getOldPos() const;
-    const Vector3f getVel() const;
+    const Vector3f& getPos() const;
+    const Vector3f& getOldPos() const;
+    const Vector3f& getVel() const;
     const unsigned long getAge() const;
 };
 
-inline const Vector3f ObjectPrimitive::getPos() const
+inline const Vector3f& ObjectPrimitive::getPos() const
 {
     return pos;
 }
 
-inline const Vector3f ObjectPrimitive::getOldPos() const
+inline const Vector3f& ObjectPrimitive::getOldPos() const
 {
     return opos;
 }
 
-inline const Vector3f ObjectPrimitive::getVel() const
+inline const Vector3f& ObjectPrimitive::getVel() const
 {
     return vel;
 }

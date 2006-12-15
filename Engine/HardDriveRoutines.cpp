@@ -344,15 +344,15 @@ bool WriteSett(const string &path, SimOptions &Options)
 
         settingsout << ((Options.Specie[x].Veg == true) ? "veg" : "notveg") << END;
 
-        settingsout << Options.Specie[x].PosLowRight.z() << " " <<
+        settingsout << Options.Specie[x].PosLowRight.x() << " " <<
                        Options.Specie[x].PosLowRight.y() << " " <<
-                       Options.Specie[x].PosLowRight.x() << " " <<
-                       ";PosLowRight z y x" << END;
+                       Options.Specie[x].PosLowRight.z() << " " <<
+                       ";PosLowRight x y z" << END;
 
-        settingsout << Options.Specie[x].PosTopLeft.z() << " " <<
+        settingsout << Options.Specie[x].PosTopLeft.x() << " " <<
                        Options.Specie[x].PosTopLeft.y() << " " <<
-                       Options.Specie[x].PosTopLeft.x() << " " <<
-                       ";PosTopLeft z y x" << endl;
+                       Options.Specie[x].PosTopLeft.z() << " " <<
+                       ";PosTopLeft x y z" << endl;
 
         settingsout << "End Species" << endl;
     }

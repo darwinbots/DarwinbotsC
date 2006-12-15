@@ -37,7 +37,7 @@ class Shot : public ObjectPrimitive
 
         void UpdatePos();
         void reflect(Robot* collide);
-        Robot *ShotColl();
+        //Robot *ShotColl();
 
         bool isTooOld();
 
@@ -64,7 +64,7 @@ class Shot : public ObjectPrimitive
         //genenum As Integer     ' which gene to copy in host bot
         //stored As Boolean      ' for virus shots (and maybe future types) this shot is stored
                              //' inside the bot until it's ready to be launched
-        float collisionTime(const Robot *const target) const;
+        float collisionTime(const Robot *const target, const float maxSpeed = 1000) const;
 
     private:
         void CreateShotBasic();
