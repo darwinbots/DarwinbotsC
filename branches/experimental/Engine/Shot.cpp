@@ -10,7 +10,7 @@ Numsgil Feb. 09 2006
 #include "Shot.h"
 #include "SimOptions.h"
 #include "Robot.h"
-
+#include "../Common/Math2D.h"
 
 /****************************************
 Presently, shots have the following physical characteristics:
@@ -82,35 +82,102 @@ bool Shot::isTooOld()
     return (age > range);
 }
 
-float Shot::collisionTime(const Robot *const target) const
+
+float Shot::collisionTime(const Robot *const target, float maxSpeed) const
 {
-    //check for and handle collisions
-
-    Vector3f m = this->pos - this->vel - target->getPos();
-    Vector3f v = this->vel;
-
-        //(m + tv) dot (m + tv) = radius^2
-        //(v dot v) t^2 + 2(m dot v) t + (m dot m - radius ^ 2) = 0
-
-    float a = v * v;
-    float b = m * v;
-    float c = m * m - target->getRadius() * target->getRadius();
-    float t = 0;
-
-    float discriminant = b * b - a * c; //factor of 4 has been pre factored out
-
-    if(discriminant >= 0)
+    static const float noCollision = 2.;
+    if (target->getAbsNum() == this->parent ) //bots don't collide with their own shots
     {
-            //need to find the time of intersection using quadratic equation
-            t = -b / a - discriminant;
-            if(t < 0) t = 0; //for some reason the shot never actually entered the sphere
+        return noCollision;
     }
-    else throw;//this shouldn't happen, it would mean the shot never really collided
 
-    return t;
+    Vector2 shotStart = this->opos;
+
+
+    Vector2 r = shotStart - Vector2(target->getPos());
+        //(r + tv) dot (r + tv) = radius^2
+        //(v dot v) t^2 + 2(r dot v) t + (r dot r - radius ^ 2) = 0
+    float maxDist = target->getRadius() + maxSpeed;
+    if (abs(r.x()) >= maxDist || abs(r.y()) >= maxDist )
+    {
+        return noCollision;
+    }
+    float c = r.lengthSquared() - target->getRadius() * target->getRadius();
+    if (c <= 0)  //means that the shot was already inside
+    {
+        return 0.;
+    }
+
+    Vector2 v = this->vel - target->getVel();
+    float rv = r * v;
+    if (rv >= 0) //Shot is moving away from the bot, so no collision
+    {
+        return noCollision;
+    }
+    float v2 = v.lengthSquared();
+
+    float discriminant = rv * rv - v2 * c; //factor of 4 has been pre factored out
+
+    if(discriminant > 0)
+    {
+        //need to find the time of intersection using quadratic equation
+        float t = (-rv - sqrt(discriminant))/ v2;
+        if(t < 0 || t > 1 ) t = noCollision; //for some reason the shot never actually entered the sphere
+        return t;
+    }
+    else assert("Illogical shot collision");//shouldn't happen
+
+    return noCollision;
 }
-
-
+/*
+Robot* Shot::ShotColl()
+{
+    Vector2 shotStart = this->opos;
+    Vector2 shotVel = this->vel;
+    Robot* target = NULL;
+    float minTime = 2.;
+    float diffVelMajorant = shotVel.length() + SimOpts.MaxSpeed;
+    for (RobotIterator bot = Engine.robotList->begin(); bot != Engine.robotList->end(); ++bot)
+    {
+        Vector2 botStart = (*bot)->getOldPos();
+        Vector2 diffStart = shotStart - botStart;
+        float maxDist = (*bot)->getRadius() + diffVelMajorant;
+        if (abs(diffStart.x()) > maxDist || abs(diffStart.y()) > maxDist ||
+            (*bot)->getAbsNum() == this->parent)
+            continue;
+        float dsSquared = diffStart.lengthSquared();
+        if (dsSquared < (*bot)->getRadius() * (*bot)->getRadius())
+        {
+            target = *bot;
+            minTime = 0.;
+            break;
+        }
+        else
+        {
+            Vector2 botVel = (*bot)->getVel();
+            Vector2 diffVel = shotVel - botVel;
+            float pScal = diffVel*diffStart;
+            if (pScal >= 0)
+                continue;
+            float dvSquared = diffVel.lengthSquared();
+            if (pScal < - dvSquared ||
+                    sqrt(dvSquared) + sqrt(dsSquared) > (*bot)->getRadius() ||
+                    dvSquared <.0001f)
+                continue;
+            if ((dsSquared - (pScal*pScal)/dvSquared) < (*bot)->getRadius() * (*bot)->getRadius())
+            {
+                float thisTime = -pScal/dvSquared;
+                if (thisTime < minTime)
+                {
+                    minTime = thisTime;
+                    target = *bot;
+                }
+            }
+        }
+    }
+    return target;
+}
+*/
 void Shot::reflect(Robot* collide)
 {
     assert(this != NULL && "Attempting to reflect a non existant shot");
@@ -151,61 +218,4 @@ void Shot::reflect(Robot* collide)
 
     this->pos += this->vel * t;
         //this->opos = this->pos - this->vel;
-}
-
-
-// FIXME (Ronan#1#): This function MUST be optimised
-Robot* Shot::ShotColl()
-{
-    //perform checks for torroidal edge wraparound
-    Vector3f ab, ac, bc;
-    float MagAB, dist;
-
-    ab = this->pos - this->opos;
-    MagAB = ab.Length();
-
-    //search through all bots to find one that's collided with us
-    for (RobotIterator bot = Engine.robotList->begin(); bot != Engine.robotList->end(); ++bot)
-    {
-        ac = (*bot)->getPos() - this->opos;
-        bc = (*bot)->getPos() - this->pos;
-
-        //The below looks simple and like it makes no sense.
-        //It's from an algorithm I only understood when I coded it.
-        //It should be error free, but I've had problems with it
-        //twice already (once in the VB source, and once when I ported it over)
-        //that stemed from me forgetting exactly what it is it's doing.
-        //the algorithm is sound, but suspect my implementation if problems
-        //are evident.
-        //-Numsgil
-        if (ab * ac > 0)
-        {
-                //if AB * AC > 0 then nearest point is point B (present position)
-            dist = bc.LengthSquared();
-        }
-        else if(ab * bc <= 0)
-        {
-                //'if AB dot BC < 0 then nearest point is point A (older position)
-            dist = ac.LengthSquared();
-        }
-        else if(MagAB > 0)
-        {
-            //this is only called when a shot was closest to a bot
-            //during _transit_ from opos to pos.  As such, it is rarely
-            //called
-            dist = (ab % ac) * (ab % ac) / MagAB;
-        }
-        else
-        {
-            //this is rarely, if ever called.  Primarily
-            //an error catching routine
-            //the speed of the shot would have to be 0
-            dist = bc.LengthSquared();
-        }
-
-        if (dist < (*bot)->getRadius() * (*bot)->getRadius() &&
-                                            this->parent != (*bot)->getAbsNum())
-            return *bot;
-    }
-    return NULL;
 }

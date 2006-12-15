@@ -42,7 +42,8 @@ bool Robot::FireTie()
 		{
             if((this->pos - this->lastopp->pos).Length() - this->getRadius() - this->lastopp->getRadius() <=
                RobSize)
-                return Tie::MakeTie(this, lastopp, tieport);
+                //return Tie::MakeTie(this, lastopp, tieport); DISABLED ATM
+                return true;
         }
 	}
 	return false;

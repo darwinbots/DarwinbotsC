@@ -110,7 +110,7 @@ void Robot::init(DnaParser* parser, datispecie *myspecies, DNA_Class* speciesDna
 {
 	this->BasicRobotSetup();
 	if(myspecies != NULL)
-        this->Setup(myspecies,parser, speciesDna);
+        this->Setup(myspecies, parser, speciesDna);
 	this->SetMems();
 }
 

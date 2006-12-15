@@ -72,14 +72,15 @@ void Simulation::LoadRobots(void)
 
 void Simulation::UpdateSim(void)
 {
-    //std::cout<<"Turn "<<SimOpts.TotRunCycle<<":";
+//    std::cout<<"Turn "<<SimOpts.TotRunCycle<<":";
     //the order of functions here is very important. Don't idly add or (re)move
     //functions without _really_ thinking about how it changes the order of
     //other functions.
 
     this->ExecuteDNA();  //O(n)
+//    std::cout<<" DNA,";
     this->ExecuteShots(); //Checks every shot against every bot O(mn)
-
+//    std::cout<<" shots,";
     ////////////////////
 	//UpdateBots
 	////////////////////
@@ -150,7 +151,7 @@ void Simulation::UpdateSim(void)
             tempList.push_back((*currBot)->makeBaby());
     }
     robotList->splice(robotList->end(), tempList); //Merges the temporary list at the end
-    //std::cout<<" repro,";
+//    std::cout<<" repro,";
 	RepopulateVeggies();
 
     for (currBot = robotList->begin(); currBot != robotList->end(); ++currBot)
@@ -162,7 +163,7 @@ void Simulation::UpdateSim(void)
 
     //update cycle count
 	++SimOpts.TotRunCycle;
-	//std::cout<<" end."<<std::endl;
+//	std::cout<<" end."<<std::endl;
     //std::cout<<"Bot 105 has "<<getRobot(105)->nrg <<" energy at turn "<<SimOpts.TotRunCycle<<std::endl;
 }
 
@@ -202,7 +203,21 @@ void Simulation::ExecuteShots()
 	        shot = killShot(shot);
 	        continue;
 	    }
-	    Robot* target = (*shot)->ShotColl();
+	    float earliestColl = 2., collTime;
+	    //Robot* target = (*shot)->ShotColl();
+	    Robot* target = NULL;
+	    float diffVelMajorant = (*shot)->getVel().Length() + SimOpts.MaxSpeed;
+	    for (RobotIterator currBot = robotList->begin(); currBot != robotList->end(); ++currBot)
+	    {
+	        collTime = (*shot)->collisionTime(*currBot,diffVelMajorant);
+	        if (collTime < earliestColl)
+            {
+                earliestColl = collTime;
+                target = *currBot;
+                /*std::cout<<"Shot collided with bot " << target->getAbsNum()
+                            << " at " << collTime << std::endl;*/
+            }
+	    }
 	    if (target != NULL)
 	    {
 // FIXME (Ronan#1#): Should clear shots when new bot is born instead

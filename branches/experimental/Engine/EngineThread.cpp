@@ -48,7 +48,7 @@ int EngineThread::run()
             }
 
             //release control back to the simulation to execute GUI commands, etc.
-            //this->sleep(0, 0);
+            this->sleep(0, 0);
         }
 
         simulation->clear();
