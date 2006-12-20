@@ -8,7 +8,6 @@
 using namespace std;
 
 #include "DNAClass.h"
-#include "HardDriveRoutines.h"
 #include "Block.h"
 
 DnaParser::DnaParser()
@@ -56,9 +55,9 @@ bool DnaParser::buildSysvars(std::string path)
     return true;
 }
 
-DNA_Class DnaParser::loadFile(string path) const
+Dna DnaParser::loadFile(string path) const
 {
-    DNA_Class dna;
+    Dna dna;
     ifstream DNAfile(path.c_str() );
 	if (DNAfile.fail() == true)
 	{
@@ -72,11 +71,11 @@ DNA_Class DnaParser::loadFile(string path) const
     return dna;
 }
 
-DNA_Class DnaParser::load(istream &inputStream) const
+Dna DnaParser::load(istream &inputStream) const
 {
     vector<string> tokenList = tokenize(inputStream);
 
-    DNA_Class dna;
+    Dna dna;
     vector<string>::iterator token;
     vector<Block> code;
     for(token = tokenList.begin(); token!=tokenList.end(); token++){
@@ -88,7 +87,7 @@ DNA_Class DnaParser::load(istream &inputStream) const
     return dna;
 }
 
-string DnaParser::getText(DNA_Class &dna) const
+string DnaParser::getText(Dna &dna) const
 {
     std::vector<Block> code = dna.getCode();
     string temp="";
@@ -125,7 +124,7 @@ Block DnaParser::toBlock(const std::string &token) const
 //yet to be implemented:
 //parsing for use, def, and shp
 /*
-istream& DNA_Class::LoadDNA(istream &input)
+istream& Dna::LoadDNA(istream &input)
 {
     char buffer[1024];
     char *c_word = NULL; //cline is the buffer for the text line
@@ -159,7 +158,7 @@ istream& DNA_Class::LoadDNA(istream &input)
 	return input;
 }*/
 
-/*bool DNA_Class::loadFile(string path)
+/*bool Dna::loadFile(string path)
 {
     ifstream DNAfile(path.c_str() );
 	if (DNAfile.fail() == true)
@@ -176,7 +175,7 @@ istream& DNA_Class::LoadDNA(istream &input)
     return true;
 }*/
 
-/*istream& DNA_Class::load(istream &inputStream)
+/*istream& Dna::load(istream &inputStream)
 {
     vector<string> tokenList = tokenize(inputStream);
 
@@ -225,3 +224,34 @@ __int16 DnaParser::getSysvarNumber(const string &in) const
     return atoi(a.c_str());
 }
 
+// This is an all purpose tokenizer respecting Darwinbots' conventions
+// Spaces and linebreaks count as delimiters and everything after "'" is
+// ignored till end of line.
+vector<string> DnaParser::tokenize(istream& inputStream)
+{
+    unsigned int pos;
+    vector<string> tokenList;
+    string lineBuf,token;
+
+    while(!inputStream.eof())
+    {
+        getline(inputStream,lineBuf);
+        pos = lineBuf.find("'");
+        if (pos != string::npos)
+            lineBuf.erase(pos);
+        stringstream ssLineBuf(lineBuf,std::stringstream::in);
+        while( !ssLineBuf.eof() )
+        {
+            while (isspace(ssLineBuf.peek()))
+                ssLineBuf.get();
+
+            if( ssLineBuf.eof())
+                break;
+
+            ssLineBuf>>token;
+            tokenList.push_back(token);
+        }
+    }
+
+    return tokenList;
+};

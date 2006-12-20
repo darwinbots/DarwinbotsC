@@ -8,8 +8,8 @@ string GetLine(std::istream &in);
 bool ReadSett(const string &path, SimOptions &Options);
 bool WriteSett(const string &path, SimOptions &Options);
 
-bool LoadSysvars();
-bool LoadSysvars(std::string filename);
+//bool LoadSysvars();
+//bool LoadSysvars(std::string filename);
 
-vector<string> tokenize(istream& inputStream);
+//vector<string> tokenize(istream& inputStream);
 #endif

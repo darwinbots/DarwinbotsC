@@ -102,19 +102,18 @@ public:
     CommandQueueClass DNACommands;
 
 private:
-	DNA_Class* dna;        					// the DNA
+	Dna* dna;        					// the DNA
 public:
 	Robot* lastopp;     	            // pointer to robot in eye5
 
 
 
-    Robot::Robot(DnaParser* parser = NULL, datispecie *myspecies = NULL, DNA_Class* speciesDna = NULL);
+    Robot(DnaParser* parser = NULL, datispecie *myspecies = NULL, Dna* speciesDna = NULL);
     Robot(const Robot& other);
-    Robot::Robot(const Robot* mother);
-    void init(DnaParser* parser = NULL, datispecie *myspecies = NULL, DNA_Class* speciesDna = NULL);      //be called whenever a bot is created
-
-
+    Robot(const Robot* mother);
+    void init(DnaParser* parser = NULL, datispecie *myspecies = NULL, Dna* speciesDna = NULL);      //be called whenever a bot is created
 	~Robot();
+
 	void TurnGenesis();
 	void PreTurn();
 
@@ -168,9 +167,9 @@ public:
     void SetTie(__int16 a);
     Tie *CurrTie();
     __int16 NextTie();
-    void Robot::WriteTie(__int16 location, __int16 number, __int16 tienum = 0);
-    __int16 Robot::ReadTie(__int16 loc, __int16 tienum = 0);
-    void Robot::ApplyNewTieSysvars();
+    void WriteTie(__int16 location, __int16 number, __int16 tienum = 0);
+    __int16 ReadTie(__int16 loc, __int16 tienum = 0);
+    void ApplyNewTieSysvars();
 
 private:
 	// informative
@@ -211,7 +210,7 @@ private:
 
 	Robot* Split(float percentage);
 	void BasicRobotSetup();
-	void Setup(datispecie *myspecies, DnaParser*,DNA_Class* speciesDna);
+	void Setup(datispecie *myspecies, DnaParser*,Dna* speciesDna);
 	void scaleMaterials(float factor);
 
 	//SENSES
@@ -241,7 +240,7 @@ private:
     void Friction();
     void FulfillTieConstraintsPos();
     void FulfillTieConstraintsVel();
-    void Robot::SpringForces();
+    void SpringForces();
 
     //veg controls
     void FeedVegSun();

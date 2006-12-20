@@ -114,6 +114,10 @@ MainWindow::MainWindow(FXApp *app)
 MainWindow::~MainWindow()
 {
     delete fileMenu;
+    delete editMenu;
+    delete robotOptionsMenu;
+    delete internetMenu;
+    delete helpMenu;
 }
 
 void MainWindow::create()

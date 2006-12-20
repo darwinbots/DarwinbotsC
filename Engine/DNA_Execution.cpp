@@ -94,7 +94,7 @@ bool BoolStack::Addup()
 ////////////////////////////////////////////
 ////////////////////////////////////////////
 
-void DNA_Class::Execute(Robot* bot)
+void Dna::Execute(Robot* bot)
 {
     assert(bot != NULL && "Attempting to execute DNA that belongs to a non existant robot");
     assert(this != NULL && "Attempting to execute non existant DNA");

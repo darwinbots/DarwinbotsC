@@ -7,7 +7,7 @@ Class containing all the info for robots
 
 using namespace std;
 
-Robot::Robot(DnaParser* parser, datispecie *myspecies, DNA_Class* speciesDna):
+Robot::Robot(DnaParser* parser, datispecie *myspecies, Dna* speciesDna):
                 SolidPrimitive(),
                 aim(0.0f),AngularMomentum(0.0f),
                 Ties(),currtie(0),
@@ -81,7 +81,7 @@ Robot::Robot(const Robot& other):SolidPrimitive(other),
                 Vloc(other.Vloc),Vval(other.Vval),
                 Poisoned(other.Poisoned),PoisonCount(other.PoisonCount),Ploc(other.Ploc),
                 DecayTimer(other.DecayTimer), Kills(other.Kills),
-                dna(new DNA_Class(*(other.dna))),
+                dna(new Dna(*(other.dna))),
                 lastopp(other.lastopp),
                 SonNumber(other.SonNumber), parent(other.parent), BirthCycle(other.BirthCycle),
                 genenum(other.genenum), generation(other.generation),
@@ -106,7 +106,7 @@ Robot::~Robot()
 }
 
 
-void Robot::init(DnaParser* parser, datispecie *myspecies, DNA_Class* speciesDna)
+void Robot::init(DnaParser* parser, datispecie *myspecies, Dna* speciesDna)
 {
 	this->BasicRobotSetup();
 	if(myspecies != NULL)
@@ -132,7 +132,7 @@ void Robot::BasicRobotSetup()
     this->View = false;
 }
 
-void Robot::Setup(datispecie *myspecies, DnaParser* parser, DNA_Class* speciesDna)
+void Robot::Setup(datispecie *myspecies, DnaParser* parser, Dna* speciesDna)
 {
 	this->Veg = myspecies->Veg;
     this->Fixed = myspecies->Fixed;
@@ -171,7 +171,7 @@ void Robot::Setup(datispecie *myspecies, DnaParser* parser, DNA_Class* speciesDn
 
 	//this->color = myspecies->color;
 
-    dna = new DNA_Class(*speciesDna);
+    dna = new Dna(*speciesDna);
     this->dna->Mutables = myspecies->Mutables;
     this->occurrList();
 }
@@ -929,7 +929,7 @@ Robot* Robot::makeBaby()
 
     Robot* baby = this->Split(percentage);
 
-    baby->dna = new DNA_Class((*this->dna));
+    baby->dna = new Dna((*this->dna));
         //still need to program code for mrepro
     baby->dna->Mutate(true, mutmult);
     baby->occurrList();

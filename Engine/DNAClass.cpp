@@ -1,9 +1,9 @@
 #include "RobotSysvars.h"
 #include "DNAClass.h"
 
-long DNA_Class::genenum()
+long Dna::genenum()
 {
-    assert(this != NULL && "Attempting to count the number of genes in non existant DNA in DNA_Class::genenum()");
+    assert(this != NULL && "Attempting to count the number of genes in non existant DNA in Dna::genenum()");
     long counter=0;
     long genecounter = 0;
 
@@ -23,7 +23,7 @@ long DNA_Class::genenum()
     return this->DNAgenenum;
 }
 
-long DNA_Class::length()
+long Dna::length()
 {
     assert(this != NULL && "Attempting to find the size of non existant DNA");
     if(this == NULL)
@@ -31,13 +31,13 @@ long DNA_Class::length()
     return (long)Code.size() - 1;//don't count the end
 }
 
-DNA_Class::DNA_Class()//:contMutations(),reproMutations()
+Dna::Dna()//:contMutations(),reproMutations()
 {
     DNAgenenum = -1;
     Code.push_back(DNA_END);
 }
 
-DNA_Class::DNA_Class(const DNA_Class &other):Code(other.Code),
+Dna::Dna(const Dna &other):Code(other.Code),
                      //Private_Variables(other.Private_Variables),
                      DNAgenenum(other.DNAgenenum),
                      Mutables(other.Mutables),
@@ -48,13 +48,13 @@ DNA_Class::DNA_Class(const DNA_Class &other):Code(other.Code),
 
 }
 
-DNA_Class::~DNA_Class()
+Dna::~Dna()
 {
     Code.clear();
     LastMutDetail.clear();
 }
 
-bool DNA_Class::Mutate(bool reproducing, float multiplier) //returns wether we should mutate colors or not
+bool Dna::Mutate(bool reproducing, float multiplier) //returns wether we should mutate colors or not
 {
     assert(this != NULL && "Attempting to mutate non existant DNA in DNAClass::Mutate()");
     unsigned long oldMut = this->LastMut;
@@ -85,9 +85,9 @@ bool DNA_Class::Mutate(bool reproducing, float multiplier) //returns wether we s
     return false;
 }
 
-void DNA_Class::Occurrs(int *OccurrArray)
+void Dna::Occurrs(int *OccurrArray)
 {
-    assert(this != NULL && "Attempting to count up the occurr array for non existant DNA in DNA_Class::Occurrs()");
+    assert(this != NULL && "Attempting to count up the occurr array for non existant DNA in Dna::Occurrs()");
     int counter = 0;
 
     while(this->Code[counter] != DNA_END)
