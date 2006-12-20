@@ -22,20 +22,20 @@ struct MutationDetails
     float Magnitude;
 };
 
-class DNA_Class
+class Dna
 {
-	friend istream& operator>>(istream& input, DNA_Class& newDNA); //Load DNA from an input source
-	friend ostream& operator<<(ostream& output, DNA_Class& DNA);   //Output DNA into a Text File
+	friend istream& operator>>(istream& input, Dna& newDNA); //Load DNA from an input source
+	friend ostream& operator<<(ostream& output, Dna& DNA);   //Output DNA into a Text File
 
     public:
-        DNA_Class(); //constructor
-        DNA_Class(const DNA_Class &other);
-        ~DNA_Class();
+        Dna(); //constructor
+        Dna(const Dna &other);
+        ~Dna();
         long length();
         long genenum();
         bool Mutate(bool reproducing, float multiplier = 1.0f);
 
-        string &text(); //parse into a string
+        string& text(); //parse into a string
         istream& load(istream &inputStream);
         bool loadFile(string path);
         //istream& LoadDNA(istream &input);
@@ -77,12 +77,12 @@ class DNA_Class
     string &UnparseCommand(const Block &Command, bool converttosysvar);
 };
 
-inline istream& operator>>(istream& input, DNA_Class& DNA)
+inline istream& operator>>(istream& input, Dna& DNA)
 {
     return DNA.load(input);
 }
 
-inline ostream& operator>>(ostream& output, DNA_Class& DNA)
+inline ostream& operator>>(ostream& output, Dna& DNA)
 {
     return output<<DNA.text();
 }

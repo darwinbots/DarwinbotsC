@@ -12,21 +12,21 @@
 
 using namespace std;
 
-bool DNA_Class::Delete(int start, int end)
+bool Dna::Delete(int start, int end)
 {
     Code.erase(Code.begin()+start, Code.begin()+end+1);
     DNAgenenum = -1;
     return true;
 };
 
-bool DNA_Class::Reverse(unsigned int start, unsigned int end)
+bool Dna::Reverse(unsigned int start, unsigned int end)
 {
     reverse(Code.begin() + start, Code.begin() + end + 1);
     DNAgenenum = -1;
     return true;
 }
 
-bool DNA_Class::Translocate(unsigned int start, unsigned int end)
+bool Dna::Translocate(unsigned int start, unsigned int end)
 {
     vector<Block> temp;
     for(unsigned int x = start; x <= end; x++)
@@ -83,7 +83,7 @@ string &MutationType(int mode)
     float mutprob = 1.0f / ((float)Mutables[ XXX ]->Prob * multiplier);  \
     if( powf(mutprob, (float)length()) > DBrand())
 
-void DNA_Class::MutatePoint(float multiplier)
+void Dna::MutatePoint(float multiplier)
 {
     BASICMUTATIONWORK(PointUP)
     {
@@ -98,7 +98,7 @@ void DNA_Class::MutatePoint(float multiplier)
     DNAgenenum = -1;
 }
 
-void DNA_Class::MutateDelta(float multiplier)
+void Dna::MutateDelta(float multiplier)
 {
     BASICMUTATIONWORK(DeltaUP)
     {
@@ -130,7 +130,7 @@ void DNA_Class::MutateDelta(float multiplier)
     }
 }
 
-void DNA_Class::MutateCopyError(float multiplier)
+void Dna::MutateCopyError(float multiplier)
 {
     BASICMUTATIONWORK(CopyErrorUP)
     {
@@ -144,7 +144,7 @@ void DNA_Class::MutateCopyError(float multiplier)
     DNAgenenum = -1;
 }
 
-void DNA_Class::MutateReversal(float multiplier)
+void Dna::MutateReversal(float multiplier)
 {
     BASICMUTATIONWORK(ReversalUP)
     {
@@ -168,7 +168,7 @@ void DNA_Class::MutateReversal(float multiplier)
     }
 }
 
-void DNA_Class::MutateTranslocation(float multiplier)
+void Dna::MutateTranslocation(float multiplier)
 {
     BASICMUTATIONWORK(TranslocationUP)
     {
@@ -192,7 +192,7 @@ void DNA_Class::MutateTranslocation(float multiplier)
     }
 }
 
-void DNA_Class::MutateInsertion(float multiplier)
+void Dna::MutateInsertion(float multiplier)
 {
     BASICMUTATIONWORK(InsertionUP)
     {
@@ -230,7 +230,7 @@ void DNA_Class::MutateInsertion(float multiplier)
     }
 }
 
-void DNA_Class::MutateAmplification(float multiplier)
+void Dna::MutateAmplification(float multiplier)
 {
     BASICMUTATIONWORK(AmplificationUP)
     {
@@ -262,7 +262,7 @@ void DNA_Class::MutateAmplification(float multiplier)
             Code[z] = temp[y];
     }
 }
-void DNA_Class::MutateDeletion(float multiplier)
+void Dna::MutateDeletion(float multiplier)
 {
     BASICMUTATIONWORK(DeletionUP)
     {

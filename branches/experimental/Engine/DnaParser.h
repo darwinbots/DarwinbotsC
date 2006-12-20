@@ -5,7 +5,7 @@
 #include<string>
 #include<vector>
 
-class DNA_Class;
+class Dna;
 class Block;
 
 struct var
@@ -21,9 +21,9 @@ class DnaParser
         ~DnaParser();
         bool buildSysvars(std::string path);
 
-        DNA_Class load(std::istream& input) const;
-        DNA_Class loadFile(std::string path) const;
-        std::string getText(DNA_Class &dna) const;
+        Dna load(std::istream& input) const;
+        Dna loadFile(std::string path) const;
+        std::string getText(Dna &dna) const;
 
         Block toBlock(const std::string &token) const;
 
@@ -33,6 +33,7 @@ class DnaParser
     protected:
         std::vector<var> sysvar;
     private:
+        static std::vector<std::string> DnaParser::tokenize(std::istream& inputStream);
 };
 
 #endif // DNAPARSER_H

@@ -712,36 +712,6 @@ void ReadSettPre2_4(istream &in, SimOptions &Options)
         Options.MaxSpeed = 60;
 }
 
-// This is an all purpose tokenizer respecting Darwinbots' conventions
-// Spaces and linebreaks count as delimiters and everything after "'" is
-// ignored till end of line.
-vector<string> tokenize(istream& inputStream)
-{
-    unsigned int pos;
-    vector<string> tokenList;
-    string lineBuf,token;
 
-    while(!inputStream.eof())
-    {
-        getline(inputStream,lineBuf);
-        pos = lineBuf.find("'");
-        if (pos != string::npos)
-            lineBuf.erase(pos);
-        stringstream ssLineBuf(lineBuf,std::stringstream::in);
-        while( !ssLineBuf.eof() )
-        {
-            while (isspace(ssLineBuf.peek()))
-                ssLineBuf.get();
-
-            if( ssLineBuf.eof())
-                break;
-
-            ssLineBuf>>token;
-            tokenList.push_back(token);
-        }
-    }
-
-    return tokenList;
-};
 
 

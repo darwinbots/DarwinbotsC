@@ -53,7 +53,7 @@ void Simulation::setup()
 
 void Simulation::LoadRobots(void)
 {
-    DNA_Class* speciesDna;
+    Dna* speciesDna;
     string truePath;
     for (unsigned int y = 0; y < SimOpts.SpeciesNum; y++)
     {
@@ -61,7 +61,7 @@ void Simulation::LoadRobots(void)
         if (truePath.substr(0,2)=="&#") //apparently, VB uses "&#" to represent app's directory
             truePath.replace(0,2,MainDir(),0,MainDir().length());
         truePath += "\\" + SimOpts.Specie[y].Name;
-        speciesDna = new DNA_Class(parser.loadFile(truePath));
+        speciesDna = new Dna(parser.loadFile(truePath));
         for (unsigned int x = 0; x < SimOpts.Specie[y].qty; x++)
             robotList->push_back(new Robot(&parser,&SimOpts.Specie[y],speciesDna));
         delete speciesDna;
@@ -281,7 +281,7 @@ void Simulation::RepopulateVeggies()
             if (truePath.substr(0,2)=="&#") //apparently, VB uses "&#" to represent app's directory
                 truePath.replace(0,2,MainDir(),0,MainDir().length());
             truePath += "\\" + SimOpts.Specie[spec].Name;
-            DNA_Class speciesDna = parser.loadFile(truePath);
+            Dna speciesDna = parser.loadFile(truePath);
 
             robotList->push_back(new Robot(&parser, &SimOpts.Specie[spec], &speciesDna));
             SimOpts.TotVegsNow++;
