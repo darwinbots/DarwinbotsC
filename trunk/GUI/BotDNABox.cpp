@@ -68,7 +68,7 @@ BotDNAWindow_Class::BotDNAWindow_Class(Robot *bot, FXComposite *parent) :
 
     //Setup Toolbar
     {
-        FXGroupBox *ButtonGroup = new FXGroupBox(LayoutMatrix,NULL,FRAME_RIDGE | LAYOUT_FILL_X | LAYOUT_FILL_ROW);
+        FXGroupBox *ButtonGroup = new FXGroupBox(LayoutMatrix, "",NULL,FRAME_RIDGE | LAYOUT_FILL_X | LAYOUT_FILL_ROW);
         FXMatrix *ButtonMatrix = new FXMatrix(ButtonGroup, 1, MATRIX_BY_ROWS | LAYOUT_FILL_X | LAYOUT_FILL_ROW,
             0,0,0,0,0,0,0,0);
         
@@ -93,7 +93,7 @@ BotDNAWindow_Class::BotDNAWindow_Class(Robot *bot, FXComposite *parent) :
     
     //Setup Info Screen
     {
-        FXGroupBox *InfoGroup = new FXGroupBox(LayoutMatrix,NULL,FRAME_RIDGE | LAYOUT_FILL_X | LAYOUT_FILL_ROW);
+        FXGroupBox *InfoGroup = new FXGroupBox(LayoutMatrix,"",NULL,FRAME_RIDGE | LAYOUT_FILL_X | LAYOUT_FILL_ROW);
         FXMatrix *InfoMatrix = new FXMatrix(InfoGroup, 1, MATRIX_BY_ROWS | LAYOUT_FILL_X | LAYOUT_FILL_ROW,
             0,0,0,0,0,0,0,0);
         

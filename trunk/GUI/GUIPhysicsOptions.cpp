@@ -157,7 +157,7 @@ void OptionsFormDialogBox::PhysicsAndCosts(FXTabBook *TabBook)
         }
     }
 
-    FXMatrix *ButtonToolbarMatrix = new FXMatrix(new FXGroupBox(PhysicsPacker, NULL), 1, MATRIX_BY_ROWS);
+    FXMatrix *ButtonToolbarMatrix = new FXMatrix(new FXGroupBox(PhysicsPacker, ""), 1, MATRIX_BY_ROWS);
     {    
         new FXButton(ButtonToolbarMatrix, "Help on Units", 0, NULL,
             0, BUTTON_INITIAL|BUTTON_DEFAULT|FRAME_RAISED|FRAME_THICK,

@@ -116,7 +116,7 @@ void DNA_Class::Execute(Robot* bot)
         //DNA Debugging controls:
         if(CurrBotDebugControls.Bot() == bot)
             while(CurrBotDebugControls.Wait())
-                EngineThread.sleep(0, 0);  //simple thread blocking
+                EngineThread.sleep(0); //simple thread blocking
         
         switch (this->Code[pointer].tipo)
         {

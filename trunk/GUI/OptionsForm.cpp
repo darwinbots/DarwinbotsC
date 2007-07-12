@@ -42,7 +42,7 @@ OptionsFormDialogBox::OptionsFormDialogBox(FXComposite *parent) :
 
 void OptionsFormDialogBox::BottomToolbar(FXMatrix *LayoutMatrix)
 {
-    FXGroupBox *ButtonGroup=new FXGroupBox(LayoutMatrix,NULL,FRAME_RIDGE | LAYOUT_FILL_X | LAYOUT_FILL_ROW);
+    FXGroupBox *ButtonGroup=new FXGroupBox(LayoutMatrix,"",NULL,FRAME_RIDGE | LAYOUT_FILL_X | LAYOUT_FILL_ROW);
     FXMatrix *ButtonMatrix = new FXMatrix(ButtonGroup, 1, MATRIX_BY_ROWS | LAYOUT_FILL_X | LAYOUT_FILL_ROW,
         0,0,0,0,0,0,0,0);
     

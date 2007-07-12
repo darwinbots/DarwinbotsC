@@ -23,7 +23,7 @@ BotInfoWindow_Class::BotInfoWindow_Class(Robot *bot, FXComposite *parent) :
     FXMatrix *LayoutMatrix = new FXMatrix(this, 1, MATRIX_BY_COLUMNS | LAYOUT_SIDE_TOP | LAYOUT_FILL);
     
     //Bot Heredity
-    FXGroupBox *HerGroup = new FXGroupBox(LayoutMatrix, NULL, FRAME_RIDGE | LAYOUT_FILL_X | LAYOUT_FILL_ROW);
+    FXGroupBox *HerGroup = new FXGroupBox(LayoutMatrix, "", NULL, FRAME_RIDGE | LAYOUT_FILL_X | LAYOUT_FILL_ROW);
     FXMatrix *HerMatrix = new FXMatrix(HerGroup, 2, MATRIX_BY_COLUMNS | LAYOUT_SIDE_TOP | LAYOUT_FILL);
     {
         new FXLabel(HerMatrix, "Species:");
@@ -43,7 +43,7 @@ BotInfoWindow_Class::BotInfoWindow_Class(Robot *bot, FXComposite *parent) :
     }
     
     //Bot Details (mostly DNA details)
-    FXGroupBox *DetailsGroup = new FXGroupBox(LayoutMatrix,NULL,FRAME_RIDGE | LAYOUT_FILL_X | LAYOUT_FILL_ROW);
+    FXGroupBox *DetailsGroup = new FXGroupBox(LayoutMatrix,"",NULL,FRAME_RIDGE | LAYOUT_FILL_X | LAYOUT_FILL_ROW);
     FXMatrix *DetailsMatrix = new FXMatrix(DetailsGroup, 2, MATRIX_BY_COLUMNS | LAYOUT_SIDE_TOP | LAYOUT_FILL);
     {
         //new FXLabel(DetailsMatrix, "DNA Length:");
@@ -62,7 +62,7 @@ BotInfoWindow_Class::BotInfoWindow_Class(Robot *bot, FXComposite *parent) :
     //Substances
     #define Row(ID) new FXLabel(SubstanceMatrix, #ID ## ":"); \
                     new FXTextField(SubstanceMatrix, 15, new FXDataTarget(bot->ID), FXDataTarget::ID_VALUE);
-    FXGroupBox *SubstanceGroup = new FXGroupBox(LayoutMatrix,NULL,FRAME_RIDGE | LAYOUT_FILL_X | LAYOUT_FILL_ROW);
+    FXGroupBox *SubstanceGroup = new FXGroupBox(LayoutMatrix,"",NULL,FRAME_RIDGE | LAYOUT_FILL_X | LAYOUT_FILL_ROW);
     FXMatrix *SubstanceMatrix = new FXMatrix(SubstanceGroup, 2, MATRIX_BY_COLUMNS | LAYOUT_SIDE_TOP | LAYOUT_FILL);
     {
         Row(nrg);

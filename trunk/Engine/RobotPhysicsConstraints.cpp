@@ -1,4 +1,6 @@
+#include "SimOptions.h"
 #include "RobotPhysics.h"
+#include "Robot.h"
 
 void RobotPhysics::SoftConstraints()
 {

@@ -1,4 +1,7 @@
+#include "Robot.h"
 #include "RobotPhysics.h"
+
+#define CUBE(a) ((a)*(a)*(a))
 
 //Calculates the forces on a robot, but not the constraints (which must be satisfied
 //in a particular way to work properly)
