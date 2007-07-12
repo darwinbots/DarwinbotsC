@@ -1,5 +1,8 @@
+#pragma once
 //Inherited by Robot class, put here to help keep maintainability
 //and readability up
+#include <iostream>
+#include "Vectors.h"
 class Robot;
 
 class RobotPhysics

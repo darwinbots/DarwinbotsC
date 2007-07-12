@@ -230,7 +230,7 @@ SpeciesMutationsDialogBox::SpeciesMutationsDialogBox(FXComposite *parent, mutati
 
         //Third Row: "Toolbar"
         FXGroupBox *ToolbarFrame = new FXGroupBox(LayoutMatrix,
-                NULL, FRAME_RIDGE | LAYOUT_FILL_ALL);
+                "", NULL, FRAME_RIDGE | LAYOUT_FILL_ALL);
         {
             FXMatrix *ToolbarMatrix = new FXMatrix(ToolbarFrame, 1, MATRIX_BY_ROWS | LAYOUT_FILL_ALL);
             {

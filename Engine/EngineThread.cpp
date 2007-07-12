@@ -15,7 +15,7 @@ int EngineThread_Class::run()
 {
     try
     {    
-        time_t elapsed_time = clock(), second_counter = time(NULL);
+        time_t elapsed_time = clock(), second_counter = time();
         int x = 0;
         Engine.SetupSim();
 
@@ -39,7 +39,7 @@ int EngineThread_Class::run()
             }
 
             //release control back to the simulation to execute GUI commands, etc. 
-            this->sleep(0, 0);
+            this->sleep(0);
         }
 
         return 1;
