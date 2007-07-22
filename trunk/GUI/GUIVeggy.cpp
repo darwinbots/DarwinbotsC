@@ -138,6 +138,9 @@ void OptionsFormDialogBox::Veggy(FXTabBook *TabBook)
                     new FXDataTarget(TmpOpts.VegFeedingMethod),FXDataTarget::ID_OPTION + 1, ICON_BEFORE_TEXT);
                 new FXRadioButton(VeggyFeedingMethodMatrix,"A Polynomial Function of Body",
                     new FXDataTarget(TmpOpts.VegFeedingMethod),FXDataTarget::ID_OPTION + 2, ICON_BEFORE_TEXT);
+				new FXRadioButton(VeggyFeedingMethodMatrix,"A set amount of energy evenly distributed",
+                    new FXDataTarget(TmpOpts.VegFeedingMethod),FXDataTarget::ID_OPTION + 3, ICON_BEFORE_TEXT);
+
             }
 
             new FXText(VeggyEnergyFrame, NULL, 0, LAYOUT_FILL_ALL);
