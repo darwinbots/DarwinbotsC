@@ -84,7 +84,13 @@ void Robot::FeedVegSun()
                 tok *= ((this->Body * this->Body * QuadConstant) + (1 - QuadConstant * 1000 * 1000));
                 this->nrg += tok * (1 - SimOpts.VegFeedingToBody / 100);
                 this->Body += tok * (SimOpts.VegFeedingToBody / 100) / 10;
-            }break;
+            }
+			case 3: //A set amount of energy evenly distributed
+			{
+				this->nrg += (tok / SimOpts.TotVegsNow) * (1 - SimOpts.VegFeedingToBody / 100);
+				this->Body += (tok / SimOpts.TotVegsNow) * (SimOpts.VegFeedingToBody / 100) / 10;
+			}
+			break;
         }
 
         if (this->nrg > 32000)
